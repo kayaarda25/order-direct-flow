@@ -16,7 +16,15 @@ const Footer = () => {
             <div className="space-y-2 text-muted-foreground text-sm">
               <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-primary" />Musterstrasse 12, 8000 Zürich</div>
               <div className="flex items-center gap-2"><Phone className="w-4 h-4 text-primary" />+41 44 123 45 67</div>
-              <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-primary" />Mo-So: 11:00 - 22:00</div>
+              <div className="flex items-start gap-2">
+                <Clock className="w-4 h-4 text-primary mt-0.5" />
+                <div>
+                  <p>Mo-Do: 11:00-14:00, 17:00-22:00</p>
+                  <p>Fr: 11:00-14:00, 17:00-23:00</p>
+                  <p>Sa: 11:00-23:00</p>
+                  <p>So: 14:00-22:00</p>
+                </div>
+              </div>
             </div>
           </div>
           <div>
