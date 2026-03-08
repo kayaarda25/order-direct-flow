@@ -88,8 +88,6 @@ const Index = () => {
     <div className="min-h-screen">
       <HeroSection />
 
-      {/* Divider */}
-      <div className="border-t border-border" />
 
       {/* MENU Section */}
       <section className="bg-white py-16 md:py-24">
