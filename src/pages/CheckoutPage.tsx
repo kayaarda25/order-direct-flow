@@ -204,9 +204,17 @@ const CheckoutPage = () => {
 
         <button
           type="submit"
-          className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg hover:opacity-90 transition-opacity"
+          disabled={submitting}
+          className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2"
         >
-          Bestellung aufgeben
+          {submitting ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              Wird gesendet...
+            </>
+          ) : (
+            "Bestellung aufgeben"
+          )}
         </button>
       </form>
     </div>
