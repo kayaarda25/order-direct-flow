@@ -20,10 +20,13 @@ const Header = () => {
           <Link to="/menu" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
             Menu
           </Link>
-          <Link to="/" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
+          <Link to="/catering" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
+            Catering
+          </Link>
+          <Link to="/galerie" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
             Galerie
           </Link>
-          <Link to="/" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
+          <Link to="/ueber-uns" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
             Über uns
           </Link>
         </nav>
