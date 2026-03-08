@@ -8,6 +8,25 @@ import cateringAperitivoImg from "@/assets/catering-aperitivo.png";
 import cateringCarneImg from "@/assets/catering-carne.png";
 import cateringMareImg from "@/assets/catering-mare.png";
 import cateringVerdeImg from "@/assets/catering-verde.png";
+import gallery1 from "@/assets/gallery-1.jpg";
+import gallery2 from "@/assets/gallery-2.jpg";
+import gallery3 from "@/assets/gallery-3.jpg";
+import gallery4 from "@/assets/gallery-4.jpg";
+import gallery5 from "@/assets/gallery-5.jpg";
+import gallery6 from "@/assets/gallery-6.jpg";
+import gallery7 from "@/assets/gallery-7.jpg";
+import gallery8 from "@/assets/gallery-8.jpg";
+
+const galleryImages = [
+  { src: gallery1, alt: "Restaurant Innenbereich" },
+  { src: gallery2, alt: "Restaurant Fensterplätze" },
+  { src: gallery3, alt: "Restaurant Eingang" },
+  { src: gallery4, alt: "Pizzaofen" },
+  { src: gallery5, alt: "Küche und Ofen" },
+  { src: gallery6, alt: "Profiküche" },
+  { src: gallery7, alt: "Restaurant Sitzbereich" },
+  { src: gallery8, alt: "Dekor und Ambiente" },
+];
 
 const menuCategories = [
   { name: "Vorspeisen & Salate", id: "vorspeisen" },
@@ -185,6 +204,44 @@ const Index = () => {
                 <div className="w-full sm:w-48 md:w-56 flex-shrink-0 flex items-center justify-center p-4">
                   <img src={pkg.image} alt={pkg.name} className="w-full h-auto max-h-40 object-contain" />
                 </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* GALERIE Section */}
+      <section className="bg-white py-16 md:py-24">
+        <div className="container">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-8"
+          >
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground mb-3 uppercase tracking-wider">
+              Galerie
+            </h2>
+            <p className="text-primary-foreground/60 text-sm max-w-2xl uppercase tracking-wide">
+              In unserer Galerie bekommen Sie einen Eindruck von unseren Speisen und Getränken sowie vom Ambiente des Restaurants. Wir freuen uns auf Ihren baldigen Besuch!
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+            {galleryImages.map((img, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.05 }}
+                className="overflow-hidden rounded-lg"
+              >
+                <img
+                  src={img.src}
+                  alt={img.alt}
+                  className="w-full h-40 md:h-56 object-cover hover:scale-105 transition-transform duration-300"
+                />
               </motion.div>
             ))}
           </div>
