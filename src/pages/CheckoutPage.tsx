@@ -2,9 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useOrder } from "@/context/OrderContext";
-import { ArrowLeft, CreditCard, Banknote, Smartphone } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const paymentMethods = [
   { id: "cash", name: "Bargeld", icon: Banknote },
