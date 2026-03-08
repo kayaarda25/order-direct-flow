@@ -37,23 +37,63 @@ const CheckoutPage = () => {
     return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validate() || submitting) return;
 
-    const order = placeOrder({
-      items,
-      customerName: form.name,
-      phone: form.phone,
-      address: form.address,
-      orderType,
-      paymentMethod: form.payment,
-      notes: form.notes,
-      totalPrice,
-    });
+    setSubmitting(true);
 
-    clearCart();
-    navigate(`/order/${order.id}`);
+    try {
+      // Forward order to admin webhook via edge function
+      const webhookPayload = {
+        customer_name: form.name,
+        customer_phone: form.phone,
+        customer_address: form.address,
+        order_type: orderType,
+        payment_type: form.payment,
+        special_notes: form.notes,
+        items: items.map((item) => ({
+          name: item.menuItem.name,
+          quantity: item.quantity,
+          price: item.totalPrice,
+          station: item.menuItem.station,
+          modifiers: Object.values(item.selectedModifiers)
+            .flat()
+            .map((m) => m.name)
+            .join(", ") || undefined,
+          notes: item.specialNotes || undefined,
+        })),
+      };
+
+      const { data, error } = await supabase.functions.invoke("forward-order", {
+        body: webhookPayload,
+      });
+
+      if (error) throw error;
+      if (data && !data.success) throw new Error(data.error || "Webhook failed");
+
+      const order = placeOrder({
+        items,
+        customerName: form.name,
+        phone: form.phone,
+        address: form.address,
+        orderType,
+        paymentMethod: form.payment,
+        notes: form.notes,
+        totalPrice,
+      });
+
+      clearCart();
+      toast.success("Bestellung erfolgreich gesendet!");
+      navigate(`/order/${order.id}`);
+    } catch (err) {
+      console.error("Order submission error:", err);
+      toast.error("Bestellung konnte nicht gesendet werden. Bitte versuche es erneut.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (items.length === 0) {
