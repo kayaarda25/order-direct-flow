@@ -65,27 +65,24 @@ const Index = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-6"
+          className="mb-6"
         >
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3 uppercase tracking-wider">
             Menu
           </h2>
-          <p className="text-muted-foreground text-lg max-w-lg mx-auto">
+          <p className="text-muted-foreground text-base uppercase tracking-wide">
             Im Restaurant geniessen, selbst abholen oder nach Hause bestellen
           </p>
         </motion.div>
 
-        <div className="flex flex-col md:flex-row items-center justify-center gap-8 mt-10">
+        <div className="relative flex flex-col md:flex-row items-stretch mt-10 max-w-3xl">
+          {/* Dark card with category buttons */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="flex-shrink-0"
+            className="bg-card border border-border rounded-2xl p-6 md:p-8 flex flex-col gap-3 z-10 relative w-full md:w-auto"
           >
-            <img src={pizzaImg} alt="Pizza" className="w-40 md:w-52 h-auto rounded-lg" />
-          </motion.div>
-
-          <div className="flex flex-wrap justify-center gap-3">
             {menuCategories.map((cat, i) => (
               <motion.div
                 key={cat.id}
@@ -96,13 +93,33 @@ const Index = () => {
               >
                 <Link
                   to="/menu"
-                  className="inline-block px-6 py-3 border-2 border-foreground/40 rounded-lg text-foreground font-semibold hover:bg-foreground/10 transition-colors uppercase tracking-wide text-sm"
+                  className="block w-full md:w-72 text-center px-6 py-3 border-2 border-foreground/40 rounded-lg text-foreground font-semibold hover:bg-foreground/10 transition-colors uppercase tracking-wide text-sm"
                 >
                   {cat.name}
                 </Link>
               </motion.div>
             ))}
-          </div>
+          </motion.div>
+
+          {/* Pizza image overlapping on the right */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/3"
+          >
+            <img src={pizzaImg} alt="Pizza" className="w-72 lg:w-96 h-auto" />
+          </motion.div>
+
+          {/* Mobile pizza image */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="md:hidden flex justify-center mt-6"
+          >
+            <img src={pizzaImg} alt="Pizza" className="w-52 h-auto" />
+          </motion.div>
         </div>
       </section>
 
