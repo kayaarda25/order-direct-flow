@@ -106,13 +106,13 @@ const Index = () => {
             </p>
           </motion.div>
 
-          <div className="relative flex items-center mt-10 max-w-3xl mx-auto md:mx-0">
+          <div className="relative mt-10 inline-block">
             {/* Dark card with category buttons */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="bg-card border border-border rounded-2xl p-6 md:p-8 flex flex-col gap-3 z-10 relative w-full md:w-auto"
+              className="bg-card border border-border rounded-2xl p-6 md:p-8 flex flex-col gap-3 z-10 relative"
             >
               {menuCategories.map((cat, i) => (
                 <motion.div
@@ -132,12 +132,12 @@ const Index = () => {
               ))}
             </motion.div>
 
-            {/* Pizza image overlapping behind the card on the right */}
+            {/* Pizza image behind the card, anchored to card's right edge */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[40%] z-0 pointer-events-none"
+              className="absolute top-1/2 -translate-y-1/3 left-[60%] z-0 pointer-events-none"
             >
               <img src={pizzaImg} alt="Pizza" className="w-64 md:w-80 lg:w-96 h-auto" />
             </motion.div>
