@@ -60,66 +60,68 @@ const Index = () => {
       <div className="border-t border-border" />
 
       {/* MENU Section */}
-      <section className="container py-16 md:py-24">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-6"
-        >
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3 uppercase tracking-wider">
-            Menu
-          </h2>
-          <p className="text-muted-foreground text-base uppercase tracking-wide">
-            Im Restaurant geniessen, selbst abholen oder nach Hause bestellen
-          </p>
-        </motion.div>
-
-        <div className="relative flex flex-col md:flex-row items-stretch mt-10 max-w-3xl">
-          {/* Dark card with category buttons */}
+      <section className="bg-white py-16 md:py-24">
+        <div className="container">
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="bg-card border border-border rounded-2xl p-6 md:p-8 flex flex-col gap-3 z-10 relative w-full md:w-auto"
+            className="mb-6"
           >
-            {menuCategories.map((cat, i) => (
-              <motion.div
-                key={cat.id}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.05 }}
-              >
-                <Link
-                  to="/menu"
-                  className="block w-full md:w-72 text-center px-6 py-3 border-2 border-foreground/40 rounded-lg text-foreground font-semibold hover:bg-foreground/10 transition-colors uppercase tracking-wide text-sm"
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground mb-3 uppercase tracking-wider">
+              Menu
+            </h2>
+            <p className="text-primary-foreground/60 text-base uppercase tracking-wide">
+              Im Restaurant geniessen, selbst abholen oder nach Hause bestellen
+            </p>
+          </motion.div>
+
+          <div className="relative flex flex-col md:flex-row items-stretch mt-10 max-w-3xl">
+            {/* Pizza image behind the card */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/4 z-0"
+            >
+              <img src={pizzaImg} alt="Pizza" className="w-72 lg:w-96 h-auto" />
+            </motion.div>
+
+            {/* Dark card with category buttons */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="bg-card border border-border rounded-2xl p-6 md:p-8 flex flex-col gap-3 z-10 relative w-full md:w-auto"
+            >
+              {menuCategories.map((cat, i) => (
+                <motion.div
+                  key={cat.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.05 }}
                 >
-                  {cat.name}
-                </Link>
-              </motion.div>
-            ))}
-          </motion.div>
+                  <Link
+                    to="/menu"
+                    className="block w-full md:w-72 text-center px-6 py-3 border-2 border-foreground/40 rounded-lg text-foreground font-semibold hover:bg-foreground/10 transition-colors uppercase tracking-wide text-sm"
+                  >
+                    {cat.name}
+                  </Link>
+                </motion.div>
+              ))}
+            </motion.div>
 
-          {/* Pizza image overlapping on the right */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/3"
-          >
-            <img src={pizzaImg} alt="Pizza" className="w-72 lg:w-96 h-auto" />
-          </motion.div>
-
-          {/* Mobile pizza image */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="md:hidden flex justify-center mt-6"
-          >
-            <img src={pizzaImg} alt="Pizza" className="w-52 h-auto" />
-          </motion.div>
+            {/* Mobile pizza image */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="md:hidden flex justify-center mt-6"
+            >
+              <img src={pizzaImg} alt="Pizza" className="w-52 h-auto" />
+            </motion.div>
+          </div>
         </div>
       </section>
 
