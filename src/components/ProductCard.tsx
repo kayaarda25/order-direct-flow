@@ -41,7 +41,7 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-card rounded-xl overflow-hidden border border-border shadow-sm hover:shadow-md transition-shadow group cursor-pointer"
+      className="bg-card rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group cursor-pointer"
       onClick={() => onAdd(item)}
     >
       <div className="relative aspect-[4/3] overflow-hidden">
