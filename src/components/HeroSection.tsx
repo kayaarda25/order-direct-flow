@@ -17,7 +17,7 @@ const HeroSection = () => {
               Willkommen bei <br />
               <span className="text-foreground">Piratino!</span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground mb-10 font-body italic">
+            <p className="text-lg md:text-xl text-muted-foreground mb-10 font-body">
               Pizza, Pasta und mehr seit 2006 – das Original
             </p>
 
