@@ -4,7 +4,8 @@ import { useCart } from "@/context/CartContext";
 import { useOrder } from "@/context/OrderContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getDeliveryZone } from "@/data/deliveryZones";
-import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, AlertCircle } from "lucide-react";
+import { isRestaurantOpen, getScheduledTimeSlots } from "@/utils/openingHours";
+import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, AlertCircle, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -20,6 +21,9 @@ const CheckoutPage = () => {
   const { placeOrder } = useOrder();
   const navigate = useNavigate();
 
+  const restaurantOpen = isRestaurantOpen();
+  const scheduledSlots = useMemo(() => getScheduledTimeSlots(), []);
+
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -27,6 +31,7 @@ const CheckoutPage = () => {
     address: "",
     payment: "cash",
     notes: "",
+    scheduledTime: restaurantOpen ? "" : (scheduledSlots[0]?.value || ""),
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -42,6 +47,7 @@ const CheckoutPage = () => {
     const e: Record<string, string> = {};
     if (!form.name.trim()) e.name = "Name ist erforderlich";
     if (!form.phone.trim()) e.phone = "Telefonnummer ist erforderlich";
+    if (!restaurantOpen && !form.scheduledTime) e.scheduledTime = "Bitte wähle einen Zeitpunkt";
     if (orderType === "delivery") {
       if (!form.plz.trim()) e.plz = "PLZ ist erforderlich";
       else if (!deliveryZone) e.plz = "Wir liefern leider nicht in diese PLZ";
@@ -68,6 +74,7 @@ const CheckoutPage = () => {
         customer_address: orderType === "delivery" ? `${form.address}, ${form.plz} ${deliveryZone?.city || ""}`.trim() : "",
         order_type: orderType,
         payment_type: form.payment,
+        scheduled_time: form.scheduledTime || null,
         special_notes: form.notes,
         items: items.map((item) => ({
           name: item.menuItem.name,
@@ -123,6 +130,30 @@ const CheckoutPage = () => {
       </Link>
 
       <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-6">Kasse</h1>
+
+      {!restaurantOpen && (
+          <div className="bg-accent/10 border border-accent/30 rounded-xl p-4 flex items-start gap-3">
+            <Clock className="w-5 h-5 text-accent mt-0.5 shrink-0" />
+            <div className="flex-1">
+              <p className="text-foreground font-semibold text-sm mb-2">Geplante Bestellung</p>
+              <p className="text-muted-foreground text-xs mb-3">Wir haben gerade geschlossen. Wähle einen Zeitpunkt für deine Bestellung:</p>
+              <select
+                value={form.scheduledTime}
+                onChange={(e) => setForm({ ...form, scheduledTime: e.target.value })}
+                className={cn(
+                  "w-full p-3 rounded-lg border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring text-sm",
+                  errors.scheduledTime ? "border-destructive" : "border-border"
+                )}
+              >
+                <option value="">Zeitpunkt wählen…</option>
+                {scheduledSlots.map((slot) => (
+                  <option key={slot.value} value={slot.value}>{slot.label}</option>
+                ))}
+              </select>
+              {errors.scheduledTime && <p className="text-destructive text-xs mt-1">{errors.scheduledTime}</p>}
+            </div>
+          </div>
+        )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>

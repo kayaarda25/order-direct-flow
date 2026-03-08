@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,6 +7,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/context/CartContext";
 import { OrderProvider } from "@/context/OrderContext";
 import Header from "@/components/Header";
+import ClosedBanner from "@/components/ClosedBanner";
+import { isRestaurantOpen } from "@/utils/openingHours";
 import Footer from "@/components/Footer";
 import Index from "./pages/Index";
 import MenuPage from "./pages/MenuPage";
@@ -17,7 +20,15 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const App = () => {
+  const [isOpen, setIsOpen] = useState(() => isRestaurantOpen());
+
+  useEffect(() => {
+    const interval = setInterval(() => setIsOpen(isRestaurantOpen()), 60_000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <CartProvider>
@@ -26,6 +37,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <div className="flex flex-col min-h-screen">
+              {!isOpen && <ClosedBanner />}
               <Header />
               <main className="flex-1">
                 <Routes>
@@ -45,6 +57,7 @@ const App = () => (
       </CartProvider>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
