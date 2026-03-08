@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/context/CartContext";
 import { OrderProvider } from "@/context/OrderContext";
+import { AdminProvider, useAdmin } from "@/context/AdminContext";
 import Header from "@/components/Header";
 import ClosedBanner from "@/components/ClosedBanner";
 import { isRestaurantOpen } from "@/utils/openingHours";
