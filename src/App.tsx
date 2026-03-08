@@ -18,6 +18,7 @@ import OrderConfirmationPage from "./pages/OrderConfirmationPage";
 import GalleryPage from "./pages/GalleryPage";
 import AboutPage from "./pages/AboutPage";
 import CateringPage from "./pages/CateringPage";
+import ReservationPage from "./pages/ReservationPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
