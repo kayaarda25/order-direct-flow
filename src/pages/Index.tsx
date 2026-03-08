@@ -2,6 +2,12 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import HeroSection from "@/components/HeroSection";
 import pizzaImg from "@/assets/pizza-overhead.png";
+import cateringPizzaImg from "@/assets/catering-pizza-party.png";
+import cateringPastaImg from "@/assets/catering-pasta.png";
+import cateringAperitivoImg from "@/assets/catering-aperitivo.png";
+import cateringCarneImg from "@/assets/catering-carne.png";
+import cateringMareImg from "@/assets/catering-mare.png";
+import cateringVerdeImg from "@/assets/catering-verde.png";
 
 const menuCategories = [
   { name: "Vorspeisen & Salate", id: "vorspeisen" },
