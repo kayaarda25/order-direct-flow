@@ -65,7 +65,7 @@ const Header = () => {
             <nav className="container flex flex-col gap-4 py-4">
               <Link to="/" className="text-foreground font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Home</Link>
               <Link to="/menu" className="text-foreground font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Menü</Link>
-              <Link to="/track" className="text-foreground font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Bestellung verfolgen</Link>
+              
             </nav>
           </motion.div>
         )}

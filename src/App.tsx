@@ -12,7 +12,7 @@ import MenuPage from "./pages/MenuPage";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderConfirmationPage from "./pages/OrderConfirmationPage";
-import TrackOrderPage from "./pages/TrackOrderPage";
+
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
