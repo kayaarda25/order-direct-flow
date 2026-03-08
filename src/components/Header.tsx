@@ -18,10 +18,13 @@ const Header = () => {
 
         <nav className="hidden md:flex items-center gap-8">
           <Link to="/menu" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
-            Menu
+            Jetzt bestellen
           </Link>
           <Link to="/catering" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
             Catering
+          </Link>
+          <Link to="/reservieren" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
+            Tisch reservieren
           </Link>
           <Link to="/galerie" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
             Galerie
