@@ -90,7 +90,7 @@ const Index = () => {
 
 
       {/* MENU Section */}
-      <section className="bg-white py-16 md:py-24">
+      <section className="bg-white py-16 md:py-24 overflow-hidden">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
