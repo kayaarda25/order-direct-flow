@@ -131,6 +131,30 @@ const CheckoutPage = () => {
 
       <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-6">Kasse</h1>
 
+      {!restaurantOpen && (
+          <div className="bg-accent/10 border border-accent/30 rounded-xl p-4 flex items-start gap-3">
+            <Clock className="w-5 h-5 text-accent mt-0.5 shrink-0" />
+            <div className="flex-1">
+              <p className="text-foreground font-semibold text-sm mb-2">Geplante Bestellung</p>
+              <p className="text-muted-foreground text-xs mb-3">Wir haben gerade geschlossen. Wähle einen Zeitpunkt für deine Bestellung:</p>
+              <select
+                value={form.scheduledTime}
+                onChange={(e) => setForm({ ...form, scheduledTime: e.target.value })}
+                className={cn(
+                  "w-full p-3 rounded-lg border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring text-sm",
+                  errors.scheduledTime ? "border-destructive" : "border-border"
+                )}
+              >
+                <option value="">Zeitpunkt wählen…</option>
+                {scheduledSlots.map((slot) => (
+                  <option key={slot.value} value={slot.value}>{slot.label}</option>
+                ))}
+              </select>
+              {errors.scheduledTime && <p className="text-destructive text-xs mt-1">{errors.scheduledTime}</p>}
+            </div>
+          </div>
+        )}
+
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
           <label className="block text-sm font-semibold text-foreground mb-1.5">Vollständiger Name *</label>
