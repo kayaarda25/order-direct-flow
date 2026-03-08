@@ -13,7 +13,7 @@ const HeroSection = () => {
             transition={{ duration: 0.7 }}
             className="max-w-2xl"
           >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-foreground leading-tight mb-4 uppercase tracking-wide">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-4 uppercase tracking-wide" style={{ fontFamily: "'League Spartan', sans-serif" }}>
               Willkommen bei <br />
               <span className="text-foreground">Piratino!</span>
             </h1>
