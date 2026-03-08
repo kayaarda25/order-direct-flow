@@ -8,6 +8,25 @@ import cateringAperitivoImg from "@/assets/catering-aperitivo.png";
 import cateringCarneImg from "@/assets/catering-carne.png";
 import cateringMareImg from "@/assets/catering-mare.png";
 import cateringVerdeImg from "@/assets/catering-verde.png";
+import gallery1 from "@/assets/gallery-1.jpg";
+import gallery2 from "@/assets/gallery-2.jpg";
+import gallery3 from "@/assets/gallery-3.jpg";
+import gallery4 from "@/assets/gallery-4.jpg";
+import gallery5 from "@/assets/gallery-5.jpg";
+import gallery6 from "@/assets/gallery-6.jpg";
+import gallery7 from "@/assets/gallery-7.jpg";
+import gallery8 from "@/assets/gallery-8.jpg";
+
+const galleryImages = [
+  { src: gallery1, alt: "Restaurant Innenbereich" },
+  { src: gallery2, alt: "Restaurant Fensterplätze" },
+  { src: gallery3, alt: "Restaurant Eingang" },
+  { src: gallery4, alt: "Pizzaofen" },
+  { src: gallery5, alt: "Küche und Ofen" },
+  { src: gallery6, alt: "Profiküche" },
+  { src: gallery7, alt: "Restaurant Sitzbereich" },
+  { src: gallery8, alt: "Dekor und Ambiente" },
+];
 
 const menuCategories = [
   { name: "Vorspeisen & Salate", id: "vorspeisen" },
