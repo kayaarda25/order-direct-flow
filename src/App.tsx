@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/context/CartContext";
 import { OrderProvider } from "@/context/OrderContext";
 import Header from "@/components/Header";
+import ClosedBanner from "@/components/ClosedBanner";
+import { isRestaurantOpen } from "@/utils/openingHours";
 import Footer from "@/components/Footer";
 import Index from "./pages/Index";
 import MenuPage from "./pages/MenuPage";
