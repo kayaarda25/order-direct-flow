@@ -31,11 +31,11 @@ const galleryImages = [
 
 const menuCategories = [
   { name: "Vorspeisen & Salate", id: "vorspeisen" },
-  { name: "PIZZA", id: "pizza" },
+  { name: "PIZZA", id: "pizza-32" },
   { name: "Pasta", id: "pasta" },
-  { name: "Fisch & Fleisch", id: "fisch-fleisch" },
-  { name: "Kinder Pizza", id: "kinder" },
-  { name: "Getränke", id: "getranke" },
+  { name: "Fisch & Fleisch", id: "fleisch-fisch-grill" },
+  { name: "Kinder Pizza", id: "kinder-pizza" },
+  { name: "Getränke", id: "softdrinks" },
 ];
 
 const cateringPackages = [
@@ -123,7 +123,7 @@ const Index = () => {
                   transition={{ delay: i * 0.05 }}
                 >
                   <Link
-                    to="/menu"
+                    to={`/menu?category=${cat.id}`}
                     className="block w-full md:w-72 text-center px-6 py-3 border-2 border-foreground/40 rounded-lg text-foreground font-semibold hover:bg-foreground/10 transition-colors uppercase tracking-wide text-sm"
                   >
                     {cat.name}

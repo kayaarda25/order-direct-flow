@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { menuItems, categories } from "@/data/menu";
 import type { MenuItem } from "@/data/menu";
 import CategoryBar from "@/components/CategoryBar";
@@ -6,8 +7,16 @@ import ProductCard from "@/components/ProductCard";
 import ProductModal from "@/components/ProductModal";
 
 const MenuPage = () => {
-  const [activeCategory, setActiveCategory] = useState(categories[0].id);
+  const [searchParams] = useSearchParams();
+  const categoryParam = searchParams.get("category");
+  const [activeCategory, setActiveCategory] = useState(categoryParam || categories[0].id);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+
+  useEffect(() => {
+    if (categoryParam && categories.some((c) => c.id === categoryParam)) {
+      setActiveCategory(categoryParam);
+    }
+  }, [categoryParam]);
 
   const filteredItems = useMemo(
     () => menuItems.filter((item) => item.category === activeCategory),
