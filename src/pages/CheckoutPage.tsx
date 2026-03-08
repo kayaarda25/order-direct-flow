@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useOrder } from "@/context/OrderContext";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2 } from "lucide-react";
+import { getDeliveryZone } from "@/data/deliveryZones";
+import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, AlertCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
