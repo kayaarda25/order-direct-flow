@@ -106,17 +106,7 @@ const Index = () => {
             </p>
           </motion.div>
 
-          <div className="relative flex flex-col md:flex-row items-stretch mt-10 max-w-3xl">
-            {/* Pizza image behind the card */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/4 z-0"
-            >
-              <img src={pizzaImg} alt="Pizza" className="w-72 lg:w-96 h-auto" />
-            </motion.div>
-
+          <div className="relative flex items-center mt-10 max-w-3xl mx-auto md:mx-0">
             {/* Dark card with category buttons */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -142,14 +132,14 @@ const Index = () => {
               ))}
             </motion.div>
 
-            {/* Mobile pizza image */}
+            {/* Pizza image overlapping behind the card on the right */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              className="md:hidden flex justify-center mt-6"
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[40%] z-0 pointer-events-none"
             >
-              <img src={pizzaImg} alt="Pizza" className="w-52 h-auto" />
+              <img src={pizzaImg} alt="Pizza" className="w-64 md:w-80 lg:w-96 h-auto" />
             </motion.div>
           </div>
         </div>
