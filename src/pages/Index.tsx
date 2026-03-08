@@ -155,8 +155,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Divider */}
-      <div className="border-t border-border" />
 
       {/* CATERING Section */}
       <section className="bg-white py-16 md:py-24">
