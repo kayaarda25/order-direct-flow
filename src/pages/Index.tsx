@@ -123,7 +123,7 @@ const Index = () => {
                   transition={{ delay: i * 0.05 }}
                 >
                   <Link
-                    to="/menu"
+                    to={`/menu?category=${cat.id}`}
                     className="block w-full md:w-72 text-center px-6 py-3 border-2 border-foreground/40 rounded-lg text-foreground font-semibold hover:bg-foreground/10 transition-colors uppercase tracking-wide text-sm"
                   >
                     {cat.name}
