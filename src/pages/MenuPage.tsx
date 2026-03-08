@@ -17,7 +17,6 @@ const MenuPage = () => {
       setActiveCategory(categoryParam);
     }
   }, [categoryParam]);
-  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
 
   const filteredItems = useMemo(
     () => menuItems.filter((item) => item.category === activeCategory),
