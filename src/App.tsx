@@ -21,6 +21,8 @@ import AboutPage from "./pages/AboutPage";
 import CateringPage from "./pages/CateringPage";
 import ReservationPage from "./pages/ReservationPage";
 import NotFound from "./pages/NotFound";
+import AdminLogin from "./components/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const queryClient = new QueryClient();
 
