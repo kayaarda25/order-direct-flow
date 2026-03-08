@@ -24,36 +24,42 @@ const cateringPackages = [
     desc: "Perfekt für lockere Events, Geburtstage und Teams.",
     content: ["Pizza nach Auswahl", "2 Beilagen", "Dips"],
     price: "CHF 30.00 pro Person",
+    image: cateringPizzaImg,
   },
   {
     name: "PASTA CLASSICA",
     desc: "Perfekt für Business, Lunch und Events.",
     content: ["Pasta nach Auswahl", "2 Beilagen", "Parmesan & Toppings"],
     price: "CHF 30.00 pro Person",
+    image: cateringPastaImg,
   },
   {
     name: "APERITIVO (KALT)",
     desc: "Perfekt für Apéros, Networking und Firmenevents.",
     content: ["Antipasti-Platten", "Käse, Aufschnitte und Fleisch", "Hausgemachtes Brot & Dips"],
     price: "CHF 35.00 pro Person",
+    image: cateringAperitivoImg,
   },
   {
     name: "CARNE (FLEISCH)",
     desc: "Perfekt für grössere Events, gehobene Anlässe.",
     content: ["Fleischgerichte (Poulet, Rind, Lamm, Schwein)", "2-3 warme Beilagen", "Hausgemachtes Brot & Dips"],
     price: "CHF 45.00 pro Person",
+    image: cateringCarneImg,
   },
   {
     name: "MARE (FISCH)",
     desc: "Perfekt für gehobene Business-Events.",
     content: ["Fischgerichte (kalt und warm)", "Beilagen", "Hausgemachtes Brot & Dips"],
     price: "CHF 45.00 pro Person",
+    image: cateringMareImg,
   },
   {
     name: "VERDE (VEGAN)",
     desc: "Perfekt für moderne Events.",
     content: ["Vegane/ Vegetarische Hauptgerichte", "Beilagen", "Salate"],
     price: "CHF 25.00 pro Person",
+    image: cateringVerdeImg,
   },
 ];
 
