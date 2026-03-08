@@ -9,6 +9,7 @@ import cateringCarneImg from "@/assets/catering-carne.png";
 import cateringMareImg from "@/assets/catering-mare.png";
 import cateringVerdeImg from "@/assets/catering-verde.png";
 import gallery1 from "@/assets/gallery-1.jpg";
+import teamPhoto from "@/assets/team-photo.jpg";
 import gallery2 from "@/assets/gallery-2.jpg";
 import gallery3 from "@/assets/gallery-3.jpg";
 import gallery4 from "@/assets/gallery-4.jpg";
