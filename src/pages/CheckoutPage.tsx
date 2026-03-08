@@ -23,17 +23,31 @@ const CheckoutPage = () => {
   const [form, setForm] = useState({
     name: "",
     phone: "",
+    plz: "",
     address: "",
     payment: "cash",
     notes: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const deliveryZone = useMemo(
+    () => (orderType === "delivery" && form.plz.length >= 4 ? getDeliveryZone(form.plz.trim()) : undefined),
+    [orderType, form.plz]
+  );
+
+  const subtotalWithoutDelivery = items.reduce((sum, item) => sum + item.totalPrice * item.quantity, 0);
+  const belowMinimum = orderType === "delivery" && deliveryZone && subtotalWithoutDelivery < deliveryZone.minimumOrder;
+
   const validate = () => {
     const e: Record<string, string> = {};
     if (!form.name.trim()) e.name = "Name ist erforderlich";
     if (!form.phone.trim()) e.phone = "Telefonnummer ist erforderlich";
-    if (orderType === "delivery" && !form.address.trim()) e.address = "Adresse ist erforderlich";
+    if (orderType === "delivery") {
+      if (!form.plz.trim()) e.plz = "PLZ ist erforderlich";
+      else if (!deliveryZone) e.plz = "Wir liefern leider nicht in diese PLZ";
+      if (!form.address.trim()) e.address = "Adresse ist erforderlich";
+      if (belowMinimum) e.plz = `Mindestbestellwert für ${deliveryZone!.city}: CHF ${deliveryZone!.minimumOrder.toFixed(2)}`;
+    }
     setErrors(e);
     return Object.keys(e).length === 0;
   };
