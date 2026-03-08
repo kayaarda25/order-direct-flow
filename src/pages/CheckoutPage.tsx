@@ -74,6 +74,7 @@ const CheckoutPage = () => {
         customer_address: orderType === "delivery" ? `${form.address}, ${form.plz} ${deliveryZone?.city || ""}`.trim() : "",
         order_type: orderType,
         payment_type: form.payment,
+        scheduled_time: form.scheduledTime || null,
         special_notes: form.notes,
         items: items.map((item) => ({
           name: item.menuItem.name,
