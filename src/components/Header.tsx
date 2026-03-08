@@ -26,9 +26,6 @@ const Header = () => {
           <Link to="/menu" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
             Menü
           </Link>
-          <Link to="/track" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
-            Bestellung verfolgen
-          </Link>
         </nav>
 
         <div className="flex items-center gap-3">
