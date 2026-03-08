@@ -12,7 +12,7 @@ const openingHours = [
   { day: "Sonntag", hours: "14:00 - 22:00" },
 ];
 
-const FooterCard = ({ title, children }: { title: string; children: React.ReactNode }) => (
+const FooterCard = ({ title, children }: { title: string; children: ReactNode }) => (
   <section className="border border-primary-foreground/65 bg-primary/20 p-4">
     <h4 className="font-display text-2xl font-bold text-primary-foreground">{title}</h4>
     <div className="mt-3 text-sm text-primary-foreground/95">{children}</div>
