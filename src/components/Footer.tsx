@@ -14,7 +14,7 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold text-foreground mb-3">Kontakt</h4>
             <div className="space-y-2 text-muted-foreground text-sm">
-              <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-accent" />Musterstrasse 12, 8000 Zürich</div>
+              <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-accent" />Badenerstrasse 696, 8048 Zürich</div>
               <div className="flex items-center gap-2"><Phone className="w-4 h-4 text-accent" />044 431 32 33</div>
               <div className="flex items-start gap-2">
                 <Clock className="w-4 h-4 text-accent mt-0.5" />
