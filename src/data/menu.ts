@@ -21,6 +21,8 @@ export interface MenuItem {
   category: string;
   station: string;
   modifierGroups: ModifierGroup[];
+  bestseller?: boolean;
+  popular?: boolean;
 }
 
 export interface MenuCategory {
@@ -45,6 +47,24 @@ export const categories: MenuCategory[] = [
   { id: "bier", name: "Bier", icon: "🍺" },
   { id: "spirituosen", name: "Spirituosen", icon: "🥃" },
 ];
+
+// Cross-sell mapping: category -> suggested categories
+export const crossSellMap: Record<string, string[]> = {
+  "pizza-32": ["softdrinks", "beilagen", "desserts"],
+  "pizza-45": ["softdrinks", "beilagen", "desserts"],
+  "pizza-50": ["softdrinks", "beilagen", "desserts"],
+  "pasta": ["softdrinks", "vorspeisen", "desserts"],
+  "kebab": ["softdrinks", "beilagen"],
+  "fleisch-fisch-grill": ["softdrinks", "beilagen", "desserts"],
+  "salate": ["softdrinks", "pasta"],
+  "vorspeisen": ["softdrinks", "pizza-32", "pasta"],
+};
+
+// Upsell mapping: item category -> upgrade category
+export const upsellMap: Record<string, string> = {
+  "pizza-32": "pizza-45",
+  "pizza-45": "pizza-50",
+};
 
 function makeModifierGroup(modifierString: string): ModifierGroup[] {
   if (!modifierString || modifierString.trim() === "") return [];
@@ -83,7 +103,8 @@ export const menuItems: MenuItem[] = [
     image: "https://images.unsplash.com/photo-1572695157366-5e585ab2b69f?w=400&h=300&fit=crop",
     category: "vorspeisen",
     station: "starters",
-    modifierGroups: makeModifierGroup("Extra Knoblauch"),
+    modifierGroups: [],
+    bestseller: true,
   },
   {
     id: slugify("Carpaccio di Manzo"),
@@ -93,7 +114,7 @@ export const menuItems: MenuItem[] = [
     image: "https://images.unsplash.com/photo-1588168333986-5078d3ae3976?w=400&h=300&fit=crop",
     category: "vorspeisen",
     station: "starters",
-    modifierGroups: makeModifierGroup("Extra Parmesan, Extra Rucola"),
+    modifierGroups: [],
   },
   {
     id: slugify("Vitello Tonnato"),
@@ -116,6 +137,7 @@ export const menuItems: MenuItem[] = [
     category: "salate",
     station: "salad",
     modifierGroups: makeModifierGroup("Mit Poulet, Ohne Croutons"),
+    bestseller: true,
   },
   {
     id: slugify("Insalata Caprese"),
@@ -125,7 +147,7 @@ export const menuItems: MenuItem[] = [
     image: "https://images.unsplash.com/photo-1608032077018-c9aad9565d29?w=400&h=300&fit=crop",
     category: "salate",
     station: "salad",
-    modifierGroups: makeModifierGroup("Extra Mozzarella"),
+    modifierGroups: [],
   },
   {
     id: slugify("Insalata Mista"),
@@ -135,143 +157,149 @@ export const menuItems: MenuItem[] = [
     image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop",
     category: "salate",
     station: "salad",
-    modifierGroups: makeModifierGroup("Extra Dressing, Ohne Zwiebeln"),
+    modifierGroups: [],
   },
 
   // Pizza - 32cm
   {
     id: slugify("Pizza Margherita 32cm"),
-    name: "Pizza Margherita - 32cm",
+    name: "Pizza Margherita",
     description: "Tomatensauce, Mozzarella, frisches Basilikum",
     price: 19,
     image: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&h=300&fit=crop",
     category: "pizza-32",
     station: "pizza",
-    modifierGroups: makeModifierGroup("Extra Käse, Ohne Knoblauch"),
+    modifierGroups: [],
+    bestseller: true,
   },
   {
     id: slugify("Pizza Prosciutto 32cm"),
-    name: "Pizza Prosciutto - 32cm",
+    name: "Pizza Prosciutto",
     description: "Tomatensauce, Mozzarella, Schinken",
     price: 22,
     image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop",
     category: "pizza-32",
     station: "pizza",
-    modifierGroups: makeModifierGroup("Extra Schinken, Extra Käse"),
+    modifierGroups: [],
+    popular: true,
   },
   {
     id: slugify("Pizza Diavola 32cm"),
-    name: "Pizza Diavola - 32cm",
+    name: "Pizza Diavola",
     description: "Tomatensauce, Mozzarella, scharfe Salami, Peperoni",
     price: 23,
     image: "https://images.unsplash.com/photo-1628840042765-356cda07504e?w=400&h=300&fit=crop",
     category: "pizza-32",
     station: "pizza",
-    modifierGroups: makeModifierGroup("Extra Scharf, Extra Salami"),
+    modifierGroups: [],
+    bestseller: true,
   },
   {
     id: slugify("Pizza Prosciutto e Funghi 32cm"),
-    name: "Pizza Prosciutto e Funghi - 32cm",
+    name: "Pizza Prosciutto e Funghi",
     description: "Tomatensauce, Mozzarella, Schinken, Champignons",
     price: 24,
     image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=300&fit=crop",
     category: "pizza-32",
     station: "pizza",
-    modifierGroups: makeModifierGroup("Extra Pilze, Extra Schinken"),
+    modifierGroups: [],
   },
   {
     id: slugify("Pizza Calzone 32cm"),
-    name: "Pizza Calzone - 32cm",
+    name: "Pizza Calzone",
     description: "Gefüllte Pizza mit Schinken, Champignons, Mozzarella",
     price: 24,
     image: "https://images.unsplash.com/photo-1536964549204-cce9eab227bd?w=400&h=300&fit=crop",
     category: "pizza-32",
     station: "pizza",
-    modifierGroups: makeModifierGroup("Extra Füllung"),
+    modifierGroups: [],
+    popular: true,
   },
   {
     id: slugify("Pizza Quattro Stagioni 32cm"),
-    name: "Pizza Quattro Stagioni - 32cm",
+    name: "Pizza Quattro Stagioni",
     description: "Tomatensauce, Mozzarella, Schinken, Pilze, Artischocken, Oliven",
     price: 25,
     image: "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?w=400&h=300&fit=crop",
     category: "pizza-32",
     station: "pizza",
-    modifierGroups: makeModifierGroup("Extra Käse"),
+    modifierGroups: [],
   },
   {
     id: slugify("Pizza Tonno 32cm"),
-    name: "Pizza Tonno - 32cm",
+    name: "Pizza Tonno",
     description: "Tomatensauce, Mozzarella, Thunfisch, Zwiebeln",
     price: 23,
     image: "https://images.unsplash.com/photo-1594007654729-407eedc4be65?w=400&h=300&fit=crop",
     category: "pizza-32",
     station: "pizza",
-    modifierGroups: makeModifierGroup("Extra Zwiebeln, Extra Thunfisch"),
+    modifierGroups: [],
   },
   {
     id: slugify("My Pizza 32cm"),
-    name: "My Pizza - 32cm",
+    name: "My Pizza",
     description: "Stelle deine eigene Pizza zusammen",
     price: 28,
     image: "https://images.unsplash.com/photo-1590947132387-155cc02f3212?w=400&h=300&fit=crop",
     category: "pizza-32",
     station: "pizza",
-    modifierGroups: makeModifierGroup("Extra Belag"),
+    modifierGroups: makeModifierGroup("Extra Käse, Extra Schinken, Salami, Pilze, Oliven, Peperoni"),
   },
 
   // Pizza Grande - 45cm
   {
     id: slugify("Pizza Margherita 45cm"),
-    name: "Pizza Margherita - 45cm",
+    name: "Pizza Margherita Grande",
     description: "Tomatensauce, Mozzarella, frisches Basilikum",
     price: 32,
     image: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&h=300&fit=crop",
     category: "pizza-45",
     station: "pizza",
-    modifierGroups: makeModifierGroup("Extra Käse"),
+    modifierGroups: [],
   },
   {
     id: slugify("Pizza Prosciutto 45cm"),
-    name: "Pizza Prosciutto - 45cm",
+    name: "Pizza Prosciutto Grande",
     description: "Tomatensauce, Mozzarella, Schinken",
     price: 36,
     image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop",
     category: "pizza-45",
     station: "pizza",
-    modifierGroups: makeModifierGroup("Extra Schinken"),
+    modifierGroups: [],
+    popular: true,
   },
   {
     id: slugify("Pizza Prosciutto e Funghi 45cm"),
-    name: "Pizza Prosciutto e Funghi - 45cm",
+    name: "Pizza Prosciutto e Funghi Grande",
     description: "Tomatensauce, Mozzarella, Schinken, Champignons",
     price: 38,
     image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=300&fit=crop",
     category: "pizza-45",
     station: "pizza",
-    modifierGroups: makeModifierGroup("Extra Pilze"),
+    modifierGroups: [],
   },
 
   // Pizza - 50cm
   {
     id: slugify("Pizza Margherita 50cm"),
-    name: "Pizza Margherita - 50cm",
+    name: "Pizza Margherita XXL",
     description: "Tomatensauce, Mozzarella, frisches Basilikum",
     price: 38,
     image: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&h=300&fit=crop",
     category: "pizza-50",
     station: "pizza",
-    modifierGroups: makeModifierGroup("Extra Käse"),
+    modifierGroups: [],
+    popular: true,
   },
   {
     id: slugify("Pizza Prosciutto 50cm"),
-    name: "Pizza Prosciutto - 50cm",
+    name: "Pizza Prosciutto XXL",
     description: "Tomatensauce, Mozzarella, Schinken",
     price: 42,
     image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop",
     category: "pizza-50",
     station: "pizza",
-    modifierGroups: makeModifierGroup("Extra Schinken"),
+    modifierGroups: [],
   },
 
   // Kinder Pizza
@@ -283,7 +311,7 @@ export const menuItems: MenuItem[] = [
     image: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&h=300&fit=crop",
     category: "kinder-pizza",
     station: "pizza",
-    modifierGroups: makeModifierGroup("Extra Käse"),
+    modifierGroups: [],
   },
   {
     id: slugify("Kinder Pizza Prosciutto"),
@@ -293,7 +321,7 @@ export const menuItems: MenuItem[] = [
     image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop",
     category: "kinder-pizza",
     station: "pizza",
-    modifierGroups: makeModifierGroup("Extra Käse"),
+    modifierGroups: [],
   },
 
   // Pasta
@@ -305,7 +333,8 @@ export const menuItems: MenuItem[] = [
     image: "https://images.unsplash.com/photo-1612874742237-6526221588e3?w=400&h=300&fit=crop",
     category: "pasta",
     station: "grill",
-    modifierGroups: makeModifierGroup("Extra Parmesan, Extra Speck"),
+    modifierGroups: [],
+    bestseller: true,
   },
   {
     id: slugify("Pasta Piratino"),
@@ -315,7 +344,8 @@ export const menuItems: MenuItem[] = [
     image: "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=400&h=300&fit=crop",
     category: "pasta",
     station: "grill",
-    modifierGroups: makeModifierGroup("Scharf, Extra Parmesan"),
+    modifierGroups: [],
+    popular: true,
   },
   {
     id: slugify("Pasta Bolognese"),
@@ -325,7 +355,7 @@ export const menuItems: MenuItem[] = [
     image: "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400&h=300&fit=crop",
     category: "pasta",
     station: "grill",
-    modifierGroups: makeModifierGroup("Extra Parmesan, Scharf"),
+    modifierGroups: [],
   },
   {
     id: slugify("Lasagne"),
@@ -335,7 +365,8 @@ export const menuItems: MenuItem[] = [
     image: "https://images.unsplash.com/photo-1574894709920-11b28e7367e3?w=400&h=300&fit=crop",
     category: "pasta",
     station: "grill",
-    modifierGroups: makeModifierGroup("Extra Käse"),
+    modifierGroups: [],
+    popular: true,
   },
   {
     id: slugify("Pasta Ai Funghi Porcini"),
@@ -345,7 +376,7 @@ export const menuItems: MenuItem[] = [
     image: "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&h=300&fit=crop",
     category: "pasta",
     station: "grill",
-    modifierGroups: makeModifierGroup("Extra Pilze, Extra Parmesan"),
+    modifierGroups: [],
   },
   {
     id: slugify("Penne Al Forno"),
@@ -355,7 +386,7 @@ export const menuItems: MenuItem[] = [
     image: "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400&h=300&fit=crop",
     category: "pasta",
     station: "grill",
-    modifierGroups: makeModifierGroup("Extra Käse, Scharf"),
+    modifierGroups: [],
   },
 
   // Fleisch, Fisch & Grill
@@ -367,7 +398,7 @@ export const menuItems: MenuItem[] = [
     image: "https://images.unsplash.com/photo-1432139509613-5c4255a1d1f3?w=400&h=300&fit=crop",
     category: "fleisch-fisch-grill",
     station: "grill",
-    modifierGroups: makeModifierGroup("Extra Pilze"),
+    modifierGroups: [],
   },
   {
     id: slugify("Saltimbocca alla Romana"),
@@ -377,7 +408,8 @@ export const menuItems: MenuItem[] = [
     image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=300&fit=crop",
     category: "fleisch-fisch-grill",
     station: "grill",
-    modifierGroups: makeModifierGroup("Extra Salbei"),
+    modifierGroups: [],
+    bestseller: true,
   },
   {
     id: slugify("Filetto di Salmone"),
@@ -387,7 +419,8 @@ export const menuItems: MenuItem[] = [
     image: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&h=300&fit=crop",
     category: "fleisch-fisch-grill",
     station: "grill",
-    modifierGroups: makeModifierGroup("Mit Gemüse, Mit Reis"),
+    modifierGroups: [],
+    popular: true,
   },
   {
     id: slugify("Entrecote alla Griglia"),
@@ -398,6 +431,7 @@ export const menuItems: MenuItem[] = [
     category: "fleisch-fisch-grill",
     station: "grill",
     modifierGroups: makeModifierGroup("Medium, Well Done, Rare"),
+    bestseller: true,
   },
 
   // Kebabgerichte
@@ -409,7 +443,8 @@ export const menuItems: MenuItem[] = [
     image: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=400&h=300&fit=crop",
     category: "kebab",
     station: "grill",
-    modifierGroups: makeModifierGroup("Scharf, Extra Fleisch, Ohne Zwiebeln"),
+    modifierGroups: [],
+    bestseller: true,
   },
   {
     id: slugify("Dueruem Kebab"),
@@ -419,7 +454,8 @@ export const menuItems: MenuItem[] = [
     image: "https://images.unsplash.com/photo-1633321702518-7fecdafb94d5?w=400&h=300&fit=crop",
     category: "kebab",
     station: "grill",
-    modifierGroups: makeModifierGroup("Scharf, Extra Fleisch"),
+    modifierGroups: [],
+    popular: true,
   },
   {
     id: slugify("Kebab Teller"),
@@ -429,25 +465,26 @@ export const menuItems: MenuItem[] = [
     image: "https://images.unsplash.com/photo-1561651188-d207bbec4ec3?w=400&h=300&fit=crop",
     category: "kebab",
     station: "grill",
-    modifierGroups: makeModifierGroup("Scharf, Mit Reis, Mit Pommes"),
+    modifierGroups: makeModifierGroup("Mit Reis, Mit Pommes"),
   },
 
   // Beilagen
   {
     id: slugify("Hausgemachte Joghurtsosse"),
-    name: "Hausgemachte Joghurtsosse",
+    name: "Joghurtsosse",
     description: "Frische hausgemachte Joghurtsosse",
-    price: 5,
+    price: 3,
     image: "https://images.unsplash.com/photo-1563599175592-c58dc3ea0b82?w=400&h=300&fit=crop",
     category: "beilagen",
     station: "sides",
     modifierGroups: [],
+    popular: true,
   },
   {
     id: slugify("Hausgemachte Knoblauchsosse"),
-    name: "Hausgemachte Knoblauchsosse",
+    name: "Knoblauchsosse",
     description: "Cremige Knoblauchsauce",
-    price: 1,
+    price: 3,
     image: "https://images.unsplash.com/photo-1472476443507-c7a5948772fc?w=400&h=300&fit=crop",
     category: "beilagen",
     station: "sides",
@@ -455,9 +492,9 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: slugify("Hausgemachte Peperoncini in Olivenoel"),
-    name: "Hausgemachte Peperoncini in Olivenöl",
+    name: "Peperoncini in Olivenöl",
     description: "Scharfe Peperoncini eingelegt in Olivenöl",
-    price: 1,
+    price: 4,
     image: "https://images.unsplash.com/photo-1583119022894-919a68a3d0e3?w=400&h=300&fit=crop",
     category: "beilagen",
     station: "sides",
@@ -472,6 +509,7 @@ export const menuItems: MenuItem[] = [
     category: "beilagen",
     station: "sides",
     modifierGroups: [],
+    popular: true,
   },
 
   // Desserts
@@ -503,7 +541,7 @@ export const menuItems: MenuItem[] = [
     image: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&h=300&fit=crop",
     category: "desserts",
     station: "sides",
-    modifierGroups: makeModifierGroup("Mit Beeren, Mit Caramel"),
+    modifierGroups: [],
   },
   {
     id: slugify("Tiramisu"),
@@ -514,43 +552,45 @@ export const menuItems: MenuItem[] = [
     category: "desserts",
     station: "sides",
     modifierGroups: [],
+    bestseller: true,
   },
 
   // Softdrinks
   {
     id: slugify("Mineral Wasser"),
     name: "Mineral Wasser",
-    description: "Schweizer Mineralwasser",
+    description: "Schweizer Mineralwasser 5dl",
     price: 4,
     image: "https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400&h=300&fit=crop",
     category: "softdrinks",
     station: "drinks",
-    modifierGroups: makeModifierGroup("Mit Gas, Ohne Gas"),
+    modifierGroups: [],
   },
   {
     id: slugify("Coca Cola"),
     name: "Coca Cola",
-    description: "Erfrischendes Kaltgetränk",
+    description: "Erfrischendes Kaltgetränk 3.3dl",
     price: 4.5,
     image: "https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400&h=300&fit=crop",
     category: "softdrinks",
     station: "drinks",
-    modifierGroups: makeModifierGroup("Zero, Light"),
+    modifierGroups: [],
+    bestseller: true,
   },
   {
     id: slugify("Eistee"),
     name: "Eistee",
-    description: "Erfrischender Eistee",
+    description: "Erfrischender Eistee 5dl",
     price: 4.5,
     image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&h=300&fit=crop",
     category: "softdrinks",
     station: "drinks",
-    modifierGroups: makeModifierGroup("Pfirsich, Zitrone"),
+    modifierGroups: [],
   },
   {
     id: slugify("Fanta"),
     name: "Fanta",
-    description: "Orangenlimonade",
+    description: "Orangenlimonade 3.3dl",
     price: 4.5,
     image: "https://images.unsplash.com/photo-1624517452488-04869289c4ca?w=400&h=300&fit=crop",
     category: "softdrinks",
@@ -560,7 +600,7 @@ export const menuItems: MenuItem[] = [
   {
     id: slugify("Sprite"),
     name: "Sprite",
-    description: "Zitronenlimonade",
+    description: "Zitronenlimonade 3.3dl",
     price: 4.5,
     image: "https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=400&h=300&fit=crop",
     category: "softdrinks",
@@ -572,17 +612,18 @@ export const menuItems: MenuItem[] = [
   {
     id: slugify("Feldschloesschen"),
     name: "Feldschlösschen",
-    description: "Schweizer Lagerbier",
+    description: "Schweizer Lagerbier 3.3dl",
     price: 5.5,
     image: "https://images.unsplash.com/photo-1608270586620-248524c67de9?w=400&h=300&fit=crop",
     category: "bier",
     station: "drinks",
     modifierGroups: [],
+    popular: true,
   },
   {
     id: slugify("Peroni"),
     name: "Peroni",
-    description: "Italienisches Bier",
+    description: "Italienisches Bier 3.3dl",
     price: 6,
     image: "https://images.unsplash.com/photo-1608270586620-248524c67de9?w=400&h=300&fit=crop",
     category: "bier",
@@ -592,7 +633,7 @@ export const menuItems: MenuItem[] = [
   {
     id: slugify("Corona"),
     name: "Corona",
-    description: "Mexikanisches Bier",
+    description: "Mexikanisches Bier 3.3dl",
     price: 6.5,
     image: "https://images.unsplash.com/photo-1608270586620-248524c67de9?w=400&h=300&fit=crop",
     category: "bier",
@@ -604,17 +645,18 @@ export const menuItems: MenuItem[] = [
   {
     id: slugify("Limoncello"),
     name: "Limoncello",
-    description: "Italienischer Zitronenlikör",
+    description: "Italienischer Zitronenlikör 2cl",
     price: 7,
     image: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=400&h=300&fit=crop",
     category: "spirituosen",
     station: "drinks",
     modifierGroups: [],
+    popular: true,
   },
   {
     id: slugify("Amaretto"),
     name: "Amaretto",
-    description: "Italienischer Mandellikör",
+    description: "Italienischer Mandellikör 2cl",
     price: 8,
     image: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=400&h=300&fit=crop",
     category: "spirituosen",
@@ -624,7 +666,7 @@ export const menuItems: MenuItem[] = [
   {
     id: slugify("Grappa"),
     name: "Grappa",
-    description: "Italienischer Tresterbrand",
+    description: "Italienischer Tresterbrand 2cl",
     price: 8,
     image: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=400&h=300&fit=crop",
     category: "spirituosen",
@@ -632,3 +674,28 @@ export const menuItems: MenuItem[] = [
     modifierGroups: [],
   },
 ];
+
+// Helper to check if item can be quick-added (no required modifiers)
+export function canQuickAdd(item: MenuItem): boolean {
+  return item.modifierGroups.length === 0 || !item.modifierGroups.some(g => g.required);
+}
+
+// Get cross-sell suggestions based on cart content
+export function getCrossSellItems(cartCategories: string[]): MenuItem[] {
+  const suggestedCategories = new Set<string>();
+  cartCategories.forEach(cat => {
+    const suggestions = crossSellMap[cat];
+    if (suggestions) {
+      suggestions.forEach(s => suggestedCategories.add(s));
+    }
+  });
+  
+  // Filter out categories already in cart and get popular items
+  const items = menuItems.filter(item => 
+    suggestedCategories.has(item.category) && 
+    !cartCategories.includes(item.category) &&
+    (item.bestseller || item.popular)
+  );
+  
+  return items.slice(0, 4);
+}
