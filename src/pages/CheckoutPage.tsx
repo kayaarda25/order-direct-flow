@@ -156,20 +156,52 @@ const CheckoutPage = () => {
         </div>
 
         {orderType === "delivery" && (
-          <div>
-            <label className="block text-sm font-semibold text-foreground mb-1.5">Lieferadresse *</label>
-            <input
-              type="text"
-              value={form.address}
-              onChange={(e) => setForm({ ...form, address: e.target.value })}
-              className={cn(
-                "w-full p-3 rounded-lg border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring",
-                errors.address ? "border-destructive" : "border-border"
+          <>
+            <div>
+              <label className="block text-sm font-semibold text-foreground mb-1.5">PLZ *</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={4}
+                value={form.plz}
+                onChange={(e) => setForm({ ...form, plz: e.target.value.replace(/\D/g, "") })}
+                className={cn(
+                  "w-full p-3 rounded-lg border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring",
+                  errors.plz ? "border-destructive" : "border-border"
+                )}
+                placeholder="8048"
+              />
+              {errors.plz && <p className="text-destructive text-xs mt-1">{errors.plz}</p>}
+              {deliveryZone && !belowMinimum && (
+                <p className="text-sm text-green-600 mt-1">
+                  ✅ {deliveryZone.city} — Mindestbestellwert: CHF {deliveryZone.minimumOrder.toFixed(2)}
+                </p>
               )}
-              placeholder="Musterstrasse 12, 8000 Zürich"
-            />
-            {errors.address && <p className="text-destructive text-xs mt-1">{errors.address}</p>}
-          </div>
+              {belowMinimum && deliveryZone && (
+                <div className="flex items-center gap-2 mt-1 text-sm text-orange-600">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  Mindestbestellwert für {deliveryZone.city}: CHF {deliveryZone.minimumOrder.toFixed(2)} (aktuell: CHF {subtotalWithoutDelivery.toFixed(2)})
+                </div>
+              )}
+              {form.plz.length === 4 && !deliveryZone && (
+                <p className="text-destructive text-xs mt-1">Wir liefern leider nicht in diese PLZ</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-foreground mb-1.5">Strasse & Hausnummer *</label>
+              <input
+                type="text"
+                value={form.address}
+                onChange={(e) => setForm({ ...form, address: e.target.value })}
+                className={cn(
+                  "w-full p-3 rounded-lg border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring",
+                  errors.address ? "border-destructive" : "border-border"
+                )}
+                placeholder="Musterstrasse 12"
+              />
+              {errors.address && <p className="text-destructive text-xs mt-1">{errors.address}</p>}
+            </div>
+          </>
         )}
 
         <div>
