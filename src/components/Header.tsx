@@ -76,6 +76,9 @@ const Header = () => {
             <nav className="container flex flex-col gap-4 py-4">
               <Link to="/" className="text-foreground font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Home</Link>
               <Link to="/menu" className="text-foreground font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Menu</Link>
+              <Link to="/catering" className="text-foreground font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Catering</Link>
+              <Link to="/galerie" className="text-foreground font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Galerie</Link>
+              <Link to="/ueber-uns" className="text-foreground font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Über uns</Link>
               <a href="tel:+41444313233" className="text-foreground font-medium py-2 flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
                 <Phone className="w-4 h-4" /> 044 431 32 33
               </a>
