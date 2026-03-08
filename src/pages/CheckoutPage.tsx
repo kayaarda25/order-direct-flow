@@ -65,7 +65,7 @@ const CheckoutPage = () => {
       const webhookPayload = {
         customer_name: form.name,
         customer_phone: form.phone,
-        customer_address: form.address,
+        customer_address: orderType === "delivery" ? `${form.address}, ${form.plz} ${deliveryZone?.city || ""}`.trim() : "",
         order_type: orderType,
         payment_type: form.payment,
         special_notes: form.notes,
