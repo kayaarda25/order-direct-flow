@@ -28,14 +28,14 @@ const HeroSection = () => {
               >
                 Jetzt bestellen
               </Link>
-              <a
-                href="tel:+41444313233"
+              <Link
+                to="/reservieren"
                 className="inline-flex items-center justify-center px-8 py-4 rounded-lg text-lg font-semibold border-2 border-foreground text-foreground hover:bg-foreground/10 transition-colors"
               >
                 Tisch reservieren
-              </a>
+              </Link>
               <Link
-                to="/menu"
+                to="/catering"
                 className="inline-flex items-center justify-center px-8 py-4 rounded-lg text-lg font-semibold border-2 border-foreground text-foreground hover:bg-foreground/10 transition-colors"
               >
                 Catering Anfrage
