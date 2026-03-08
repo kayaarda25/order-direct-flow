@@ -142,50 +142,52 @@ const Index = () => {
 
       {/* CATERING Section */}
       <section className="bg-white py-16 md:py-24">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-12"
-        >
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3 uppercase tracking-wider">
-            Catering-Pakete
-          </h2>
-          <p className="text-muted-foreground text-sm uppercase tracking-wide">
-            6 perfekt abgestimmte Catering-Pakete – individuell erweiterbar
-          </p>
-        </motion.div>
+        <div className="container">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-12"
+          >
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground mb-3 uppercase tracking-wider">
+              Catering-Pakete
+            </h2>
+            <p className="text-primary-foreground/60 text-sm uppercase tracking-wide">
+              6 perfekt abgestimmte Catering-Pakete – individuell erweiterbar
+            </p>
+          </motion.div>
 
-        <div className="flex flex-col gap-4">
-          {cateringPackages.map((pkg, i) => (
-            <motion.div
-              key={pkg.name}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.06 }}
-              className="bg-card border border-border rounded-xl overflow-hidden flex flex-col sm:flex-row items-stretch"
-            >
-              {/* Text content */}
-              <div className="flex-1 p-5 md:p-6">
-                <h3 className="font-display font-bold text-foreground text-lg mb-1 uppercase tracking-wide">
-                  {pkg.name}
-                </h3>
-                <p className="text-muted-foreground text-sm mb-3">{pkg.desc}</p>
-                <p className="text-foreground text-xs font-semibold uppercase tracking-wider mb-1">Inhalt:</p>
-                <ul className="text-muted-foreground text-sm space-y-0.5 mb-3">
-                  {pkg.content.map((item) => (
-                    <li key={item}>• {item}</li>
-                  ))}
-                </ul>
-                <p className="text-foreground font-bold text-sm uppercase">Preis: {pkg.price}</p>
-              </div>
-              {/* Image */}
-              <div className="w-full sm:w-48 md:w-56 flex-shrink-0 flex items-center justify-center p-4">
-                <img src={pkg.image} alt={pkg.name} className="w-full h-auto max-h-40 object-contain" />
-              </div>
-            </motion.div>
-          ))}
+          <div className="flex flex-col gap-4">
+            {cateringPackages.map((pkg, i) => (
+              <motion.div
+                key={pkg.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.06 }}
+                className="bg-card border border-border rounded-xl overflow-hidden flex flex-col sm:flex-row items-stretch"
+              >
+                {/* Text content */}
+                <div className="flex-1 p-5 md:p-6">
+                  <h3 className="font-display font-bold text-foreground text-lg mb-1 uppercase tracking-wide">
+                    {pkg.name}
+                  </h3>
+                  <p className="text-muted-foreground text-sm mb-3">{pkg.desc}</p>
+                  <p className="text-foreground text-xs font-semibold uppercase tracking-wider mb-1">Inhalt:</p>
+                  <ul className="text-muted-foreground text-sm space-y-0.5 mb-3">
+                    {pkg.content.map((item) => (
+                      <li key={item}>• {item}</li>
+                    ))}
+                  </ul>
+                  <p className="text-foreground font-bold text-sm uppercase">Preis: {pkg.price}</p>
+                </div>
+                {/* Image */}
+                <div className="w-full sm:w-48 md:w-56 flex-shrink-0 flex items-center justify-center p-4">
+                  <img src={pkg.image} alt={pkg.name} className="w-full h-auto max-h-40 object-contain" />
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
     </div>
