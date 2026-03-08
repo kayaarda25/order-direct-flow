@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Clock, Facebook, Instagram, Linkedin, MapPin, Music2, Phone } from "lucide-react";
 import pirateMascot from "@/assets/pirate-mascot.png";
 
