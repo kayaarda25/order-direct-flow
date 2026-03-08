@@ -31,11 +31,11 @@ const galleryImages = [
 
 const menuCategories = [
   { name: "Vorspeisen & Salate", id: "vorspeisen" },
-  { name: "PIZZA", id: "pizza" },
+  { name: "PIZZA", id: "pizza-32" },
   { name: "Pasta", id: "pasta" },
-  { name: "Fisch & Fleisch", id: "fisch-fleisch" },
-  { name: "Kinder Pizza", id: "kinder" },
-  { name: "Getränke", id: "getranke" },
+  { name: "Fisch & Fleisch", id: "fleisch-fisch-grill" },
+  { name: "Kinder Pizza", id: "kinder-pizza" },
+  { name: "Getränke", id: "softdrinks" },
 ];
 
 const cateringPackages = [
