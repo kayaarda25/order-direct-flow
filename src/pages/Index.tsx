@@ -248,6 +248,38 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* ÜBER UNS Section */}
+      <section className="bg-white py-16 md:py-24">
+        <div className="container">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-8"
+          >
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground mb-3 uppercase tracking-wider">
+              Über uns
+            </h2>
+            <p className="text-primary-foreground/60 text-sm max-w-2xl uppercase tracking-wide">
+              Am besten, Sie lernen uns persönlich kennen und überzeugen sich vom Geschmack unserer Speisen! Unsere Pizzeria besteht bereits seit 2006. Seit dem bieten wir unseren Gästen leckere Pizzen sowie weitere italienische Gerichte und Highlights aus der Schweizer Küche an. Überzeugen Sie sich selbst:
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="max-w-2xl"
+          >
+            <img
+              src={teamPhoto}
+              alt="Das Piratino Team"
+              className="w-full rounded-lg shadow-lg"
+            />
+          </motion.div>
+        </div>
+      </section>
     </div>
   );
 };
