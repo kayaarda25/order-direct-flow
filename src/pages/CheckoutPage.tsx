@@ -21,6 +21,9 @@ const CheckoutPage = () => {
   const { placeOrder } = useOrder();
   const navigate = useNavigate();
 
+  const restaurantOpen = isRestaurantOpen();
+  const scheduledSlots = useMemo(() => getScheduledTimeSlots(), []);
+
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -28,6 +31,7 @@ const CheckoutPage = () => {
     address: "",
     payment: "cash",
     notes: "",
+    scheduledTime: restaurantOpen ? "" : (scheduledSlots[0]?.value || ""),
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
