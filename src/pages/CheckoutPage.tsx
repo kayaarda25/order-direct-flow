@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useOrder } from "@/context/OrderContext";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2 } from "lucide-react";
+import { getDeliveryZone } from "@/data/deliveryZones";
+import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, AlertCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -22,17 +23,31 @@ const CheckoutPage = () => {
   const [form, setForm] = useState({
     name: "",
     phone: "",
+    plz: "",
     address: "",
     payment: "cash",
     notes: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const deliveryZone = useMemo(
+    () => (orderType === "delivery" && form.plz.length >= 4 ? getDeliveryZone(form.plz.trim()) : undefined),
+    [orderType, form.plz]
+  );
+
+  const subtotalWithoutDelivery = items.reduce((sum, item) => sum + item.totalPrice * item.quantity, 0);
+  const belowMinimum = orderType === "delivery" && deliveryZone && subtotalWithoutDelivery < deliveryZone.minimumOrder;
+
   const validate = () => {
     const e: Record<string, string> = {};
     if (!form.name.trim()) e.name = "Name ist erforderlich";
     if (!form.phone.trim()) e.phone = "Telefonnummer ist erforderlich";
-    if (orderType === "delivery" && !form.address.trim()) e.address = "Adresse ist erforderlich";
+    if (orderType === "delivery") {
+      if (!form.plz.trim()) e.plz = "PLZ ist erforderlich";
+      else if (!deliveryZone) e.plz = "Wir liefern leider nicht in diese PLZ";
+      if (!form.address.trim()) e.address = "Adresse ist erforderlich";
+      if (belowMinimum) e.plz = `Mindestbestellwert für ${deliveryZone!.city}: CHF ${deliveryZone!.minimumOrder.toFixed(2)}`;
+    }
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -50,7 +65,7 @@ const CheckoutPage = () => {
       const webhookPayload = {
         customer_name: form.name,
         customer_phone: form.phone,
-        customer_address: form.address,
+        customer_address: orderType === "delivery" ? `${form.address}, ${form.plz} ${deliveryZone?.city || ""}`.trim() : "",
         order_type: orderType,
         payment_type: form.payment,
         special_notes: form.notes,
@@ -141,20 +156,52 @@ const CheckoutPage = () => {
         </div>
 
         {orderType === "delivery" && (
-          <div>
-            <label className="block text-sm font-semibold text-foreground mb-1.5">Lieferadresse *</label>
-            <input
-              type="text"
-              value={form.address}
-              onChange={(e) => setForm({ ...form, address: e.target.value })}
-              className={cn(
-                "w-full p-3 rounded-lg border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring",
-                errors.address ? "border-destructive" : "border-border"
+          <>
+            <div>
+              <label className="block text-sm font-semibold text-foreground mb-1.5">PLZ *</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={4}
+                value={form.plz}
+                onChange={(e) => setForm({ ...form, plz: e.target.value.replace(/\D/g, "") })}
+                className={cn(
+                  "w-full p-3 rounded-lg border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring",
+                  errors.plz ? "border-destructive" : "border-border"
+                )}
+                placeholder="8048"
+              />
+              {errors.plz && <p className="text-destructive text-xs mt-1">{errors.plz}</p>}
+              {deliveryZone && !belowMinimum && (
+                <p className="text-sm text-green-600 mt-1">
+                  ✅ {deliveryZone.city} — Mindestbestellwert: CHF {deliveryZone.minimumOrder.toFixed(2)}
+                </p>
               )}
-              placeholder="Musterstrasse 12, 8000 Zürich"
-            />
-            {errors.address && <p className="text-destructive text-xs mt-1">{errors.address}</p>}
-          </div>
+              {belowMinimum && deliveryZone && (
+                <div className="flex items-center gap-2 mt-1 text-sm text-orange-600">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  Mindestbestellwert für {deliveryZone.city}: CHF {deliveryZone.minimumOrder.toFixed(2)} (aktuell: CHF {subtotalWithoutDelivery.toFixed(2)})
+                </div>
+              )}
+              {form.plz.length === 4 && !deliveryZone && (
+                <p className="text-destructive text-xs mt-1">Wir liefern leider nicht in diese PLZ</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-foreground mb-1.5">Strasse & Hausnummer *</label>
+              <input
+                type="text"
+                value={form.address}
+                onChange={(e) => setForm({ ...form, address: e.target.value })}
+                className={cn(
+                  "w-full p-3 rounded-lg border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring",
+                  errors.address ? "border-destructive" : "border-border"
+                )}
+                placeholder="Musterstrasse 12"
+              />
+              {errors.address && <p className="text-destructive text-xs mt-1">{errors.address}</p>}
+            </div>
+          </>
         )}
 
         <div>
