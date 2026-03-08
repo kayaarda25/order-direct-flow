@@ -45,7 +45,7 @@ const HeroSection = () => {
           <div className="flex flex-col sm:flex-row gap-6 text-primary-foreground/70">
             <div className="flex items-center gap-2">
               <Clock className="w-5 h-5 text-accent" />
-              <span className="font-body">Mo-So: 11:00 - 22:00</span>
+              <span className="font-body">Mo-Do 11-14 & 17-22 Uhr</span>
             </div>
             <div className="flex items-center gap-2">
               <MapPin className="w-5 h-5 text-accent" />
