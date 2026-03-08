@@ -18,6 +18,7 @@ import OrderConfirmationPage from "./pages/OrderConfirmationPage";
 import GalleryPage from "./pages/GalleryPage";
 import AboutPage from "./pages/AboutPage";
 import CateringPage from "./pages/CateringPage";
+import ReservationPage from "./pages/ReservationPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const App = () => {
                   <Route path="/galerie" element={<GalleryPage />} />
                   <Route path="/ueber-uns" element={<AboutPage />} />
                   <Route path="/catering" element={<CateringPage />} />
+                  <Route path="/reservieren" element={<ReservationPage />} />
                   <Route path="/cart" element={<CartPage />} />
                   <Route path="/checkout" element={<CheckoutPage />} />
                   <Route path="/order/:id" element={<OrderConfirmationPage />} />
