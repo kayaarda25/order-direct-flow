@@ -29,15 +29,15 @@ const Footer = () => {
           </div>
           <div>
             <h4 className="font-semibold text-foreground mb-3">Liefergebiet</h4>
-            <p className="text-muted-foreground text-sm">Wir liefern im Umkreis von 5km. Mindestbestellwert abhängig von PLZ. Liefergebühr: CHF 5.00.</p>
+            <p className="text-muted-foreground text-sm">Mindestbestellwert abhängig von PLZ. </p>
           </div>
         </div>
         <div className="border-t border-border mt-8 pt-6 text-center text-muted-foreground text-xs">
           © {new Date().getFullYear()} Piratino. Alle Rechte vorbehalten.
         </div>
       </div>
-    </footer>
-  );
+    </footer>);
+
 };
 
 export default Footer;
