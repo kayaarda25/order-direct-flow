@@ -47,6 +47,7 @@ const CheckoutPage = () => {
     const e: Record<string, string> = {};
     if (!form.name.trim()) e.name = "Name ist erforderlich";
     if (!form.phone.trim()) e.phone = "Telefonnummer ist erforderlich";
+    if (!restaurantOpen && !form.scheduledTime) e.scheduledTime = "Bitte wähle einen Zeitpunkt";
     if (orderType === "delivery") {
       if (!form.plz.trim()) e.plz = "PLZ ist erforderlich";
       else if (!deliveryZone) e.plz = "Wir liefern leider nicht in diese PLZ";
