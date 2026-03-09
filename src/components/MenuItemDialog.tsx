@@ -58,6 +58,9 @@ const MenuItemDialog = ({
   onClose,
 }: MenuItemDialogProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const { toast } = useToast();
 
   const form = useForm<MenuItemFormData>({
@@ -67,7 +70,6 @@ const MenuItemDialog = ({
       description: "",
       price: 0,
       category: "",
-      image_url: "",
       allergens: "",
       available: true,
     },
@@ -80,21 +82,24 @@ const MenuItemDialog = ({
         description: item.description || "",
         price: item.price,
         category: item.category,
-        image_url: item.image_url || "",
         allergens: item.allergens.join(", "),
         available: item.available,
       });
+      setImagePreview(item.image_url);
+      setImageFile(null);
     } else {
       form.reset({
         name: "",
         description: "",
         price: 0,
         category: "",
-        image_url: "",
         allergens: "",
         available: true,
       });
+      setImagePreview(null);
+      setImageFile(null);
     }
+    setUploadProgress(0);
   }, [item, form]);
 
   const onSubmit = async (data: MenuItemFormData) => {
