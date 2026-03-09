@@ -25,7 +25,6 @@ const menuItemSchema = z.object({
   description: z.string().optional(),
   price: z.number().min(0, "Preis muss positiv sein"),
   category: z.string().min(1, "Kategorie ist erforderlich"),
-  image_url: z.string().optional(),
   allergens: z.string().optional(),
   available: z.boolean().default(true),
 });
