@@ -317,19 +317,49 @@ const MenuItemDialog = ({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="image_url"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Bild-URL</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+            {/* Image Upload Section */}
+            <div className="space-y-2">
+              <FormLabel>Bild</FormLabel>
+              
+              {!imagePreview ? (
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                  <Upload className="mx-auto h-8 w-8 text-gray-400 mb-2" />
+                  <div className="text-sm text-gray-500 mb-2">
+                    Klicken Sie, um ein Bild auszuwählen
+                  </div>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                    className="w-full"
+                  />
+                  <div className="text-xs text-gray-400 mt-1">
+                    PNG, JPG, WEBP bis 5MB
+                  </div>
+                </div>
+              ) : (
+                <div className="relative">
+                  <img
+                    src={imagePreview}
+                    alt="Vorschau"
+                    className="w-full h-32 object-cover rounded-lg border"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    className="absolute top-2 right-2"
+                    onClick={removeImage}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
               )}
-            />
+
+              {uploadProgress > 0 && uploadProgress < 100 && (
+                <Progress value={uploadProgress} className="w-full" />
+              )}
+            </div>
 
             <FormField
               control={form.control}
