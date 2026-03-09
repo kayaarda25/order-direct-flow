@@ -12,18 +12,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Progress } from "@/components/ui/progress";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { categories } from "@/data/menu";
+import { Upload, X } from "lucide-react";
 
 const menuItemSchema = z.object({
   name: z.string().min(1, "Name ist erforderlich"),
   description: z.string().optional(),
   price: z.number().min(0, "Preis muss positiv sein"),
   category: z.string().min(1, "Kategorie ist erforderlich"),
-  image_url: z.string().optional(),
   allergens: z.string().optional(),
   available: z.boolean().default(true),
 });
@@ -57,6 +58,9 @@ const MenuItemDialog = ({
   onClose,
 }: MenuItemDialogProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const { toast } = useToast();
 
   const form = useForm<MenuItemFormData>({
@@ -66,7 +70,6 @@ const MenuItemDialog = ({
       description: "",
       price: 0,
       category: "",
-      image_url: "",
       allergens: "",
       available: true,
     },
@@ -79,26 +82,103 @@ const MenuItemDialog = ({
         description: item.description || "",
         price: item.price,
         category: item.category,
-        image_url: item.image_url || "",
         allergens: item.allergens.join(", "),
         available: item.available,
       });
+      setImagePreview(item.image_url);
+      setImageFile(null);
     } else {
       form.reset({
         name: "",
         description: "",
         price: 0,
         category: "",
-        image_url: "",
         allergens: "",
         available: true,
       });
+      setImagePreview(null);
+      setImageFile(null);
     }
+    setUploadProgress(0);
   }, [item, form]);
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Ungültiger Dateityp",
+        description: "Bitte wählen Sie eine Bilddatei.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Datei zu groß",
+        description: "Die Datei darf nicht größer als 5MB sein.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setImageFile(file);
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setUploadProgress(0);
+  };
+
+  const uploadImage = async (file: File): Promise<string | null> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+
+    setUploadProgress(10);
+
+    const { error: uploadError } = await supabase.storage
+      .from('menu-images')
+      .upload(fileName, file);
+
+    if (uploadError) {
+      console.error('Upload error:', uploadError);
+      throw uploadError;
+    }
+
+    setUploadProgress(80);
+
+    const { data } = supabase.storage
+      .from('menu-images')
+      .getPublicUrl(fileName);
+
+    setUploadProgress(100);
+    return data.publicUrl;
+  };
   const onSubmit = async (data: MenuItemFormData) => {
     setIsLoading(true);
     try {
+      let imageUrl = null;
+      
+      // Upload image if one is selected
+      if (imageFile) {
+        setUploadProgress(0);
+        imageUrl = await uploadImage(imageFile);
+      } else if (item?.image_url && !imageFile) {
+        // Keep existing image if no new file is selected
+        imageUrl = item.image_url;
+      }
+
       const allergensList = data.allergens
         ? data.allergens.split(",").map((a) => a.trim()).filter(Boolean)
         : [];
@@ -108,7 +188,7 @@ const MenuItemDialog = ({
         description: data.description || null,
         price: data.price,
         category: data.category,
-        image_url: data.image_url || null,
+        image_url: imageUrl,
         allergens: allergensList,
         available: data.available,
       };
@@ -149,6 +229,7 @@ const MenuItemDialog = ({
       });
     } finally {
       setIsLoading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -236,19 +317,49 @@ const MenuItemDialog = ({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="image_url"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Bild-URL</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+            {/* Image Upload Section */}
+            <div className="space-y-2">
+              <FormLabel>Bild</FormLabel>
+              
+              {!imagePreview ? (
+                <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+                  <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
+                  <div className="text-sm text-muted-foreground mb-2">
+                    Klicken Sie, um ein Bild auszuwählen
+                  </div>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                    className="w-full"
+                  />
+                  <div className="text-xs text-muted-foreground mt-1">
+                    PNG, JPG, WEBP bis 5MB
+                  </div>
+                </div>
+              ) : (
+                <div className="relative">
+                  <img
+                    src={imagePreview}
+                    alt="Vorschau"
+                    className="w-full h-32 object-cover rounded-lg border"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    className="absolute top-2 right-2"
+                    onClick={removeImage}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
               )}
-            />
+
+              {uploadProgress > 0 && uploadProgress < 100 && (
+                <Progress value={uploadProgress} className="w-full" />
+              )}
+            </div>
 
             <FormField
               control={form.control}
