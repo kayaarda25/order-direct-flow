@@ -168,6 +168,17 @@ const MenuItemDialog = ({
   const onSubmit = async (data: MenuItemFormData) => {
     setIsLoading(true);
     try {
+      let imageUrl = null;
+      
+      // Upload image if one is selected
+      if (imageFile) {
+        setUploadProgress(0);
+        imageUrl = await uploadImage(imageFile);
+      } else if (item?.image_url && !imageFile) {
+        // Keep existing image if no new file is selected
+        imageUrl = item.image_url;
+      }
+
       const allergensList = data.allergens
         ? data.allergens.split(",").map((a) => a.trim()).filter(Boolean)
         : [];
@@ -177,7 +188,7 @@ const MenuItemDialog = ({
         description: data.description || null,
         price: data.price,
         category: data.category,
-        image_url: data.image_url || null,
+        image_url: imageUrl,
         allergens: allergensList,
         available: data.available,
       };
@@ -218,6 +229,7 @@ const MenuItemDialog = ({
       });
     } finally {
       setIsLoading(false);
+      setUploadProgress(0);
     }
   };
 
