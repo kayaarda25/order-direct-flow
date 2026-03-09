@@ -322,9 +322,9 @@ const MenuItemDialog = ({
               <FormLabel>Bild</FormLabel>
               
               {!imagePreview ? (
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                  <Upload className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                  <div className="text-sm text-gray-500 mb-2">
+                <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+                  <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
+                  <div className="text-sm text-muted-foreground mb-2">
                     Klicken Sie, um ein Bild auszuwählen
                   </div>
                   <Input
@@ -333,7 +333,7 @@ const MenuItemDialog = ({
                     onChange={handleFileSelect}
                     className="w-full"
                   />
-                  <div className="text-xs text-gray-400 mt-1">
+                  <div className="text-xs text-muted-foreground mt-1">
                     PNG, JPG, WEBP bis 5MB
                   </div>
                 </div>
