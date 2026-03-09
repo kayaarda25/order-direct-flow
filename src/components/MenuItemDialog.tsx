@@ -101,7 +101,70 @@ const MenuItemDialog = ({
     }
     setUploadProgress(0);
   }, [item, form]);
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Ungültiger Dateityp",
+        description: "Bitte wählen Sie eine Bilddatei.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Datei zu groß",
+        description: "Die Datei darf nicht größer als 5MB sein.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setImageFile(file);
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setUploadProgress(0);
+  };
+
+  const uploadImage = async (file: File): Promise<string | null> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+
+    setUploadProgress(10);
+
+    const { error: uploadError } = await supabase.storage
+      .from('menu-images')
+      .upload(fileName, file);
+
+    if (uploadError) {
+      console.error('Upload error:', uploadError);
+      throw uploadError;
+    }
+
+    setUploadProgress(80);
+
+    const { data } = supabase.storage
+      .from('menu-images')
+      .getPublicUrl(fileName);
+
+    setUploadProgress(100);
+    return data.publicUrl;
+  };
   const onSubmit = async (data: MenuItemFormData) => {
     setIsLoading(true);
     try {
