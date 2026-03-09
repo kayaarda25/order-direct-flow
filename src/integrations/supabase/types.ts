@@ -35,10 +35,12 @@ export type Database = {
           available: boolean
           category: string
           created_at: string
+          delivery_price: number | null
           description: string | null
           id: string
           image_url: string | null
           name: string
+          pickup_price: number | null
           price: number
           updated_at: string
         }
@@ -47,10 +49,12 @@ export type Database = {
           available?: boolean
           category: string
           created_at?: string
+          delivery_price?: number | null
           description?: string | null
           id?: string
           image_url?: string | null
           name: string
+          pickup_price?: number | null
           price: number
           updated_at?: string
         }
@@ -59,10 +63,12 @@ export type Database = {
           available?: boolean
           category?: string
           created_at?: string
+          delivery_price?: number | null
           description?: string | null
           id?: string
           image_url?: string | null
           name?: string
+          pickup_price?: number | null
           price?: number
           updated_at?: string
         }
