@@ -29,6 +29,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import LayoutPanel from "@/components/admin/LayoutPanel";
+import mascotImg from "@/assets/pirate-mascot.png";
 
 // dnd-kit
 import {
