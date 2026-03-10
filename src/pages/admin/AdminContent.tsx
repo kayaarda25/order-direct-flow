@@ -69,15 +69,23 @@ const CUSTOM_BLOCK_TYPES = [
   { type: "cta" as const, label: "Call-to-Action", icon: MousePointerClick, desc: "Text + Button" },
 ];
 
-// Website pages
+// Website pages with their built-in sections
 const PAGES = [
-  { id: "home", label: "🏠 Startseite", path: "/" },
-  { id: "menu", label: "📋 Menü", path: "/menu" },
-  { id: "galerie", label: "🖼️ Galerie", path: "/galerie" },
-  { id: "ueber-uns", label: "📖 Über uns", path: "/ueber-uns" },
-  { id: "catering", label: "🍽️ Catering", path: "/catering" },
-  { id: "reservierung", label: "📅 Reservierung", path: "/reservieren" },
+  { id: "home", label: "🏠 Startseite", path: "/", builtinSections: ['hero', 'menu', 'catering', 'gallery', 'about', 'reservation', 'footer'] },
+  { id: "menu", label: "📋 Menü", path: "/menu", builtinSections: ['menu_header'] },
+  { id: "galerie", label: "🖼️ Galerie", path: "/galerie", builtinSections: ['gallery_header'] },
+  { id: "ueber-uns", label: "📖 Über uns", path: "/ueber-uns", builtinSections: ['about_header'] },
+  { id: "catering", label: "🍽️ Catering", path: "/catering", builtinSections: ['catering_header'] },
+  { id: "reservierung", label: "📅 Reservierung", path: "/reservieren", builtinSections: ['reservation_header'] },
 ] as const;
+
+const PAGE_SECTION_META: Record<string, { label: string; icon: string }> = {
+  menu_header: { label: "Menü Header", icon: "📋" },
+  gallery_header: { label: "Galerie Header", icon: "🖼️" },
+  about_header: { label: "Über uns Header", icon: "📖" },
+  catering_header: { label: "Catering Header", icon: "🍽️" },
+  reservation_header: { label: "Reservierung Header", icon: "📅" },
+};
 
 type PageId = typeof PAGES[number]["id"];
 type PanelTab = "sections" | "content" | "layout";
