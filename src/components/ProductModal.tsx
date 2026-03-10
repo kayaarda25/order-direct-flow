@@ -2,7 +2,6 @@ import { useState, useMemo } from "react";
 import { X, Minus, Plus, ArrowUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { MenuItem, Modifier } from "@/data/menu";
-import { menuItems, upsellMap } from "@/data/menu";
 import { useCart, type CartItemType } from "@/context/CartContext";
 import { cn } from "@/lib/utils";
 
