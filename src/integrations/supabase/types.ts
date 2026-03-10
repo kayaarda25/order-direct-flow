@@ -29,6 +29,36 @@ export type Database = {
         }
         Relationships: []
       }
+      delivery_zones: {
+        Row: {
+          active: boolean
+          city: string
+          created_at: string
+          id: string
+          minimum_order: number
+          plz: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          city: string
+          created_at?: string
+          id?: string
+          minimum_order?: number
+          plz: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          city?: string
+          created_at?: string
+          id?: string
+          minimum_order?: number
+          plz?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       menu_items: {
         Row: {
           allergens: string[] | null
@@ -71,6 +101,48 @@ export type Database = {
           pickup_price?: number | null
           price?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      opening_hours: {
+        Row: {
+          day_of_week: number
+          id: string
+          time_ranges: Json
+          updated_at: string
+        }
+        Insert: {
+          day_of_week: number
+          id?: string
+          time_ranges?: Json
+          updated_at?: string
+        }
+        Update: {
+          day_of_week?: number
+          id?: string
+          time_ranges?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          id: string
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          id?: string
+          key: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: Json
         }
         Relationships: []
       }
