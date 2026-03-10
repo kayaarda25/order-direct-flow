@@ -180,12 +180,35 @@ const AdminContent = () => {
   );
 
   // Derived
-  const sectionsOrder = content.sections_order?.length > 0 ? content.sections_order : [...BUILTIN_SECTIONS];
-  const isVisible = (id: string) => content.sections_visibility?.[id] !== false;
+  const currentPage = PAGES.find((p) => p.id === activePage)!;
+
+  // Get sections order for current page
+  const getPageSectionsOrder = (): string[] => {
+    if (activePage === "home") {
+      return content.sections_order?.length > 0 ? content.sections_order : [...BUILTIN_SECTIONS];
+    }
+    const pageData = content.page_sections?.[activePage];
+    const builtins = currentPage.builtinSections as unknown as string[];
+    if (pageData?.order?.length) return pageData.order;
+    return [...builtins];
+  };
+
+  const sectionsOrder = getPageSectionsOrder();
+
+  const isVisible = (id: string) => {
+    if (activePage === "home") return content.sections_visibility?.[id] !== false;
+    return content.page_sections?.[activePage]?.visibility?.[id] !== false;
+  };
+
   const getLayout = (id: string): Partial<SectionLayout> => {
-    const custom = content.custom_sections?.find((s) => s.id === id);
+    // Check custom sections first
+    const customs = activePage === "home"
+      ? content.custom_sections
+      : content.page_sections?.[activePage]?.custom_blocks;
+    const custom = customs?.find((s) => s.id === id);
     if (custom) return custom.layout || {};
-    return content.sections_layout?.[id] || {};
+    if (activePage === "home") return content.sections_layout?.[id] || {};
+    return {};
   };
 
   // Current page path for iframe
