@@ -71,6 +71,17 @@ const CUSTOM_BLOCK_TYPES = [
   { type: "cta" as const, label: "Call-to-Action", icon: MousePointerClick, desc: "Text + Button" },
 ];
 
+// Website pages
+const PAGES = [
+  { id: "home", label: "🏠 Startseite", path: "/" },
+  { id: "menu", label: "📋 Menü", path: "/menu" },
+  { id: "galerie", label: "🖼️ Galerie", path: "/galerie" },
+  { id: "ueber-uns", label: "📖 Über uns", path: "/ueber-uns" },
+  { id: "catering", label: "🍽️ Catering", path: "/catering" },
+  { id: "reservierung", label: "📅 Reservierung", path: "/reservieren" },
+] as const;
+
+type PageId = typeof PAGES[number]["id"];
 type PanelTab = "sections" | "content" | "layout";
 
 const AdminContent = () => {
