@@ -27,7 +27,7 @@ import cateringPastaImg from "@/assets/catering-pasta.png";
 import cateringAperitivoImg from "@/assets/catering-aperitivo.png";
 
 
-type Section = "hero" | "menu" | "catering" | "gallery" | "about" | "footer";
+type Section = "hero" | "menu" | "catering" | "gallery" | "about" | "reservation" | "footer";
 
 const SECTIONS: { id: Section; label: string; icon: string }[] = [
   { id: "hero", label: "Hero-Bereich", icon: "🏠" },
