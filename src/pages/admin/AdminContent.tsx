@@ -5,10 +5,12 @@ import {
   type GalleryImage,
   type CustomSection,
   type SectionLayout,
+  type ElementPosition,
   DEFAULT_CONTENT,
   DEFAULT_LAYOUT,
   BUILTIN_SECTIONS,
 } from "@/hooks/useSiteContent";
+import FreePositionEditor from "@/components/admin/FreePositionEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
