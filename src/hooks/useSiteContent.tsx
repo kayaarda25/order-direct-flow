@@ -64,11 +64,17 @@ export interface SiteContent {
   social_tiktok: string;
   social_facebook: string;
   social_linkedin: string;
-  // Page Builder
+  // Page Builder (home)
   sections_order: string[];
   sections_visibility: Record<string, boolean>;
   sections_layout: Record<string, Partial<SectionLayout>>;
   custom_sections: CustomSection[];
+  // Per-page custom blocks & ordering
+  page_sections: Record<string, {
+    order: string[];
+    visibility: Record<string, boolean>;
+    custom_blocks: CustomSection[];
+  }>;
 }
 
 export const BUILTIN_SECTIONS = ['hero', 'menu', 'catering', 'gallery', 'about', 'reservation', 'footer'] as const;
@@ -100,6 +106,7 @@ const DEFAULT_CONTENT: SiteContent = {
   sections_visibility: {},
   sections_layout: {},
   custom_sections: [],
+  page_sections: {},
 };
 
 interface SiteContentContextType {

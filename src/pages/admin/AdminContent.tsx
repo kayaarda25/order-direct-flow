@@ -69,15 +69,23 @@ const CUSTOM_BLOCK_TYPES = [
   { type: "cta" as const, label: "Call-to-Action", icon: MousePointerClick, desc: "Text + Button" },
 ];
 
-// Website pages
+// Website pages with their built-in sections
 const PAGES = [
-  { id: "home", label: "🏠 Startseite", path: "/" },
-  { id: "menu", label: "📋 Menü", path: "/menu" },
-  { id: "galerie", label: "🖼️ Galerie", path: "/galerie" },
-  { id: "ueber-uns", label: "📖 Über uns", path: "/ueber-uns" },
-  { id: "catering", label: "🍽️ Catering", path: "/catering" },
-  { id: "reservierung", label: "📅 Reservierung", path: "/reservieren" },
+  { id: "home", label: "🏠 Startseite", path: "/", builtinSections: ['hero', 'menu', 'catering', 'gallery', 'about', 'reservation', 'footer'] },
+  { id: "menu", label: "📋 Menü", path: "/menu", builtinSections: ['menu_header'] },
+  { id: "galerie", label: "🖼️ Galerie", path: "/galerie", builtinSections: ['gallery_header'] },
+  { id: "ueber-uns", label: "📖 Über uns", path: "/ueber-uns", builtinSections: ['about_header'] },
+  { id: "catering", label: "🍽️ Catering", path: "/catering", builtinSections: ['catering_header'] },
+  { id: "reservierung", label: "📅 Reservierung", path: "/reservieren", builtinSections: ['reservation_header'] },
 ] as const;
+
+const PAGE_SECTION_META: Record<string, { label: string; icon: string }> = {
+  menu_header: { label: "Menü Header", icon: "📋" },
+  gallery_header: { label: "Galerie Header", icon: "🖼️" },
+  about_header: { label: "Über uns Header", icon: "📖" },
+  catering_header: { label: "Catering Header", icon: "🍽️" },
+  reservation_header: { label: "Reservierung Header", icon: "📅" },
+};
 
 type PageId = typeof PAGES[number]["id"];
 type PanelTab = "sections" | "content" | "layout";
@@ -172,12 +180,35 @@ const AdminContent = () => {
   );
 
   // Derived
-  const sectionsOrder = content.sections_order?.length > 0 ? content.sections_order : [...BUILTIN_SECTIONS];
-  const isVisible = (id: string) => content.sections_visibility?.[id] !== false;
+  const currentPage = PAGES.find((p) => p.id === activePage)!;
+
+  // Get sections order for current page
+  const getPageSectionsOrder = (): string[] => {
+    if (activePage === "home") {
+      return content.sections_order?.length > 0 ? content.sections_order : [...BUILTIN_SECTIONS];
+    }
+    const pageData = content.page_sections?.[activePage];
+    const builtins = currentPage.builtinSections as unknown as string[];
+    if (pageData?.order?.length) return pageData.order;
+    return [...builtins];
+  };
+
+  const sectionsOrder = getPageSectionsOrder();
+
+  const isVisible = (id: string) => {
+    if (activePage === "home") return content.sections_visibility?.[id] !== false;
+    return content.page_sections?.[activePage]?.visibility?.[id] !== false;
+  };
+
   const getLayout = (id: string): Partial<SectionLayout> => {
-    const custom = content.custom_sections?.find((s) => s.id === id);
+    // Check custom sections first
+    const customs = activePage === "home"
+      ? content.custom_sections
+      : content.page_sections?.[activePage]?.custom_blocks;
+    const custom = customs?.find((s) => s.id === id);
     if (custom) return custom.layout || {};
-    return content.sections_layout?.[id] || {};
+    if (activePage === "home") return content.sections_layout?.[id] || {};
+    return {};
   };
 
   // Current page path for iframe
@@ -231,15 +262,38 @@ const AdminContent = () => {
       const oldIndex = order.indexOf(active.id as string);
       const newIndex = order.indexOf(over.id as string);
       const newOrder = arrayMove(order, oldIndex, newIndex);
-      setContent((p) => ({ ...p, sections_order: newOrder }));
+      if (activePage === "home") {
+        setContent((p) => ({ ...p, sections_order: newOrder }));
+      } else {
+        setContent((p) => ({
+          ...p,
+          page_sections: {
+            ...p.page_sections,
+            [activePage]: { ...(p.page_sections?.[activePage] || { order: [], visibility: {}, custom_blocks: [] }), order: newOrder },
+          },
+        }));
+      }
     }
   };
 
   const toggleVisibility = (id: string) => {
-    setContent((p) => ({
-      ...p,
-      sections_visibility: { ...p.sections_visibility, [id]: !isVisible(id) },
-    }));
+    if (activePage === "home") {
+      setContent((p) => ({
+        ...p,
+        sections_visibility: { ...p.sections_visibility, [id]: !isVisible(id) },
+      }));
+    } else {
+      setContent((p) => {
+        const ps = p.page_sections?.[activePage] || { order: [], visibility: {}, custom_blocks: [] };
+        return {
+          ...p,
+          page_sections: {
+            ...p.page_sections,
+            [activePage]: { ...ps, visibility: { ...ps.visibility, [id]: !isVisible(id) } },
+          },
+        };
+      });
+    }
   };
 
   const addCustomSection = (type: CustomSection["type"]) => {
@@ -248,34 +302,87 @@ const AdminContent = () => {
       id, type, title: "", text: "", image: "", buttonText: "", buttonLink: "",
       layout: { ...DEFAULT_LAYOUT },
     };
-    setContent((p) => ({
-      ...p,
-      custom_sections: [...(p.custom_sections || []), section],
-      sections_order: [...sectionsOrder, id],
-    }));
+    if (activePage === "home") {
+      setContent((p) => ({
+        ...p,
+        custom_sections: [...(p.custom_sections || []), section],
+        sections_order: [...sectionsOrder, id],
+      }));
+    } else {
+      setContent((p) => {
+        const ps = p.page_sections?.[activePage] || { order: [], visibility: {}, custom_blocks: [] };
+        return {
+          ...p,
+          page_sections: {
+            ...p.page_sections,
+            [activePage]: {
+              ...ps,
+              custom_blocks: [...(ps.custom_blocks || []), section],
+              order: [...sectionsOrder, id],
+            },
+          },
+        };
+      });
+    }
     setActiveSection(id);
     setPanelTab("content");
     setShowAddBlock(false);
   };
 
   const removeCustomSection = (id: string) => {
-    setContent((p) => ({
-      ...p,
-      custom_sections: (p.custom_sections || []).filter((s) => s.id !== id),
-      sections_order: sectionsOrder.filter((s) => s !== id),
-    }));
+    if (activePage === "home") {
+      setContent((p) => ({
+        ...p,
+        custom_sections: (p.custom_sections || []).filter((s) => s.id !== id),
+        sections_order: sectionsOrder.filter((s) => s !== id),
+      }));
+    } else {
+      setContent((p) => {
+        const ps = p.page_sections?.[activePage] || { order: [], visibility: {}, custom_blocks: [] };
+        return {
+          ...p,
+          page_sections: {
+            ...p.page_sections,
+            [activePage]: {
+              ...ps,
+              custom_blocks: (ps.custom_blocks || []).filter((s) => s.id !== id),
+              order: sectionsOrder.filter((s) => s !== id),
+            },
+          },
+        };
+      });
+    }
     if (activeSection === id) setActiveSection(null);
   };
 
   const updateSectionLayout = (id: string, layout: Partial<SectionLayout>) => {
-    const custom = content.custom_sections?.find((s) => s.id === id);
+    const customs = activePage === "home" ? content.custom_sections : content.page_sections?.[activePage]?.custom_blocks;
+    const custom = customs?.find((s) => s.id === id);
     if (custom) {
-      setContent((p) => ({
-        ...p,
-        custom_sections: (p.custom_sections || []).map((s) =>
-          s.id === id ? { ...s, layout: { ...s.layout, ...layout } } : s
-        ),
-      }));
+      if (activePage === "home") {
+        setContent((p) => ({
+          ...p,
+          custom_sections: (p.custom_sections || []).map((s) =>
+            s.id === id ? { ...s, layout: { ...s.layout, ...layout } } : s
+          ),
+        }));
+      } else {
+        setContent((p) => {
+          const ps = p.page_sections?.[activePage] || { order: [], visibility: {}, custom_blocks: [] };
+          return {
+            ...p,
+            page_sections: {
+              ...p.page_sections,
+              [activePage]: {
+                ...ps,
+                custom_blocks: (ps.custom_blocks || []).map((s) =>
+                  s.id === id ? { ...s, layout: { ...s.layout, ...layout } } : s
+                ),
+              },
+            },
+          };
+        });
+      }
     } else {
       setContent((p) => ({
         ...p,
@@ -285,12 +392,30 @@ const AdminContent = () => {
   };
 
   const updateCustomContent = (id: string, field: string, value: string) => {
-    setContent((p) => ({
-      ...p,
-      custom_sections: (p.custom_sections || []).map((s) =>
-        s.id === id ? { ...s, [field]: value } : s
-      ),
-    }));
+    if (activePage === "home") {
+      setContent((p) => ({
+        ...p,
+        custom_sections: (p.custom_sections || []).map((s) =>
+          s.id === id ? { ...s, [field]: value } : s
+        ),
+      }));
+    } else {
+      setContent((p) => {
+        const ps = p.page_sections?.[activePage] || { order: [], visibility: {}, custom_blocks: [] };
+        return {
+          ...p,
+          page_sections: {
+            ...p.page_sections,
+            [activePage]: {
+              ...ps,
+              custom_blocks: (ps.custom_blocks || []).map((s) =>
+                s.id === id ? { ...s, [field]: value } : s
+              ),
+            },
+          },
+        };
+      });
+    }
   };
 
   // Image upload
@@ -327,20 +452,33 @@ const AdminContent = () => {
   // Helpers
   const getSectionType = (id: string) => {
     if (BUILTIN_SECTIONS.includes(id as any)) return id;
-    return content.custom_sections?.find((s) => s.id === id)?.type || "text_block";
+    // Check page-level built-in sections
+    if (Object.keys(PAGE_SECTION_META).includes(id)) return id;
+    // Check custom sections
+    const customs = activePage === "home" ? content.custom_sections : content.page_sections?.[activePage]?.custom_blocks;
+    return customs?.find((s) => s.id === id)?.type || "text_block";
   };
 
   const getSectionLabel = (id: string) => {
-    const custom = content.custom_sections?.find((s) => s.id === id);
+    // Check custom sections
+    const customs = activePage === "home" ? content.custom_sections : content.page_sections?.[activePage]?.custom_blocks;
+    const custom = customs?.find((s) => s.id === id);
     if (custom) {
       const meta = SECTION_META[custom.type];
       return `${meta?.icon || "📄"} ${custom.title || meta?.label || "Block"}`;
     }
+    // Check page section meta
+    const pageMeta = PAGE_SECTION_META[id];
+    if (pageMeta) return `${pageMeta.icon} ${pageMeta.label}`;
     const meta = SECTION_META[id];
     return meta ? `${meta.icon} ${meta.label}` : id;
   };
 
-  const isCustom = (id: string) => !BUILTIN_SECTIONS.includes(id as any);
+  const isCustom = (id: string) => {
+    if (BUILTIN_SECTIONS.includes(id as any)) return false;
+    if (Object.keys(PAGE_SECTION_META).includes(id)) return false;
+    return true;
+  };
 
   if (loading) return <div className="py-8 text-center text-foreground">Laden...</div>;
 
@@ -352,7 +490,7 @@ const AdminContent = () => {
       <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card shrink-0">
         <div className="flex items-center gap-3">
           <Globe className="h-4 w-4 text-muted-foreground" />
-          <Select value={activePage} onValueChange={(v) => { setActivePage(v as PageId); setActiveSection(null); setPanelTab(v === "home" ? "sections" : "content"); }}>
+          <Select value={activePage} onValueChange={(v) => { setActivePage(v as PageId); setActiveSection(null); setPanelTab("sections"); }}>
             <SelectTrigger className="w-[180px] h-8 text-sm">
               <SelectValue />
             </SelectTrigger>
@@ -392,9 +530,9 @@ const AdminContent = () => {
           {/* Tab bar */}
           <div className="flex border-b border-border shrink-0">
             {([
-              ...(activePage === "home" ? [{ id: "sections" as PanelTab, label: "Sektionen" }] : []),
+              { id: "sections" as PanelTab, label: "Sektionen" },
               { id: "content" as PanelTab, label: "Inhalt" },
-              ...(activePage === "home" ? [{ id: "layout" as PanelTab, label: "Layout" }] : []),
+              { id: "layout" as PanelTab, label: "Layout" },
             ]).map((tab) => (
               <button
                 key={tab.id}
@@ -410,8 +548,8 @@ const AdminContent = () => {
           </div>
 
           <div className="flex-1 overflow-y-auto">
-            {/* TAB: Sections List with Drag & Drop (home only) */}
-            {panelTab === "sections" && activePage === "home" && (
+            {/* TAB: Sections List with Drag & Drop (all pages) */}
+            {panelTab === "sections" && (
               <div className="p-3">
                 <DndContext
                   sensors={sensors}
@@ -469,15 +607,13 @@ const AdminContent = () => {
             {/* TAB: Content Editor */}
             {panelTab === "content" && (
               <div className="p-4 space-y-4">
-                {activePage === "home" && activeSection ? (
+                {activeSection ? (
                   <>
                     <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">
                       {getSectionLabel(activeSection)} – Inhalt
                     </h3>
                     {renderContentEditor()}
                   </>
-                ) : activePage !== "home" ? (
-                  renderPageContentEditor()
                 ) : (
                   <div className="p-4 text-center text-sm text-muted-foreground">
                     Klicke auf eine Sektion in der Liste
@@ -486,8 +622,8 @@ const AdminContent = () => {
               </div>
             )}
 
-            {/* TAB: Layout (home only) */}
-            {panelTab === "layout" && activeSection && activePage === "home" && (
+            {/* TAB: Layout */}
+            {panelTab === "layout" && activeSection && (
               <div className="p-4">
                 <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide mb-4">
                   {getSectionLabel(activeSection)} – Layout
@@ -523,88 +659,15 @@ const AdminContent = () => {
     </div>
   );
 
-  // ========== PAGE-SPECIFIC CONTENT EDITORS (Sidebar) ==========
-  function renderPageContentEditor() {
-    switch (activePage) {
-      case "menu":
-        return (
-          <div className="space-y-4">
-            <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">📋 Menü-Seite</h3>
-            <FieldLabel label="Titel"><Input value={content.menu_title} onChange={(e) => setContent((p) => ({ ...p, menu_title: e.target.value }))} /></FieldLabel>
-            <FieldLabel label="Untertitel"><Input value={content.menu_subtitle} onChange={(e) => setContent((p) => ({ ...p, menu_subtitle: e.target.value }))} /></FieldLabel>
-            <p className="text-xs text-muted-foreground border-t border-border pt-3">Die Menü-Produkte werden unter «Menü» im Admin verwaltet.</p>
-          </div>
-        );
-      case "galerie":
-        return (
-          <div className="space-y-4">
-            <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">🖼️ Galerie-Seite</h3>
-            <FieldLabel label="Titel"><Input value={content.gallery_title} onChange={(e) => setContent((p) => ({ ...p, gallery_title: e.target.value }))} /></FieldLabel>
-            <FieldLabel label="Beschreibung"><Textarea value={content.gallery_text} onChange={(e) => setContent((p) => ({ ...p, gallery_text: e.target.value }))} rows={3} /></FieldLabel>
-            <div>
-              <label className="text-xs font-medium text-muted-foreground mb-2 block">Bilder ({(content.gallery_images || []).length})</label>
-              <div className="space-y-2 mb-3">
-                {(content.gallery_images || []).map((img, i) => (
-                  <div key={i} className="flex items-center gap-2 bg-secondary rounded-lg p-2">
-                    <img src={img.url} alt={img.alt} className="w-12 h-12 object-cover rounded" />
-                    <Input value={img.alt} onChange={(e) => {
-                      const imgs = [...(content.gallery_images || [])];
-                      imgs[i] = { ...imgs[i], alt: e.target.value };
-                      setContent((p) => ({ ...p, gallery_images: imgs }));
-                    }} placeholder="Alt-Text" className="h-7 text-xs flex-1" />
-                    <div className="flex flex-col gap-0.5">
-                      <button onClick={() => moveGalleryImage(i, -1)} disabled={i === 0} className="p-0.5 disabled:opacity-30"><ChevronUp className="h-3 w-3" /></button>
-                      <button onClick={() => moveGalleryImage(i, 1)} disabled={i === (content.gallery_images || []).length - 1} className="p-0.5 disabled:opacity-30"><ChevronDown className="h-3 w-3" /></button>
-                    </div>
-                    <button onClick={() => removeGalleryImage(i)} className="p-1 text-destructive hover:bg-destructive/10 rounded"><Trash2 className="h-3.5 w-3.5" /></button>
-                  </div>
-                ))}
-              </div>
-              <label className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer block hover:border-muted-foreground/50 transition-colors">
-                <Plus className="mx-auto h-5 w-5 text-muted-foreground mb-1" />
-                <span className="text-xs text-muted-foreground">Bild hinzufügen</span>
-                <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) addGalleryImage(f); }} className="hidden" />
-              </label>
-            </div>
-          </div>
-        );
-      case "ueber-uns":
-        return (
-          <div className="space-y-4">
-            <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">📖 Über uns-Seite</h3>
-            <FieldLabel label="Titel"><Input value={content.about_title} onChange={(e) => setContent((p) => ({ ...p, about_title: e.target.value }))} /></FieldLabel>
-            <FieldLabel label="Text"><Textarea value={content.about_text} onChange={(e) => setContent((p) => ({ ...p, about_text: e.target.value }))} rows={5} /></FieldLabel>
-            <ImageField label="Bild" value={content.about_image} onUpload={(f) => uploadImage((url) => setContent((p) => ({ ...p, about_image: url })), f)} onRemove={() => setContent((p) => ({ ...p, about_image: "" }))} />
-          </div>
-        );
-      case "catering":
-        return (
-          <div className="space-y-4">
-            <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">🍽️ Catering-Seite</h3>
-            <FieldLabel label="Titel"><Input value={content.catering_title} onChange={(e) => setContent((p) => ({ ...p, catering_title: e.target.value }))} /></FieldLabel>
-            <FieldLabel label="Beschreibung"><Textarea value={content.catering_text} onChange={(e) => setContent((p) => ({ ...p, catering_text: e.target.value }))} rows={3} /></FieldLabel>
-            <p className="text-xs text-muted-foreground border-t border-border pt-3">Die Catering-Pakete sind aktuell fest definiert.</p>
-          </div>
-        );
-      case "reservierung":
-        return (
-          <div className="space-y-4">
-            <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">📅 Reservierung-Seite</h3>
-            <FieldLabel label="Titel"><Input value={content.reservation_title} onChange={(e) => setContent((p) => ({ ...p, reservation_title: e.target.value }))} /></FieldLabel>
-            <FieldLabel label="Beschreibung"><Textarea value={content.reservation_text} onChange={(e) => setContent((p) => ({ ...p, reservation_text: e.target.value }))} rows={3} /></FieldLabel>
-          </div>
-        );
-      default:
-        return null;
-    }
-  }
+  // ========== PAGE-SPECIFIC CONTENT EDITORS (removed - now unified in renderContentEditor) ==========
 
   // ========== CONTENT EDITOR (Sidebar) ==========
   function renderContentEditor() {
     if (!activeSection) return null;
 
-    // Custom section editor
-    const custom = content.custom_sections?.find((s) => s.id === activeSection);
+    // Custom section editor (home or page-level)
+    const customs = activePage === "home" ? content.custom_sections : content.page_sections?.[activePage]?.custom_blocks;
+    const custom = customs?.find((s) => s.id === activeSection);
     if (custom) {
       return (
         <div className="space-y-4">
@@ -636,8 +699,71 @@ const AdminContent = () => {
       );
     }
 
-    // Built-in section editors
+    // Built-in section editors (page-level headers)
     switch (activeSection) {
+      case "menu_header":
+        return (
+          <div className="space-y-4">
+            <FieldLabel label="Titel"><Input value={content.menu_title} onChange={(e) => setContent((p) => ({ ...p, menu_title: e.target.value }))} /></FieldLabel>
+            <FieldLabel label="Untertitel"><Input value={content.menu_subtitle} onChange={(e) => setContent((p) => ({ ...p, menu_subtitle: e.target.value }))} /></FieldLabel>
+            <p className="text-xs text-muted-foreground border-t border-border pt-3">Die Menü-Produkte werden unter «Menü» im Admin verwaltet.</p>
+          </div>
+        );
+      case "gallery_header":
+        return (
+          <div className="space-y-4">
+            <FieldLabel label="Titel"><Input value={content.gallery_title} onChange={(e) => setContent((p) => ({ ...p, gallery_title: e.target.value }))} /></FieldLabel>
+            <FieldLabel label="Beschreibung"><Textarea value={content.gallery_text} onChange={(e) => setContent((p) => ({ ...p, gallery_text: e.target.value }))} rows={3} /></FieldLabel>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-2 block">Bilder ({(content.gallery_images || []).length})</label>
+              <div className="space-y-2 mb-3">
+                {(content.gallery_images || []).map((img, i) => (
+                  <div key={i} className="flex items-center gap-2 bg-secondary rounded-lg p-2">
+                    <img src={img.url} alt={img.alt} className="w-12 h-12 object-cover rounded" />
+                    <Input value={img.alt} onChange={(e) => {
+                      const imgs = [...(content.gallery_images || [])];
+                      imgs[i] = { ...imgs[i], alt: e.target.value };
+                      setContent((p) => ({ ...p, gallery_images: imgs }));
+                    }} placeholder="Alt-Text" className="h-7 text-xs flex-1" />
+                    <div className="flex flex-col gap-0.5">
+                      <button onClick={() => moveGalleryImage(i, -1)} disabled={i === 0} className="p-0.5 disabled:opacity-30"><ChevronUp className="h-3 w-3" /></button>
+                      <button onClick={() => moveGalleryImage(i, 1)} disabled={i === (content.gallery_images || []).length - 1} className="p-0.5 disabled:opacity-30"><ChevronDown className="h-3 w-3" /></button>
+                    </div>
+                    <button onClick={() => removeGalleryImage(i)} className="p-1 text-destructive hover:bg-destructive/10 rounded"><Trash2 className="h-3.5 w-3.5" /></button>
+                  </div>
+                ))}
+              </div>
+              <label className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer block hover:border-muted-foreground/50 transition-colors">
+                <Plus className="mx-auto h-5 w-5 text-muted-foreground mb-1" />
+                <span className="text-xs text-muted-foreground">Bild hinzufügen</span>
+                <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) addGalleryImage(f); }} className="hidden" />
+              </label>
+            </div>
+          </div>
+        );
+      case "about_header":
+        return (
+          <div className="space-y-4">
+            <FieldLabel label="Titel"><Input value={content.about_title} onChange={(e) => setContent((p) => ({ ...p, about_title: e.target.value }))} /></FieldLabel>
+            <FieldLabel label="Text"><Textarea value={content.about_text} onChange={(e) => setContent((p) => ({ ...p, about_text: e.target.value }))} rows={5} /></FieldLabel>
+            <ImageField label="Bild" value={content.about_image} onUpload={(f) => uploadImage((url) => setContent((p) => ({ ...p, about_image: url })), f)} onRemove={() => setContent((p) => ({ ...p, about_image: "" }))} />
+          </div>
+        );
+      case "catering_header":
+        return (
+          <div className="space-y-4">
+            <FieldLabel label="Titel"><Input value={content.catering_title} onChange={(e) => setContent((p) => ({ ...p, catering_title: e.target.value }))} /></FieldLabel>
+            <FieldLabel label="Beschreibung"><Textarea value={content.catering_text} onChange={(e) => setContent((p) => ({ ...p, catering_text: e.target.value }))} rows={3} /></FieldLabel>
+            <p className="text-xs text-muted-foreground border-t border-border pt-3">Die Catering-Pakete sind aktuell fest definiert.</p>
+          </div>
+        );
+      case "reservation_header":
+        return (
+          <div className="space-y-4">
+            <FieldLabel label="Titel"><Input value={content.reservation_title} onChange={(e) => setContent((p) => ({ ...p, reservation_title: e.target.value }))} /></FieldLabel>
+            <FieldLabel label="Beschreibung"><Textarea value={content.reservation_text} onChange={(e) => setContent((p) => ({ ...p, reservation_text: e.target.value }))} rows={3} /></FieldLabel>
+          </div>
+        );
       case "hero":
         return (
           <div className="space-y-4">
