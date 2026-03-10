@@ -10,27 +10,29 @@ import AdminUsers from "@/pages/admin/AdminUsers";
 
 const AdminDashboard = () => {
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full">
-        <AdminSidebar />
-        <div className="flex-1 flex flex-col">
-          <header className="h-14 flex items-center border-b border-border px-4">
-            <SidebarTrigger className="mr-4" />
-            <span className="font-display font-bold text-lg">Piratino Admin</span>
-          </header>
-          <main className="flex-1 p-6 overflow-y-auto">
-            <Routes>
-              <Route index element={<AdminOverview />} />
-              <Route path="menu" element={<AdminMenu />} />
-              <Route path="hours" element={<AdminHours />} />
-              <Route path="zones" element={<AdminZones />} />
-              <Route path="content" element={<AdminContent />} />
-              <Route path="users" element={<AdminUsers />} />
-            </Routes>
-          </main>
+    <div className="admin-theme">
+      <SidebarProvider>
+        <div className="min-h-screen flex w-full bg-background">
+          <AdminSidebar />
+          <div className="flex-1 flex flex-col">
+            <header className="h-14 flex items-center border-b border-border px-4 bg-card">
+              <SidebarTrigger className="mr-4" />
+              <span className="font-bold text-lg text-foreground">Piratino Admin</span>
+            </header>
+            <main className="flex-1 p-6 overflow-y-auto bg-background">
+              <Routes>
+                <Route index element={<AdminOverview />} />
+                <Route path="menu" element={<AdminMenu />} />
+                <Route path="hours" element={<AdminHours />} />
+                <Route path="zones" element={<AdminZones />} />
+                <Route path="content" element={<AdminContent />} />
+                <Route path="users" element={<AdminUsers />} />
+              </Routes>
+            </main>
+          </div>
         </div>
-      </div>
-    </SidebarProvider>
+      </SidebarProvider>
+    </div>
   );
 };
 
