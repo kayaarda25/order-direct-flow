@@ -820,7 +820,7 @@ const AdminContent = () => {
                     defaultY: 20,
                     defaultScale: 1,
                     render: () => (
-                      <img src="/src/assets/pirate-mascot.png" alt="Maskottchen" className="w-16 h-auto pointer-events-none" />
+                      <img src={mascotImg} alt="Maskottchen" className="w-16 h-auto pointer-events-none" />
                     ),
                   },
                 ]}
