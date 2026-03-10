@@ -4,7 +4,7 @@ import { type SiteContent, DEFAULT_CONTENT } from "@/hooks/useSiteContent";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Save, Upload, X, Monitor, Smartphone, ChevronLeft, ChevronRight } from "lucide-react";
+import { Save, Upload, X, Monitor, Smartphone, ChevronLeft, ChevronRight, Trash2, GripVertical, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
