@@ -35,6 +35,7 @@ const SECTIONS: { id: Section; label: string; icon: string }[] = [
   { id: "catering", label: "Catering", icon: "🍽️" },
   { id: "gallery", label: "Galerie", icon: "🖼️" },
   { id: "about", label: "Über uns", icon: "📖" },
+  { id: "reservation", label: "Reservierung", icon: "📅" },
   { id: "footer", label: "Footer & Kontakt", icon: "📞" },
 ];
 
