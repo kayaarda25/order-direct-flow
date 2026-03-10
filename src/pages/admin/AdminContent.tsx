@@ -368,11 +368,11 @@ const AdminContent = () => {
               section="gallery"
               active={activeSection}
               onClick={() => setActiveSection("gallery")}
-              label="Galerie (automatisch)"
+              label="Galerie bearbeiten"
             >
               <div style={{ background: "#fff", color: "hsl(0 45% 14%)", padding: previewMode === "mobile" ? "2rem 1.5rem" : "3rem" }}>
-                <h2 className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }}>Galerie</h2>
-                <p className="text-sm opacity-60 uppercase tracking-wide mb-4">Eindrücke aus unserem Restaurant</p>
+                <h2 className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }}>{content.gallery_title || "Galerie"}</h2>
+                <p className="text-sm opacity-60 uppercase tracking-wide mb-4">{content.gallery_text || "Eindrücke aus unserem Restaurant"}</p>
                 <div className={cn("grid gap-2", previewMode === "mobile" ? "grid-cols-2" : "grid-cols-4")}>
                   {galleryImages.map((img, i) => (
                     <img key={i} src={img} alt={`Galerie ${i + 1}`} className="w-full h-24 object-cover rounded-lg" />
