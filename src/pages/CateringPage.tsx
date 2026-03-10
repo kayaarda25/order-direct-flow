@@ -68,6 +68,7 @@ const cateringPackages = [
 ];
 
 const CateringPage = () => {
+  const { content } = useSiteContent();
   const [step, setStep] = useState(1);
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const [persons, setPersons] = useState(10);
