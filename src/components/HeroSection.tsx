@@ -1,10 +1,24 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import mascotImg from "@/assets/pirate-mascot.png";
+import { useSiteContent } from "@/hooks/useSiteContent";
 
 const HeroSection = () => {
+  const { content } = useSiteContent();
+
   return (
-    <section className="relative overflow-hidden bg-background">
+    <section
+      className="relative overflow-hidden bg-background"
+      style={
+        content.hero_image
+          ? {
+              backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${content.hero_image})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }
+          : undefined
+      }
+    >
       <div className="container py-16 md:py-24 lg:py-32">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
           <motion.div
@@ -13,12 +27,11 @@ const HeroSection = () => {
             transition={{ duration: 0.7 }}
             className="max-w-2xl"
           >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-4 uppercase tracking-wide" style={{ fontFamily: "'League Spartan', sans-serif" }}>
-              Willkommen bei <br />
-              <span className="text-foreground">Piratino!</span>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-4 uppercase tracking-wide whitespace-pre-line" style={{ fontFamily: "'League Spartan', sans-serif" }}>
+              {content.hero_title}
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground mb-10 font-body">
-              Pizza, Pasta und mehr seit 2006 – das Original
+              {content.hero_subtitle}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">

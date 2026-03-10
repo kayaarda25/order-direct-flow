@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/context/CartContext";
 import { OrderProvider } from "@/context/OrderContext";
 import { AdminProvider, useAdmin } from "@/context/AdminContext";
+import { SiteContentProvider } from "@/hooks/useSiteContent";
 import Header from "@/components/Header";
 import ClosedBanner from "@/components/ClosedBanner";
 import { isRestaurantOpen } from "@/utils/openingHours";
@@ -57,41 +58,43 @@ const App = () => {
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AdminProvider>
-        <CartProvider>
-          <OrderProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                {/* Admin routes */}
-                <Route path="/admin/*" element={<AdminRoutes />} />
-                
-                {/* Public routes */}
-                <Route path="/*" element={
-                  <div className="flex flex-col min-h-screen">
-                    {!isOpen && <ClosedBanner />}
-                    <Header />
-                    <main className="flex-1">
-                      <Routes>
-                        <Route path="/" element={<Index />} />
-                        <Route path="/menu" element={<MenuPage />} />
-                        <Route path="/galerie" element={<GalleryPage />} />
-                        <Route path="/ueber-uns" element={<AboutPage />} />
-                        <Route path="/catering" element={<CateringPage />} />
-                        <Route path="/reservieren" element={<ReservationPage />} />
-                        <Route path="/cart" element={<CartPage />} />
-                        <Route path="/checkout" element={<CheckoutPage />} />
-                        <Route path="/order/:id" element={<OrderConfirmationPage />} />
-                        <Route path="*" element={<NotFound />} />
-                      </Routes>
-                    </main>
-                    <Footer />
-                  </div>
-                } />
-              </Routes>
-            </BrowserRouter>
-          </OrderProvider>
-        </CartProvider>
+        <SiteContentProvider>
+          <CartProvider>
+            <OrderProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  {/* Admin routes */}
+                  <Route path="/admin/*" element={<AdminRoutes />} />
+                  
+                  {/* Public routes */}
+                  <Route path="/*" element={
+                    <div className="flex flex-col min-h-screen">
+                      {!isOpen && <ClosedBanner />}
+                      <Header />
+                      <main className="flex-1">
+                        <Routes>
+                          <Route path="/" element={<Index />} />
+                          <Route path="/menu" element={<MenuPage />} />
+                          <Route path="/galerie" element={<GalleryPage />} />
+                          <Route path="/ueber-uns" element={<AboutPage />} />
+                          <Route path="/catering" element={<CateringPage />} />
+                          <Route path="/reservieren" element={<ReservationPage />} />
+                          <Route path="/cart" element={<CartPage />} />
+                          <Route path="/checkout" element={<CheckoutPage />} />
+                          <Route path="/order/:id" element={<OrderConfirmationPage />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </main>
+                      <Footer />
+                    </div>
+                  } />
+                </Routes>
+              </BrowserRouter>
+            </OrderProvider>
+          </CartProvider>
+        </SiteContentProvider>
       </AdminProvider>
     </TooltipProvider>
   </QueryClientProvider>

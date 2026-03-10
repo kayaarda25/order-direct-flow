@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { type SiteContent, DEFAULT_CONTENT } from "@/hooks/useSiteContent";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,29 +26,6 @@ import cateringPizzaImg from "@/assets/catering-pizza-party.png";
 import cateringPastaImg from "@/assets/catering-pasta.png";
 import cateringAperitivoImg from "@/assets/catering-aperitivo.png";
 
-interface ContentSettings {
-  hero_title: string;
-  hero_subtitle: string;
-  hero_image: string;
-  about_title: string;
-  about_text: string;
-  about_image: string;
-  footer_phone: string;
-  footer_email: string;
-  footer_address: string;
-}
-
-const DEFAULT_CONTENT: ContentSettings = {
-  hero_title: "Willkommen bei\nPiratino!",
-  hero_subtitle: "Pizza, Pasta und mehr seit 2006 – das Original",
-  hero_image: "",
-  about_title: "Über uns",
-  about_text: "Am besten, Sie lernen uns persönlich kennen und überzeugen sich vom Geschmack unserer Speisen! Unsere Pizzeria besteht bereits seit 2006. Seit dem bieten wir unseren Gästen leckere Pizzen sowie weitere italienische Gerichte und Highlights aus der Schweizer Küche an. Überzeugen Sie sich selbst:",
-  about_image: "",
-  footer_phone: "044 431 32 33",
-  footer_email: "piratinoag@hotmail.com",
-  footer_address: "Badenerstrasse 696, 8048 Zürich",
-};
 
 type Section = "hero" | "menu" | "catering" | "gallery" | "about" | "footer";
 
@@ -63,7 +41,7 @@ const SECTIONS: { id: Section; label: string; icon: string }[] = [
 const galleryImages = [gallery1, gallery2, gallery3, gallery4, gallery5, gallery6, gallery7, gallery8];
 
 const AdminContent = () => {
-  const [content, setContent] = useState<ContentSettings>(DEFAULT_CONTENT);
+  const [content, setContent] = useState<SiteContent>(DEFAULT_CONTENT);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeSection, setActiveSection] = useState<Section>("hero");
@@ -106,7 +84,7 @@ const AdminContent = () => {
     }
   };
 
-  const handleImageUpload = async (field: keyof ContentSettings, file: File) => {
+  const handleImageUpload = async (field: keyof SiteContent, file: File) => {
     if (!file.type.startsWith("image/")) return;
     if (file.size > 5 * 1024 * 1024) {
       toast({ title: "Datei zu groß", description: "Max. 5MB", variant: "destructive" });
@@ -129,7 +107,7 @@ const AdminContent = () => {
 
   if (loading) return <div className="py-8 text-center text-foreground">Laden...</div>;
 
-  const editableSections: Section[] = ["hero", "about", "footer"];
+  const editableSections: Section[] = ["hero", "about", "footer", "gallery", "catering"];
   const isEditable = editableSections.includes(activeSection);
 
   return (
@@ -228,6 +206,28 @@ const AdminContent = () => {
                       </FieldLabel>
                       <FieldLabel label="Adresse">
                         <Textarea value={content.footer_address} onChange={(e) => setContent((p) => ({ ...p, footer_address: e.target.value }))} rows={2} />
+                      </FieldLabel>
+                    </div>
+                  )}
+                  {activeSection === "gallery" && (
+                    <div className="space-y-4">
+                      <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">Galerie bearbeiten</h3>
+                      <FieldLabel label="Titel">
+                        <Input value={content.gallery_title} onChange={(e) => setContent((p) => ({ ...p, gallery_title: e.target.value }))} />
+                      </FieldLabel>
+                      <FieldLabel label="Beschreibung">
+                        <Textarea value={content.gallery_text} onChange={(e) => setContent((p) => ({ ...p, gallery_text: e.target.value }))} rows={3} />
+                      </FieldLabel>
+                    </div>
+                  )}
+                  {activeSection === "catering" && (
+                    <div className="space-y-4">
+                      <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">Catering bearbeiten</h3>
+                      <FieldLabel label="Titel">
+                        <Input value={content.catering_title} onChange={(e) => setContent((p) => ({ ...p, catering_title: e.target.value }))} />
+                      </FieldLabel>
+                      <FieldLabel label="Beschreibung">
+                        <Textarea value={content.catering_text} onChange={(e) => setContent((p) => ({ ...p, catering_text: e.target.value }))} rows={3} />
                       </FieldLabel>
                     </div>
                   )}
@@ -340,11 +340,11 @@ const AdminContent = () => {
               section="catering"
               active={activeSection}
               onClick={() => setActiveSection("catering")}
-              label="Catering (automatisch)"
+              label="Catering bearbeiten"
             >
               <div style={{ background: "#fff", color: "hsl(0 45% 14%)", padding: previewMode === "mobile" ? "2rem 1.5rem" : "3rem" }}>
-                <h2 className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }}>Catering-Pakete</h2>
-                <p className="text-sm opacity-60 uppercase tracking-wide mb-6">6 perfekt abgestimmte Catering-Pakete</p>
+                <h2 className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }}>{content.catering_title || "Catering-Pakete"}</h2>
+                <p className="text-sm opacity-60 uppercase tracking-wide mb-6">{content.catering_text || "6 perfekt abgestimmte Catering-Pakete"}</p>
                 <div className="flex flex-col gap-3">
                   {[
                     { name: "PIZZA PARTY", img: cateringPizzaImg, price: "CHF 30.00" },
@@ -368,11 +368,11 @@ const AdminContent = () => {
               section="gallery"
               active={activeSection}
               onClick={() => setActiveSection("gallery")}
-              label="Galerie (automatisch)"
+              label="Galerie bearbeiten"
             >
               <div style={{ background: "#fff", color: "hsl(0 45% 14%)", padding: previewMode === "mobile" ? "2rem 1.5rem" : "3rem" }}>
-                <h2 className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }}>Galerie</h2>
-                <p className="text-sm opacity-60 uppercase tracking-wide mb-4">Eindrücke aus unserem Restaurant</p>
+                <h2 className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }}>{content.gallery_title || "Galerie"}</h2>
+                <p className="text-sm opacity-60 uppercase tracking-wide mb-4">{content.gallery_text || "Eindrücke aus unserem Restaurant"}</p>
                 <div className={cn("grid gap-2", previewMode === "mobile" ? "grid-cols-2" : "grid-cols-4")}>
                   {galleryImages.map((img, i) => (
                     <img key={i} src={img} alt={`Galerie ${i + 1}`} className="w-full h-24 object-cover rounded-lg" />

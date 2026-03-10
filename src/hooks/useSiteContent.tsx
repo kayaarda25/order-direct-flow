@@ -1,0 +1,89 @@
+import { useState, useEffect, createContext, useContext } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
+export interface SiteContent {
+  // Hero
+  hero_title: string;
+  hero_subtitle: string;
+  hero_image: string;
+  // About
+  about_title: string;
+  about_text: string;
+  about_image: string;
+  // Footer / Contact
+  footer_phone: string;
+  footer_email: string;
+  footer_address: string;
+  // Gallery
+  gallery_title: string;
+  gallery_text: string;
+  // Reservation
+  reservation_title: string;
+  reservation_text: string;
+  // Catering
+  catering_title: string;
+  catering_text: string;
+}
+
+const DEFAULT_CONTENT: SiteContent = {
+  hero_title: "Willkommen bei\nPiratino!",
+  hero_subtitle: "Pizza, Pasta und mehr seit 2006 – das Original",
+  hero_image: "",
+  about_title: "Über uns",
+  about_text: "Am besten, Sie lernen uns persönlich kennen und überzeugen sich vom Geschmack unserer Speisen! Unsere Pizzeria besteht bereits seit 2006. Seit dem bieten wir unseren Gästen leckere Pizzen sowie weitere italienische Gerichte und Highlights aus der Schweizer Küche an. Überzeugen Sie sich selbst:",
+  about_image: "",
+  footer_phone: "044 431 32 33",
+  footer_email: "piratinoag@hotmail.com",
+  footer_address: "Badenerstrasse 696, 8048 Zürich",
+  gallery_title: "Galerie",
+  gallery_text: "In unserer Galerie bekommen Sie einen Eindruck von unseren Speisen und Getränken sowie vom Ambiente des Restaurants. Wir freuen uns auf Ihren baldigen Besuch!",
+  reservation_title: "Tisch reservieren",
+  reservation_text: "Reservieren Sie Ihren Tisch bei Piratino – wir freuen uns auf Ihren Besuch!",
+  catering_title: "Catering buchen",
+  catering_text: "6 perfekt abgestimmte Catering-Pakete – individuell erweiterbar",
+};
+
+interface SiteContentContextType {
+  content: SiteContent;
+  loading: boolean;
+}
+
+const SiteContentContext = createContext<SiteContentContextType>({
+  content: DEFAULT_CONTENT,
+  loading: true,
+});
+
+export const SiteContentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [content, setContent] = useState<SiteContent>(DEFAULT_CONTENT);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("site_settings")
+          .select("*")
+          .eq("key", "content")
+          .single();
+        if (!error && data) {
+          setContent({ ...DEFAULT_CONTENT, ...(data.value as Record<string, string>) });
+        }
+      } catch {
+        // Use defaults
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchContent();
+  }, []);
+
+  return (
+    <SiteContentContext.Provider value={{ content, loading }}>
+      {children}
+    </SiteContentContext.Provider>
+  );
+};
+
+export const useSiteContent = () => useContext(SiteContentContext);
+
+export { DEFAULT_CONTENT };

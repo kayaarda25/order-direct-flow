@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useSiteContent } from "@/hooks/useSiteContent";
 import HeroSection from "@/components/HeroSection";
 import pizzaImg from "@/assets/pizza-overhead.png";
 import cateringPizzaImg from "@/assets/catering-pizza-party.png";
@@ -31,7 +32,7 @@ const galleryImages = [
 
 const menuCategories = [
   { name: "Vorspeisen & Salate", id: "vorspeisen" },
-  { name: "PIZZA", id: "pizza-32" },
+  { name: "PIZZA", id: "pizza" },
   { name: "Pasta", id: "pasta" },
   { name: "Fisch & Fleisch", id: "fleisch-fisch-grill" },
   { name: "Kinder Pizza", id: "kinder-pizza" },
@@ -84,6 +85,8 @@ const cateringPackages = [
 ];
 
 const Index = () => {
+  const { content } = useSiteContent();
+
   return (
     <div className="min-h-screen">
       <HeroSection />
@@ -156,10 +159,10 @@ const Index = () => {
             className="mb-12"
           >
             <h2 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground mb-3 uppercase tracking-wider">
-              Catering-Pakete
+              {content.catering_title || "Catering-Pakete"}
             </h2>
             <p className="text-primary-foreground/60 text-sm uppercase tracking-wide">
-              6 perfekt abgestimmte Catering-Pakete – individuell erweiterbar
+              {content.catering_text || "6 perfekt abgestimmte Catering-Pakete – individuell erweiterbar"}
             </p>
           </motion.div>
 
@@ -207,10 +210,10 @@ const Index = () => {
             className="mb-8"
           >
             <h2 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground mb-3 uppercase tracking-wider">
-              Galerie
+              {content.gallery_title}
             </h2>
             <p className="text-primary-foreground/60 text-sm max-w-2xl uppercase tracking-wide">
-              In unserer Galerie bekommen Sie einen Eindruck von unseren Speisen und Getränken sowie vom Ambiente des Restaurants. Wir freuen uns auf Ihren baldigen Besuch!
+              {content.gallery_text}
             </p>
           </motion.div>
 
@@ -245,10 +248,10 @@ const Index = () => {
             className="mb-8"
           >
             <h2 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground mb-3 uppercase tracking-wider">
-              Über uns
+              {content.about_title}
             </h2>
             <p className="text-primary-foreground/60 text-sm max-w-2xl uppercase tracking-wide">
-              Am besten, Sie lernen uns persönlich kennen und überzeugen sich vom Geschmack unserer Speisen! Unsere Pizzeria besteht bereits seit 2006. Seit dem bieten wir unseren Gästen leckere Pizzen sowie weitere italienische Gerichte und Highlights aus der Schweizer Küche an. Überzeugen Sie sich selbst:
+              {content.about_text}
             </p>
           </motion.div>
 
