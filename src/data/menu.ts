@@ -41,9 +41,7 @@ export const categories: MenuCategory[] = [
   { id: "kebab", name: "Kebabgerichte", icon: "🥙" },
   { id: "beilagen", name: "Beilagen", icon: "🧆" },
   { id: "desserts", name: "Desserts", icon: "🍰" },
-  { id: "softdrinks", name: "Softdrinks", icon: "🥤" },
-  { id: "bier", name: "Bier", icon: "🍺" },
-  { id: "spirituosen", name: "Spirituosen", icon: "🥃" },
+  { id: "getraenke", name: "Getränke", icon: "🥤" },
 ];
 
 // Cross-sell mapping: category -> suggested categories
