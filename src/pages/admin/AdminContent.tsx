@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { type SiteContent, DEFAULT_CONTENT } from "@/hooks/useSiteContent";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Save, Upload, X, Monitor, Smartphone, ChevronLeft, ChevronRight } from "lucide-react";
