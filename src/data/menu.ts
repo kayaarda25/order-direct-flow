@@ -781,6 +781,7 @@ export const menuItems: MenuItem[] = [
     station: "drinks",
     modifierGroups: [],
   },
+];
 
 // Helper to check if item can be quick-added (no required modifiers)
 export function canQuickAdd(item: MenuItem): boolean {
