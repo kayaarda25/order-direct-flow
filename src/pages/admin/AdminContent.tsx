@@ -41,7 +41,7 @@ const SECTIONS: { id: Section; label: string; icon: string }[] = [
 const galleryImages = [gallery1, gallery2, gallery3, gallery4, gallery5, gallery6, gallery7, gallery8];
 
 const AdminContent = () => {
-  const [content, setContent] = useState<ContentSettings>(DEFAULT_CONTENT);
+  const [content, setContent] = useState<SiteContent>(DEFAULT_CONTENT);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeSection, setActiveSection] = useState<Section>("hero");
