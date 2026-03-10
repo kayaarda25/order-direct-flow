@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { X, Minus, Plus, ArrowUp } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { X, Minus, Plus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { MenuItem, Modifier } from "@/data/menu";
 import { useCart, type CartItemType } from "@/context/CartContext";
@@ -14,13 +14,10 @@ interface ProductModalProps {
 const ProductModal = ({ item, onClose, onAdded }: ProductModalProps) => {
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
-  const [selectedModifiers, setSelectedModifiers] = useState<Record<string, Modifier[]>>({});
   const [specialNotes, setSpecialNotes] = useState("");
 
-  if (!item) return null;
-
   // Auto-select first option of required single-select modifier groups (like size)
-  const getDefaultModifiers = () => {
+  const getDefaultModifiers = useCallback(() => {
     if (!item) return {};
     const defaults: Record<string, Modifier[]> = {};
     item.modifierGroups.forEach((group) => {
@@ -29,16 +26,16 @@ const ProductModal = ({ item, onClose, onAdded }: ProductModalProps) => {
       }
     });
     return defaults;
-  };
+  }, [item]);
 
-  const [selectedModifiers, setSelectedModifiers] = useState<Record<string, Modifier[]>>(getDefaultModifiers);
+  const [selectedModifiers, setSelectedModifiers] = useState<Record<string, Modifier[]>>({});
 
   // Reset defaults when item changes
   useEffect(() => {
     setSelectedModifiers(getDefaultModifiers());
     setQuantity(1);
     setSpecialNotes("");
-  }, [item?.id]);
+  }, [item?.id, getDefaultModifiers]);
 
   const handleModifierToggle = (groupId: string, modifier: Modifier, multiSelect: boolean) => {
     setSelectedModifiers((prev) => {
