@@ -607,15 +607,13 @@ const AdminContent = () => {
             {/* TAB: Content Editor */}
             {panelTab === "content" && (
               <div className="p-4 space-y-4">
-                {activePage === "home" && activeSection ? (
+                {activeSection ? (
                   <>
                     <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">
                       {getSectionLabel(activeSection)} – Inhalt
                     </h3>
                     {renderContentEditor()}
                   </>
-                ) : activePage !== "home" ? (
-                  renderPageContentEditor()
                 ) : (
                   <div className="p-4 text-center text-sm text-muted-foreground">
                     Klicke auf eine Sektion in der Liste
@@ -624,8 +622,8 @@ const AdminContent = () => {
               </div>
             )}
 
-            {/* TAB: Layout (home only) */}
-            {panelTab === "layout" && activeSection && activePage === "home" && (
+            {/* TAB: Layout */}
+            {panelTab === "layout" && activeSection && (
               <div className="p-4">
                 <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide mb-4">
                   {getSectionLabel(activeSection)} – Layout
