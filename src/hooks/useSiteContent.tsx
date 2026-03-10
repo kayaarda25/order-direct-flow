@@ -6,6 +6,33 @@ export interface GalleryImage {
   alt: string;
 }
 
+export interface SectionLayout {
+  textAlign: 'left' | 'center' | 'right';
+  imagePosition: 'left' | 'right' | 'top' | 'bottom' | 'background';
+  columns: 2 | 3 | 4;
+  padding: 'sm' | 'md' | 'lg';
+  bgColor: 'white' | 'dark' | 'accent';
+}
+
+export interface CustomSection {
+  id: string;
+  type: 'text_block' | 'image_block' | 'banner' | 'cta';
+  title: string;
+  text: string;
+  image: string;
+  buttonText: string;
+  buttonLink: string;
+  layout: SectionLayout;
+}
+
+export const DEFAULT_LAYOUT: SectionLayout = {
+  textAlign: 'left',
+  imagePosition: 'right',
+  columns: 3,
+  padding: 'md',
+  bgColor: 'white',
+};
+
 export interface SiteContent {
   // Hero
   hero_title: string;
@@ -37,7 +64,14 @@ export interface SiteContent {
   social_tiktok: string;
   social_facebook: string;
   social_linkedin: string;
+  // Page Builder
+  sections_order: string[];
+  sections_visibility: Record<string, boolean>;
+  sections_layout: Record<string, Partial<SectionLayout>>;
+  custom_sections: CustomSection[];
 }
+
+export const BUILTIN_SECTIONS = ['hero', 'menu', 'catering', 'gallery', 'about', 'reservation', 'footer'] as const;
 
 const DEFAULT_CONTENT: SiteContent = {
   hero_title: "Willkommen bei\nPiratino!",
@@ -62,6 +96,10 @@ const DEFAULT_CONTENT: SiteContent = {
   social_tiktok: "@pizzapiratino",
   social_facebook: "Facebook",
   social_linkedin: "LinkedIn",
+  sections_order: [...BUILTIN_SECTIONS],
+  sections_visibility: {},
+  sections_layout: {},
+  custom_sections: [],
 };
 
 interface SiteContentContextType {
@@ -87,7 +125,7 @@ export const SiteContentProvider: React.FC<{ children: React.ReactNode }> = ({ c
           .eq("key", "content")
           .single();
         if (!error && data) {
-          setContent({ ...DEFAULT_CONTENT, ...(data.value as Record<string, string>) });
+          setContent({ ...DEFAULT_CONTENT, ...(data.value as Record<string, any>) });
         }
       } catch {
         // Use defaults
