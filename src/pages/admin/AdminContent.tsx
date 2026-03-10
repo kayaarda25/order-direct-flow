@@ -340,11 +340,11 @@ const AdminContent = () => {
               section="catering"
               active={activeSection}
               onClick={() => setActiveSection("catering")}
-              label="Catering (automatisch)"
+              label="Catering bearbeiten"
             >
               <div style={{ background: "#fff", color: "hsl(0 45% 14%)", padding: previewMode === "mobile" ? "2rem 1.5rem" : "3rem" }}>
-                <h2 className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }}>Catering-Pakete</h2>
-                <p className="text-sm opacity-60 uppercase tracking-wide mb-6">6 perfekt abgestimmte Catering-Pakete</p>
+                <h2 className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }}>{content.catering_title || "Catering-Pakete"}</h2>
+                <p className="text-sm opacity-60 uppercase tracking-wide mb-6">{content.catering_text || "6 perfekt abgestimmte Catering-Pakete"}</p>
                 <div className="flex flex-col gap-3">
                   {[
                     { name: "PIZZA PARTY", img: cateringPizzaImg, price: "CHF 30.00" },
