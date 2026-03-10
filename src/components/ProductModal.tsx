@@ -109,32 +109,6 @@ const ProductModal = ({ item, onClose, onAdded }: ProductModalProps) => {
             <p className="text-muted-foreground mt-1">{item.description}</p>
             <p className="text-primary font-bold text-xl mt-2">CHF {item.price.toFixed(2)}</p>
 
-            {/* Upsell suggestion */}
-            {upsellItem && (
-              <motion.button
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                onClick={() => {
-                  onClose();
-                  // Small delay to allow modal close then reopen
-                  setTimeout(() => {
-                    const event = new CustomEvent("openProduct", { detail: upsellItem });
-                    window.dispatchEvent(event);
-                  }, 200);
-                }}
-                className="mt-3 w-full flex items-center justify-between p-3 rounded-lg border-2 border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <ArrowUp className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-semibold text-card-foreground">
-                    Upgrade: {upsellItem.name}
-                  </span>
-                </div>
-                <span className="text-primary font-bold text-sm">
-                  +CHF {(upsellItem.price - item.price).toFixed(2)}
-                </span>
-              </motion.button>
-            )}
 
             {item.modifierGroups.map((group) => (
               <div key={group.id} className="mt-5">
