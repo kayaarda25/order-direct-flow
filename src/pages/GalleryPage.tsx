@@ -9,7 +9,7 @@ import gallery7 from "@/assets/gallery-7.jpg";
 import gallery8 from "@/assets/gallery-8.jpg";
 import { useSiteContent } from "@/hooks/useSiteContent";
 
-const galleryImages = [
+const defaultGalleryImages = [
   { src: gallery1, alt: "Restaurant Innenbereich" },
   { src: gallery2, alt: "Restaurant Fensterplätze" },
   { src: gallery3, alt: "Restaurant Eingang" },
@@ -22,6 +22,10 @@ const galleryImages = [
 
 const GalleryPage = () => {
   const { content } = useSiteContent();
+
+  const images = (content.gallery_images && content.gallery_images.length > 0)
+    ? content.gallery_images.map((img) => ({ src: img.url, alt: img.alt }))
+    : defaultGalleryImages;
 
   return (
     <div className="bg-white min-h-screen py-16 md:py-24">
@@ -40,7 +44,7 @@ const GalleryPage = () => {
         </motion.div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-          {galleryImages.map((img, i) => (
+          {images.map((img, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, scale: 0.95 }}
