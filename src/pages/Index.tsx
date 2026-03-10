@@ -36,7 +36,7 @@ const menuCategories = [
   { name: "Pasta", id: "pasta" },
   { name: "Fisch & Fleisch", id: "fleisch-fisch-grill" },
   { name: "Kinder Pizza", id: "kinder-pizza" },
-  { name: "Getränke", id: "softdrinks" },
+  { name: "Getränke", id: "getraenke" },
 ];
 
 const cateringPackages = [
