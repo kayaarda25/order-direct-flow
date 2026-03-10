@@ -209,10 +209,10 @@ const Index = () => {
             className="mb-8"
           >
             <h2 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground mb-3 uppercase tracking-wider">
-              Galerie
+              {content.gallery_title}
             </h2>
             <p className="text-primary-foreground/60 text-sm max-w-2xl uppercase tracking-wide">
-              In unserer Galerie bekommen Sie einen Eindruck von unseren Speisen und Getränken sowie vom Ambiente des Restaurants. Wir freuen uns auf Ihren baldigen Besuch!
+              {content.gallery_text}
             </p>
           </motion.div>
 
