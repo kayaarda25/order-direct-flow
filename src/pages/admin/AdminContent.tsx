@@ -88,6 +88,7 @@ const AdminContent = () => {
   const [content, setContent] = useState<SiteContent>(DEFAULT_CONTENT);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [activePage, setActivePage] = useState<PageId>("home");
   const [activeSection, setActiveSection] = useState<string | null>("hero");
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
   const [panelTab, setPanelTab] = useState<PanelTab>("sections");
