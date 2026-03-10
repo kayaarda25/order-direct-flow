@@ -665,8 +665,9 @@ const AdminContent = () => {
   function renderContentEditor() {
     if (!activeSection) return null;
 
-    // Custom section editor
-    const custom = content.custom_sections?.find((s) => s.id === activeSection);
+    // Custom section editor (home or page-level)
+    const customs = activePage === "home" ? content.custom_sections : content.page_sections?.[activePage]?.custom_blocks;
+    const custom = customs?.find((s) => s.id === activeSection);
     if (custom) {
       return (
         <div className="space-y-4">
@@ -698,8 +699,71 @@ const AdminContent = () => {
       );
     }
 
-    // Built-in section editors
+    // Built-in section editors (page-level headers)
     switch (activeSection) {
+      case "menu_header":
+        return (
+          <div className="space-y-4">
+            <FieldLabel label="Titel"><Input value={content.menu_title} onChange={(e) => setContent((p) => ({ ...p, menu_title: e.target.value }))} /></FieldLabel>
+            <FieldLabel label="Untertitel"><Input value={content.menu_subtitle} onChange={(e) => setContent((p) => ({ ...p, menu_subtitle: e.target.value }))} /></FieldLabel>
+            <p className="text-xs text-muted-foreground border-t border-border pt-3">Die Menü-Produkte werden unter «Menü» im Admin verwaltet.</p>
+          </div>
+        );
+      case "gallery_header":
+        return (
+          <div className="space-y-4">
+            <FieldLabel label="Titel"><Input value={content.gallery_title} onChange={(e) => setContent((p) => ({ ...p, gallery_title: e.target.value }))} /></FieldLabel>
+            <FieldLabel label="Beschreibung"><Textarea value={content.gallery_text} onChange={(e) => setContent((p) => ({ ...p, gallery_text: e.target.value }))} rows={3} /></FieldLabel>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-2 block">Bilder ({(content.gallery_images || []).length})</label>
+              <div className="space-y-2 mb-3">
+                {(content.gallery_images || []).map((img, i) => (
+                  <div key={i} className="flex items-center gap-2 bg-secondary rounded-lg p-2">
+                    <img src={img.url} alt={img.alt} className="w-12 h-12 object-cover rounded" />
+                    <Input value={img.alt} onChange={(e) => {
+                      const imgs = [...(content.gallery_images || [])];
+                      imgs[i] = { ...imgs[i], alt: e.target.value };
+                      setContent((p) => ({ ...p, gallery_images: imgs }));
+                    }} placeholder="Alt-Text" className="h-7 text-xs flex-1" />
+                    <div className="flex flex-col gap-0.5">
+                      <button onClick={() => moveGalleryImage(i, -1)} disabled={i === 0} className="p-0.5 disabled:opacity-30"><ChevronUp className="h-3 w-3" /></button>
+                      <button onClick={() => moveGalleryImage(i, 1)} disabled={i === (content.gallery_images || []).length - 1} className="p-0.5 disabled:opacity-30"><ChevronDown className="h-3 w-3" /></button>
+                    </div>
+                    <button onClick={() => removeGalleryImage(i)} className="p-1 text-destructive hover:bg-destructive/10 rounded"><Trash2 className="h-3.5 w-3.5" /></button>
+                  </div>
+                ))}
+              </div>
+              <label className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer block hover:border-muted-foreground/50 transition-colors">
+                <Plus className="mx-auto h-5 w-5 text-muted-foreground mb-1" />
+                <span className="text-xs text-muted-foreground">Bild hinzufügen</span>
+                <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) addGalleryImage(f); }} className="hidden" />
+              </label>
+            </div>
+          </div>
+        );
+      case "about_header":
+        return (
+          <div className="space-y-4">
+            <FieldLabel label="Titel"><Input value={content.about_title} onChange={(e) => setContent((p) => ({ ...p, about_title: e.target.value }))} /></FieldLabel>
+            <FieldLabel label="Text"><Textarea value={content.about_text} onChange={(e) => setContent((p) => ({ ...p, about_text: e.target.value }))} rows={5} /></FieldLabel>
+            <ImageField label="Bild" value={content.about_image} onUpload={(f) => uploadImage((url) => setContent((p) => ({ ...p, about_image: url })), f)} onRemove={() => setContent((p) => ({ ...p, about_image: "" }))} />
+          </div>
+        );
+      case "catering_header":
+        return (
+          <div className="space-y-4">
+            <FieldLabel label="Titel"><Input value={content.catering_title} onChange={(e) => setContent((p) => ({ ...p, catering_title: e.target.value }))} /></FieldLabel>
+            <FieldLabel label="Beschreibung"><Textarea value={content.catering_text} onChange={(e) => setContent((p) => ({ ...p, catering_text: e.target.value }))} rows={3} /></FieldLabel>
+            <p className="text-xs text-muted-foreground border-t border-border pt-3">Die Catering-Pakete sind aktuell fest definiert.</p>
+          </div>
+        );
+      case "reservation_header":
+        return (
+          <div className="space-y-4">
+            <FieldLabel label="Titel"><Input value={content.reservation_title} onChange={(e) => setContent((p) => ({ ...p, reservation_title: e.target.value }))} /></FieldLabel>
+            <FieldLabel label="Beschreibung"><Textarea value={content.reservation_text} onChange={(e) => setContent((p) => ({ ...p, reservation_text: e.target.value }))} rows={3} /></FieldLabel>
+          </div>
+        );
       case "hero":
         return (
           <div className="space-y-4">
