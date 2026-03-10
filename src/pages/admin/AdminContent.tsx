@@ -26,29 +26,6 @@ import cateringPizzaImg from "@/assets/catering-pizza-party.png";
 import cateringPastaImg from "@/assets/catering-pasta.png";
 import cateringAperitivoImg from "@/assets/catering-aperitivo.png";
 
-interface ContentSettings {
-  hero_title: string;
-  hero_subtitle: string;
-  hero_image: string;
-  about_title: string;
-  about_text: string;
-  about_image: string;
-  footer_phone: string;
-  footer_email: string;
-  footer_address: string;
-}
-
-const DEFAULT_CONTENT: ContentSettings = {
-  hero_title: "Willkommen bei\nPiratino!",
-  hero_subtitle: "Pizza, Pasta und mehr seit 2006 – das Original",
-  hero_image: "",
-  about_title: "Über uns",
-  about_text: "Am besten, Sie lernen uns persönlich kennen und überzeugen sich vom Geschmack unserer Speisen! Unsere Pizzeria besteht bereits seit 2006. Seit dem bieten wir unseren Gästen leckere Pizzen sowie weitere italienische Gerichte und Highlights aus der Schweizer Küche an. Überzeugen Sie sich selbst:",
-  about_image: "",
-  footer_phone: "044 431 32 33",
-  footer_email: "piratinoag@hotmail.com",
-  footer_address: "Badenerstrasse 696, 8048 Zürich",
-};
 
 type Section = "hero" | "menu" | "catering" | "gallery" | "about" | "footer";
 
