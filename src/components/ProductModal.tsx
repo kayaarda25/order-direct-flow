@@ -19,16 +19,26 @@ const ProductModal = ({ item, onClose, onAdded }: ProductModalProps) => {
 
   if (!item) return null;
 
-  // Find upsell item (e.g., 32cm -> 45cm)
-  const upsellCategory = upsellMap[item.category];
-  const upsellItem = upsellCategory
-    ? menuItems.find(
-        (m) =>
-          m.category === upsellCategory &&
-          m.name.replace(/ Grande| XXL/g, "").replace(/ - \d+cm/g, "") ===
-            item.name.replace(/ Grande| XXL/g, "").replace(/ - \d+cm/g, "")
-      )
-    : null;
+  // Auto-select first option of required single-select modifier groups (like size)
+  const getDefaultModifiers = () => {
+    if (!item) return {};
+    const defaults: Record<string, Modifier[]> = {};
+    item.modifierGroups.forEach((group) => {
+      if (group.required && !group.multiSelect && group.options.length > 0) {
+        defaults[group.id] = [group.options[0]];
+      }
+    });
+    return defaults;
+  };
+
+  const [selectedModifiers, setSelectedModifiers] = useState<Record<string, Modifier[]>>(getDefaultModifiers);
+
+  // Reset defaults when item changes
+  useEffect(() => {
+    setSelectedModifiers(getDefaultModifiers());
+    setQuantity(1);
+    setSpecialNotes("");
+  }, [item?.id]);
 
   const handleModifierToggle = (groupId: string, modifier: Modifier, multiSelect: boolean) => {
     setSelectedModifiers((prev) => {
