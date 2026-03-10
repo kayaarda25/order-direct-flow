@@ -48,20 +48,12 @@ export const categories: MenuCategory[] = [
 
 // Cross-sell mapping: category -> suggested categories
 export const crossSellMap: Record<string, string[]> = {
-  "pizza-32": ["softdrinks", "beilagen", "desserts"],
-  "pizza-45": ["softdrinks", "beilagen", "desserts"],
-  "pizza-50": ["softdrinks", "beilagen", "desserts"],
+  "pizza": ["softdrinks", "beilagen", "desserts"],
   "pasta": ["softdrinks", "vorspeisen", "desserts"],
   "kebab": ["softdrinks", "beilagen"],
   "fleisch-fisch-grill": ["softdrinks", "beilagen", "desserts"],
   "salate": ["softdrinks", "pasta"],
-  "vorspeisen": ["softdrinks", "pizza-32", "pasta"],
-};
-
-// Upsell mapping: item category -> upgrade category
-export const upsellMap: Record<string, string> = {
-  "pizza-32": "pizza-45",
-  "pizza-45": "pizza-50",
+  "vorspeisen": ["softdrinks", "pizza", "pasta"],
 };
 
 function makeModifierGroup(modifierString: string): ModifierGroup[] {
