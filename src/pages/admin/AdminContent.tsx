@@ -452,20 +452,33 @@ const AdminContent = () => {
   // Helpers
   const getSectionType = (id: string) => {
     if (BUILTIN_SECTIONS.includes(id as any)) return id;
-    return content.custom_sections?.find((s) => s.id === id)?.type || "text_block";
+    // Check page-level built-in sections
+    if (Object.keys(PAGE_SECTION_META).includes(id)) return id;
+    // Check custom sections
+    const customs = activePage === "home" ? content.custom_sections : content.page_sections?.[activePage]?.custom_blocks;
+    return customs?.find((s) => s.id === id)?.type || "text_block";
   };
 
   const getSectionLabel = (id: string) => {
-    const custom = content.custom_sections?.find((s) => s.id === id);
+    // Check custom sections
+    const customs = activePage === "home" ? content.custom_sections : content.page_sections?.[activePage]?.custom_blocks;
+    const custom = customs?.find((s) => s.id === id);
     if (custom) {
       const meta = SECTION_META[custom.type];
       return `${meta?.icon || "📄"} ${custom.title || meta?.label || "Block"}`;
     }
+    // Check page section meta
+    const pageMeta = PAGE_SECTION_META[id];
+    if (pageMeta) return `${pageMeta.icon} ${pageMeta.label}`;
     const meta = SECTION_META[id];
     return meta ? `${meta.icon} ${meta.label}` : id;
   };
 
-  const isCustom = (id: string) => !BUILTIN_SECTIONS.includes(id as any);
+  const isCustom = (id: string) => {
+    if (BUILTIN_SECTIONS.includes(id as any)) return false;
+    if (Object.keys(PAGE_SECTION_META).includes(id)) return false;
+    return true;
+  };
 
   if (loading) return <div className="py-8 text-center text-foreground">Laden...</div>;
 
