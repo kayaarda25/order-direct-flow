@@ -209,6 +209,28 @@ const AdminContent = () => {
                       </FieldLabel>
                     </div>
                   )}
+                  {activeSection === "gallery" && (
+                    <div className="space-y-4">
+                      <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">Galerie bearbeiten</h3>
+                      <FieldLabel label="Titel">
+                        <Input value={content.gallery_title} onChange={(e) => setContent((p) => ({ ...p, gallery_title: e.target.value }))} />
+                      </FieldLabel>
+                      <FieldLabel label="Beschreibung">
+                        <Textarea value={content.gallery_text} onChange={(e) => setContent((p) => ({ ...p, gallery_text: e.target.value }))} rows={3} />
+                      </FieldLabel>
+                    </div>
+                  )}
+                  {activeSection === "catering" && (
+                    <div className="space-y-4">
+                      <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">Catering bearbeiten</h3>
+                      <FieldLabel label="Titel">
+                        <Input value={content.catering_title} onChange={(e) => setContent((p) => ({ ...p, catering_title: e.target.value }))} />
+                      </FieldLabel>
+                      <FieldLabel label="Beschreibung">
+                        <Textarea value={content.catering_text} onChange={(e) => setContent((p) => ({ ...p, catering_text: e.target.value }))} rows={3} />
+                      </FieldLabel>
+                    </div>
+                  )}
                   {!isEditable && (
                     <div className="text-center py-8">
                       <p className="text-sm text-muted-foreground">
