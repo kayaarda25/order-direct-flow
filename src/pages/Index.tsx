@@ -85,8 +85,9 @@ const cateringPackages = [
 ];
 
 const Index = () => {
+  const { content } = useSiteContent();
+
   return (
-    <div className="min-h-screen">
       <HeroSection />
 
 
