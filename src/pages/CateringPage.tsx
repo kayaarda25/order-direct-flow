@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { useSiteContent } from "@/hooks/useSiteContent";
 import { ArrowLeft, ArrowRight, Check, Users, MapPin, CalendarDays, Clock } from "lucide-react";
 import cateringPizzaImg from "@/assets/catering-pizza-party.png";
 import cateringPastaImg from "@/assets/catering-pasta.png";
@@ -67,6 +68,7 @@ const cateringPackages = [
 ];
 
 const CateringPage = () => {
+  const { content } = useSiteContent();
   const [step, setStep] = useState(1);
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const [persons, setPersons] = useState(10);
@@ -144,10 +146,10 @@ const CateringPage = () => {
               exit={{ opacity: 0, x: -20 }}
             >
               <h1 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground mb-2 uppercase tracking-wider">
-                Catering buchen
+                {content.catering_title}
               </h1>
               <p className="text-primary-foreground/60 text-sm uppercase tracking-wide mb-8">
-                Schritt 1: Wählen Sie Ihr Wunschpaket
+                {content.catering_text} – Schritt 1: Wählen Sie Ihr Wunschpaket
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">

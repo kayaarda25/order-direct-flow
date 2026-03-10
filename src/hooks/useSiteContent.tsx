@@ -11,6 +11,9 @@ export interface SiteContent {
   hero_title: string;
   hero_subtitle: string;
   hero_image: string;
+  // Menu
+  menu_title: string;
+  menu_subtitle: string;
   // About
   about_title: string;
   about_text: string;
@@ -29,12 +32,19 @@ export interface SiteContent {
   // Catering
   catering_title: string;
   catering_text: string;
+  // Social Media
+  social_instagram: string;
+  social_tiktok: string;
+  social_facebook: string;
+  social_linkedin: string;
 }
 
 const DEFAULT_CONTENT: SiteContent = {
   hero_title: "Willkommen bei\nPiratino!",
   hero_subtitle: "Pizza, Pasta und mehr seit 2006 – das Original",
   hero_image: "",
+  menu_title: "Menu",
+  menu_subtitle: "Im Restaurant geniessen, selbst abholen oder nach Hause bestellen",
   about_title: "Über uns",
   about_text: "Am besten, Sie lernen uns persönlich kennen und überzeugen sich vom Geschmack unserer Speisen! Unsere Pizzeria besteht bereits seit 2006. Seit dem bieten wir unseren Gästen leckere Pizzen sowie weitere italienische Gerichte und Highlights aus der Schweizer Küche an. Überzeugen Sie sich selbst:",
   about_image: "",
@@ -48,6 +58,10 @@ const DEFAULT_CONTENT: SiteContent = {
   reservation_text: "Reservieren Sie Ihren Tisch bei Piratino – wir freuen uns auf Ihren Besuch!",
   catering_title: "Catering buchen",
   catering_text: "6 perfekt abgestimmte Catering-Pakete – individuell erweiterbar",
+  social_instagram: "@pizzapiratino",
+  social_tiktok: "@pizzapiratino",
+  social_facebook: "Facebook",
+  social_linkedin: "LinkedIn",
 };
 
 interface SiteContentContextType {

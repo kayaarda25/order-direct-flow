@@ -27,7 +27,7 @@ import cateringPastaImg from "@/assets/catering-pasta.png";
 import cateringAperitivoImg from "@/assets/catering-aperitivo.png";
 
 
-type Section = "hero" | "menu" | "catering" | "gallery" | "about" | "footer";
+type Section = "hero" | "menu" | "catering" | "gallery" | "about" | "reservation" | "footer";
 
 const SECTIONS: { id: Section; label: string; icon: string }[] = [
   { id: "hero", label: "Hero-Bereich", icon: "🏠" },
@@ -35,6 +35,7 @@ const SECTIONS: { id: Section; label: string; icon: string }[] = [
   { id: "catering", label: "Catering", icon: "🍽️" },
   { id: "gallery", label: "Galerie", icon: "🖼️" },
   { id: "about", label: "Über uns", icon: "📖" },
+  { id: "reservation", label: "Reservierung", icon: "📅" },
   { id: "footer", label: "Footer & Kontakt", icon: "📞" },
 ];
 
@@ -144,7 +145,7 @@ const AdminContent = () => {
 
   if (loading) return <div className="py-8 text-center text-foreground">Laden...</div>;
 
-  const editableSections: Section[] = ["hero", "about", "footer", "gallery", "catering"];
+  const editableSections: Section[] = ["hero", "menu", "about", "footer", "gallery", "catering", "reservation"];
   const isEditable = editableSections.includes(activeSection);
 
   return (
@@ -232,9 +233,20 @@ const AdminContent = () => {
                       <ImageField label="Bild" value={content.about_image} onUpload={(f) => handleImageUpload("about_image", f)} onRemove={() => setContent((p) => ({ ...p, about_image: "" }))} />
                     </div>
                   )}
+                  {activeSection === "menu" && (
+                    <div className="space-y-4">
+                      <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">Menü bearbeiten</h3>
+                      <FieldLabel label="Titel">
+                        <Input value={content.menu_title} onChange={(e) => setContent((p) => ({ ...p, menu_title: e.target.value }))} />
+                      </FieldLabel>
+                      <FieldLabel label="Untertitel">
+                        <Input value={content.menu_subtitle} onChange={(e) => setContent((p) => ({ ...p, menu_subtitle: e.target.value }))} />
+                      </FieldLabel>
+                    </div>
+                  )}
                   {activeSection === "footer" && (
                     <div className="space-y-4">
-                      <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">Kontakt bearbeiten</h3>
+                      <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">Kontakt & Social Media</h3>
                       <FieldLabel label="Telefon">
                         <Input value={content.footer_phone} onChange={(e) => setContent((p) => ({ ...p, footer_phone: e.target.value }))} />
                       </FieldLabel>
@@ -243,6 +255,30 @@ const AdminContent = () => {
                       </FieldLabel>
                       <FieldLabel label="Adresse">
                         <Textarea value={content.footer_address} onChange={(e) => setContent((p) => ({ ...p, footer_address: e.target.value }))} rows={2} />
+                      </FieldLabel>
+                      <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide pt-2">Social Media</h3>
+                      <FieldLabel label="Instagram">
+                        <Input value={content.social_instagram} onChange={(e) => setContent((p) => ({ ...p, social_instagram: e.target.value }))} placeholder="@pizzapiratino" />
+                      </FieldLabel>
+                      <FieldLabel label="TikTok">
+                        <Input value={content.social_tiktok} onChange={(e) => setContent((p) => ({ ...p, social_tiktok: e.target.value }))} placeholder="@pizzapiratino" />
+                      </FieldLabel>
+                      <FieldLabel label="Facebook">
+                        <Input value={content.social_facebook} onChange={(e) => setContent((p) => ({ ...p, social_facebook: e.target.value }))} placeholder="Facebook" />
+                      </FieldLabel>
+                      <FieldLabel label="LinkedIn">
+                        <Input value={content.social_linkedin} onChange={(e) => setContent((p) => ({ ...p, social_linkedin: e.target.value }))} placeholder="LinkedIn" />
+                      </FieldLabel>
+                    </div>
+                  )}
+                  {activeSection === "reservation" && (
+                    <div className="space-y-4">
+                      <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">Reservierung bearbeiten</h3>
+                      <FieldLabel label="Titel">
+                        <Input value={content.reservation_title} onChange={(e) => setContent((p) => ({ ...p, reservation_title: e.target.value }))} />
+                      </FieldLabel>
+                      <FieldLabel label="Beschreibung">
+                        <Textarea value={content.reservation_text} onChange={(e) => setContent((p) => ({ ...p, reservation_text: e.target.value }))} rows={3} />
                       </FieldLabel>
                     </div>
                   )}
@@ -386,11 +422,11 @@ const AdminContent = () => {
               section="menu"
               active={activeSection}
               onClick={() => setActiveSection("menu")}
-              label="Menü (automatisch)"
+              label="Menü bearbeiten"
             >
               <div style={{ background: "#fff", color: "hsl(0 45% 14%)", padding: previewMode === "mobile" ? "2rem 1.5rem" : "3rem" }}>
-                <h2 className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }}>Menu</h2>
-                <p className="text-sm opacity-60 uppercase tracking-wide mb-6">Im Restaurant geniessen, selbst abholen oder nach Hause bestellen</p>
+                <h2 className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }}>{content.menu_title || "Menu"}</h2>
+                <p className="text-sm opacity-60 uppercase tracking-wide mb-6">{content.menu_subtitle || "Im Restaurant geniessen, selbst abholen oder nach Hause bestellen"}</p>
                 <div className="relative inline-block">
                   <div className="rounded-2xl p-4 flex flex-col gap-2 relative z-10" style={{ background: "hsl(0 40% 18%)", border: "1px solid hsl(0 25% 25%)" }}>
                     {["Vorspeisen & Salate", "PIZZA", "Pasta", "Fisch & Fleisch", "Kinder Pizza", "Getränke"].map((cat) => (
@@ -474,6 +510,31 @@ const AdminContent = () => {
               </div>
             </PreviewSection>
 
+            {/* Reservation Section */}
+            <PreviewSection
+              section="reservation"
+              active={activeSection}
+              onClick={() => setActiveSection("reservation")}
+              label="Reservierung bearbeiten"
+            >
+              <div style={{ background: "#fff", color: "hsl(0 45% 14%)", padding: previewMode === "mobile" ? "2rem 1.5rem" : "3rem" }}>
+                <h2 className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }}>
+                  {content.reservation_title || "Tisch reservieren"}
+                </h2>
+                <p className="text-sm opacity-60 uppercase tracking-wide mb-4 max-w-xl">
+                  {content.reservation_text || "Reservieren Sie Ihren Tisch..."}
+                </p>
+                <div className="flex flex-col gap-2 max-w-xs">
+                  {["Name", "E-Mail", "Telefon"].map((f) => (
+                    <div key={f} className="h-8 rounded-lg border border-current/20 px-3 flex items-center text-xs opacity-40">{f}</div>
+                  ))}
+                  <div className="h-9 rounded-lg flex items-center justify-center text-xs font-semibold uppercase" style={{ background: "hsl(0 40% 18%)", color: "hsl(30 25% 92%)" }}>
+                    Tisch reservieren
+                  </div>
+                </div>
+              </div>
+            </PreviewSection>
+
             {/* Footer */}
             <PreviewSection
               section="footer"
@@ -519,9 +580,10 @@ const AdminContent = () => {
                 <div className="mt-4 rounded-none p-4" style={{ border: "1px solid hsl(30 25% 92% / 0.3)", background: "hsl(30 30% 88% / 0.1)" }}>
                   <h3 className="font-bold text-lg mb-2">Social Media</h3>
                   <div className="flex gap-4 text-sm opacity-90">
-                    <span>📸 @pizzapiratino</span>
-                    <span>🎵 @pizzapiratino</span>
-                    <span>📘 Facebook</span>
+                    {content.social_instagram && <span>📸 {content.social_instagram}</span>}
+                    {content.social_tiktok && <span>🎵 {content.social_tiktok}</span>}
+                    {content.social_facebook && <span>📘 {content.social_facebook}</span>}
+                    {content.social_linkedin && <span>💼 {content.social_linkedin}</span>}
                   </div>
                 </div>
 

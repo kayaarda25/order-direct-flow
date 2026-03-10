@@ -102,10 +102,10 @@ const Index = () => {
             className="mb-6"
           >
             <h2 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground mb-3 uppercase tracking-wider">
-              Menu
+              {content.menu_title}
             </h2>
             <p className="text-primary-foreground/60 text-base uppercase tracking-wide">
-              Im Restaurant geniessen, selbst abholen oder nach Hause bestellen
+              {content.menu_subtitle}
             </p>
           </motion.div>
 
@@ -218,7 +218,10 @@ const Index = () => {
           </motion.div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-            {galleryImages.map((img, i) => (
+            {((content.gallery_images && content.gallery_images.length > 0)
+              ? content.gallery_images.map((img) => ({ src: img.url, alt: img.alt }))
+              : galleryImages
+            ).map((img, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -262,7 +265,7 @@ const Index = () => {
             className="max-w-2xl"
           >
             <img
-              src={teamPhoto}
+              src={content.about_image || teamPhoto}
               alt="Das Piratino Team"
               className="w-full rounded-lg shadow-lg"
             />
