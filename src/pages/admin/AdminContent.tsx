@@ -99,6 +99,43 @@ const AdminContent = () => {
     toast({ title: "Bild hochgeladen ✓" });
   };
 
+  const handleGalleryUpload = async (file: File) => {
+    if (!file.type.startsWith("image/")) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "Datei zu groß", description: "Max. 5MB", variant: "destructive" });
+      return;
+    }
+    const ext = file.name.split(".").pop();
+    const fileName = `gallery-${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from("menu-images").upload(fileName, file);
+    if (error) { toast({ title: "Upload fehlgeschlagen", variant: "destructive" }); return; }
+    const { data } = supabase.storage.from("menu-images").getPublicUrl(fileName);
+    const newImage: GalleryImage = { url: data.publicUrl, alt: `Galerie ${(content.gallery_images?.length || 0) + 1}` };
+    setContent((prev) => ({ ...prev, gallery_images: [...(prev.gallery_images || []), newImage] }));
+    toast({ title: "Galerie-Bild hochgeladen ✓" });
+  };
+
+  const removeGalleryImage = (index: number) => {
+    setContent((prev) => ({
+      ...prev,
+      gallery_images: (prev.gallery_images || []).filter((_, i) => i !== index),
+    }));
+  };
+
+  const moveGalleryImage = (index: number, direction: -1 | 1) => {
+    const images = [...(content.gallery_images || [])];
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= images.length) return;
+    [images[index], images[newIndex]] = [images[newIndex], images[index]];
+    setContent((prev) => ({ ...prev, gallery_images: images }));
+  };
+
+  const updateGalleryAlt = (index: number, alt: string) => {
+    const images = [...(content.gallery_images || [])];
+    images[index] = { ...images[index], alt };
+    setContent((prev) => ({ ...prev, gallery_images: images }));
+  };
+
   const scrollToSection = (section: Section) => {
     setActiveSection(section);
     const el = previewRef.current?.querySelector(`[data-section="${section}"]`);
