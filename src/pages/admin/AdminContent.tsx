@@ -266,7 +266,19 @@ const AdminContent = () => {
     <div className="h-[calc(100vh-3.5rem)] flex flex-col -m-6">
       {/* Toolbar */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card shrink-0">
-        <span className="font-semibold text-sm text-foreground">Page Builder</span>
+        <div className="flex items-center gap-3">
+          <Globe className="h-4 w-4 text-muted-foreground" />
+          <Select value={activePage} onValueChange={(v) => { setActivePage(v as PageId); setActiveSection(null); setPanelTab("content"); }}>
+            <SelectTrigger className="w-[180px] h-8 text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {PAGES.map((p) => (
+                <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center bg-secondary rounded-lg p-0.5">
             <Button variant={previewMode === "desktop" ? "default" : "ghost"} size="sm" onClick={() => setPreviewMode("desktop")} className="h-7 px-2">
