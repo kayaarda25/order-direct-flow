@@ -1,6 +1,11 @@
 import { useState, useEffect, createContext, useContext } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
+export interface GalleryImage {
+  url: string;
+  alt: string;
+}
+
 export interface SiteContent {
   // Hero
   hero_title: string;
@@ -17,6 +22,7 @@ export interface SiteContent {
   // Gallery
   gallery_title: string;
   gallery_text: string;
+  gallery_images: GalleryImage[];
   // Reservation
   reservation_title: string;
   reservation_text: string;
