@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   type SiteContent,
@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Save, Upload, X, Monitor, Smartphone, ChevronUp, ChevronDown,
   Trash2, Plus, Eye, EyeOff, Type, ImageIcon, Megaphone, MousePointerClick,
-  GripVertical, Pencil, LayoutGrid, Globe,
+  GripVertical, Pencil, LayoutGrid, Globe, ExternalLink,
 } from "lucide-react";
 import {
   Select,
@@ -26,28 +26,26 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
-import InlineText from "@/components/admin/InlineText";
 import LayoutPanel from "@/components/admin/LayoutPanel";
 
-// Assets
-import mascotImg from "@/assets/pirate-mascot.png";
-import logoImg from "@/assets/piratino-logo.png";
-import pizzaImg from "@/assets/pizza-overhead.png";
-import teamPhoto from "@/assets/team-photo.jpg";
-import gallery1 from "@/assets/gallery-1.jpg";
-import gallery2 from "@/assets/gallery-2.jpg";
-import gallery3 from "@/assets/gallery-3.jpg";
-import gallery4 from "@/assets/gallery-4.jpg";
-import gallery5 from "@/assets/gallery-5.jpg";
-import gallery6 from "@/assets/gallery-6.jpg";
-import gallery7 from "@/assets/gallery-7.jpg";
-import gallery8 from "@/assets/gallery-8.jpg";
-import cateringPizzaImg from "@/assets/catering-pizza-party.png";
-import cateringPastaImg from "@/assets/catering-pasta.png";
-import cateringAperitivoImg from "@/assets/catering-aperitivo.png";
-
-const defaultGalleryImages = [gallery1, gallery2, gallery3, gallery4, gallery5, gallery6, gallery7, gallery8];
+// dnd-kit
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 // Section metadata
 const SECTION_META: Record<string, { label: string; icon: string }> = {
@@ -84,6 +82,77 @@ const PAGES = [
 type PageId = typeof PAGES[number]["id"];
 type PanelTab = "sections" | "content" | "layout";
 
+// ===== SORTABLE ITEM COMPONENT =====
+const SortableSectionItem = ({
+  id,
+  isActive,
+  isItemVisible,
+  label,
+  isCustomItem,
+  onSelect,
+  onToggleVisibility,
+  onRemove,
+}: {
+  id: string;
+  isActive: boolean;
+  isItemVisible: boolean;
+  label: string;
+  isCustomItem: boolean;
+  onSelect: () => void;
+  onToggleVisibility: () => void;
+  onRemove: () => void;
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : undefined,
+    opacity: isDragging ? 0.8 : !isItemVisible ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      onClick={onSelect}
+      className={cn(
+        "flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors group text-sm",
+        isActive ? "bg-primary text-primary-foreground" : "hover:bg-secondary text-foreground",
+        isDragging && "shadow-lg ring-2 ring-primary/50 bg-card"
+      )}
+    >
+      <button
+        className="cursor-grab active:cursor-grabbing p-0.5 hover:bg-foreground/10 rounded touch-none"
+        {...attributes}
+        {...listeners}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <GripVertical className="h-3.5 w-3.5 opacity-40" />
+      </button>
+      <span className="flex-1 truncate">{label}</span>
+      <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+        <button onClick={onToggleVisibility} className="p-0.5 hover:bg-foreground/10 rounded">
+          {isItemVisible ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
+        </button>
+        {isCustomItem && (
+          <button onClick={onRemove} className="p-0.5 hover:bg-destructive/20 text-destructive rounded">
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// ===== MAIN COMPONENT =====
 const AdminContent = () => {
   const [content, setContent] = useState<SiteContent>(DEFAULT_CONTENT);
   const [loading, setLoading] = useState(true);
@@ -93,8 +162,14 @@ const AdminContent = () => {
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
   const [panelTab, setPanelTab] = useState<PanelTab>("sections");
   const [showAddBlock, setShowAddBlock] = useState(false);
+  const [iframeKey, setIframeKey] = useState(0);
   const { toast } = useToast();
-  const previewRef = useRef<HTMLDivElement>(null);
+
+  // dnd-kit sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
 
   // Derived
   const sectionsOrder = content.sections_order?.length > 0 ? content.sections_order : [...BUILTIN_SECTIONS];
@@ -104,7 +179,18 @@ const AdminContent = () => {
     if (custom) return custom.layout || {};
     return content.sections_layout?.[id] || {};
   };
-  const getResolvedLayout = (id: string) => ({ ...DEFAULT_LAYOUT, ...getLayout(id) });
+
+  // Current page path for iframe
+  const currentPagePath = useMemo(() => {
+    const page = PAGES.find((p) => p.id === activePage);
+    return page?.path || "/";
+  }, [activePage]);
+
+  // Iframe URL
+  const iframeUrl = useMemo(() => {
+    const base = window.location.origin;
+    return `${base}${currentPagePath}`;
+  }, [currentPagePath]);
 
   // Data
   useEffect(() => {
@@ -128,6 +214,8 @@ const AdminContent = () => {
         if (error) throw error;
       }
       toast({ title: "Gespeichert ✓" });
+      // Reload iframe to show changes
+      setIframeKey((k) => k + 1);
     } catch {
       toast({ title: "Fehler", variant: "destructive" });
     } finally {
@@ -136,13 +224,15 @@ const AdminContent = () => {
   };
 
   // Section operations
-  const moveSection = (id: string, dir: -1 | 1) => {
-    const order = [...sectionsOrder];
-    const idx = order.indexOf(id);
-    const newIdx = idx + dir;
-    if (newIdx < 0 || newIdx >= order.length) return;
-    [order[idx], order[newIdx]] = [order[newIdx], order[idx]];
-    setContent((p) => ({ ...p, sections_order: order }));
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const order = [...sectionsOrder];
+      const oldIndex = order.indexOf(active.id as string);
+      const newIndex = order.indexOf(over.id as string);
+      const newOrder = arrayMove(order, oldIndex, newIndex);
+      setContent((p) => ({ ...p, sections_order: newOrder }));
+    }
   };
 
   const toggleVisibility = (id: string) => {
@@ -234,12 +324,6 @@ const AdminContent = () => {
     setContent((p) => ({ ...p, gallery_images: imgs }));
   };
 
-  const scrollToSection = (id: string) => {
-    setActiveSection(id);
-    setPanelTab("content");
-    previewRef.current?.querySelector(`[data-section="${id}"]`)?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
   // Helpers
   const getSectionType = (id: string) => {
     if (BUILTIN_SECTIONS.includes(id as any)) return id;
@@ -268,7 +352,7 @@ const AdminContent = () => {
       <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card shrink-0">
         <div className="flex items-center gap-3">
           <Globe className="h-4 w-4 text-muted-foreground" />
-          <Select value={activePage} onValueChange={(v) => { setActivePage(v as PageId); setActiveSection(null); setPanelTab("content"); }}>
+          <Select value={activePage} onValueChange={(v) => { setActivePage(v as PageId); setActiveSection(null); setPanelTab(v === "home" ? "sections" : "content"); }}>
             <SelectTrigger className="w-[180px] h-8 text-sm">
               <SelectValue />
             </SelectTrigger>
@@ -288,6 +372,14 @@ const AdminContent = () => {
               <Smartphone className="h-3.5 w-3.5" />
             </Button>
           </div>
+          <a
+            href={currentPagePath}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 px-2 h-7 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+          </a>
           <Button onClick={saveContent} disabled={saving} size="sm">
             <Save className="h-3.5 w-3.5 mr-1.5" /> {saving ? "..." : "Speichern"}
           </Button>
@@ -297,12 +389,12 @@ const AdminContent = () => {
       <div className="flex flex-1 overflow-hidden">
         {/* ===== SIDEBAR ===== */}
         <div className="w-[360px] border-r border-border bg-card overflow-y-auto shrink-0 flex flex-col">
-          {/* Tab bar - only show sections tab for homepage */}
+          {/* Tab bar */}
           <div className="flex border-b border-border shrink-0">
             {([
-              ...(activePage === "home" ? [{ id: "sections" as PanelTab, label: "Sektionen", icon: LayoutGrid }] : []),
-              { id: "content" as PanelTab, label: "Inhalt", icon: Pencil },
-              ...(activePage === "home" ? [{ id: "layout" as PanelTab, label: "Layout", icon: LayoutGrid }] : []),
+              ...(activePage === "home" ? [{ id: "sections" as PanelTab, label: "Sektionen" }] : []),
+              { id: "content" as PanelTab, label: "Inhalt" },
+              ...(activePage === "home" ? [{ id: "layout" as PanelTab, label: "Layout" }] : []),
             ]).map((tab) => (
               <button
                 key={tab.id}
@@ -318,41 +410,32 @@ const AdminContent = () => {
           </div>
 
           <div className="flex-1 overflow-y-auto">
-            {/* TAB: Sections List (home only) */}
+            {/* TAB: Sections List with Drag & Drop (home only) */}
             {panelTab === "sections" && activePage === "home" && (
               <div className="p-3">
-                <div className="space-y-1 mb-4">
-                  {sectionsOrder.map((id, idx) => (
-                    <div
-                      key={id}
-                      onClick={() => scrollToSection(id)}
-                      className={cn(
-                        "flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors group text-sm",
-                        activeSection === id ? "bg-primary text-primary-foreground" : "hover:bg-secondary text-foreground",
-                        !isVisible(id) && "opacity-50"
-                      )}
-                    >
-                      <GripVertical className="h-3.5 w-3.5 opacity-40" />
-                      <span className="flex-1 truncate">{getSectionLabel(id)}</span>
-                      <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
-                        <button onClick={() => moveSection(id, -1)} disabled={idx === 0} className="p-0.5 hover:bg-foreground/10 rounded disabled:opacity-30">
-                          <ChevronUp className="h-3.5 w-3.5" />
-                        </button>
-                        <button onClick={() => moveSection(id, 1)} disabled={idx === sectionsOrder.length - 1} className="p-0.5 hover:bg-foreground/10 rounded disabled:opacity-30">
-                          <ChevronDown className="h-3.5 w-3.5" />
-                        </button>
-                        <button onClick={() => toggleVisibility(id)} className="p-0.5 hover:bg-foreground/10 rounded">
-                          {isVisible(id) ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
-                        </button>
-                        {isCustom(id) && (
-                          <button onClick={() => removeCustomSection(id)} className="p-0.5 hover:bg-destructive/20 text-destructive rounded">
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        )}
-                      </div>
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext items={sectionsOrder} strategy={verticalListSortingStrategy}>
+                    <div className="space-y-1 mb-4">
+                      {sectionsOrder.map((id) => (
+                        <SortableSectionItem
+                          key={id}
+                          id={id}
+                          isActive={activeSection === id}
+                          isItemVisible={isVisible(id)}
+                          label={getSectionLabel(id)}
+                          isCustomItem={isCustom(id)}
+                          onSelect={() => { setActiveSection(id); setPanelTab("content"); }}
+                          onToggleVisibility={() => toggleVisibility(id)}
+                          onRemove={() => removeCustomSection(id)}
+                        />
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </SortableContext>
+                </DndContext>
 
                 {/* Add block */}
                 <div className="border-t border-border pt-3">
@@ -397,7 +480,7 @@ const AdminContent = () => {
                   renderPageContentEditor()
                 ) : (
                   <div className="p-4 text-center text-sm text-muted-foreground">
-                    Klicke auf eine Sektion in der Vorschau
+                    Klicke auf eine Sektion in der Liste
                   </div>
                 )}
               </div>
@@ -419,51 +502,21 @@ const AdminContent = () => {
           </div>
         </div>
 
-        {/* ===== PREVIEW ===== */}
-        <div className="flex-1 bg-muted/50 overflow-y-auto flex justify-center p-4">
+        {/* ===== LIVE PREVIEW (IFRAME) ===== */}
+        <div className="flex-1 bg-muted/50 overflow-hidden flex justify-center items-start p-4">
           <div
-            ref={previewRef}
             className={cn(
-              "rounded-xl shadow-2xl border border-border overflow-hidden transition-all duration-300 h-fit",
+              "rounded-xl shadow-2xl border border-border overflow-hidden transition-all duration-300 h-full bg-background",
               previewMode === "desktop" ? "w-full max-w-[1200px]" : "w-[375px]"
             )}
           >
-            {/* Header */}
-            <div className="sticky top-0 z-20" style={{ background: "hsl(0 45% 14% / 0.95)", borderBottom: "1px solid hsl(0 25% 25%)" }}>
-              <div className="flex items-center justify-between h-14 px-4">
-                <img src={logoImg} alt="Piratino" className="h-8 w-auto" />
-                <div className="flex items-center gap-4 text-sm" style={{ color: "hsl(30 25% 92% / 0.8)" }}>
-                  {PAGES.filter(p => p.id !== "home").map((p) => (
-                    <span
-                      key={p.id}
-                      onClick={() => { setActivePage(p.id); setActiveSection(null); setPanelTab("content"); }}
-                      className={cn("cursor-pointer hover:opacity-100 transition-opacity", activePage === p.id ? "opacity-100 font-semibold" : "opacity-70")}
-                    >
-                      {p.label.split(" ").slice(1).join(" ")}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Page content */}
-            {activePage === "home" ? (
-              // Home page sections
-              sectionsOrder.filter(isVisible).map((id) => (
-                <PreviewSection
-                  key={id}
-                  section={id}
-                  active={activeSection}
-                  onClick={() => { setActiveSection(id); setPanelTab("content"); }}
-                  label={getSectionLabel(id)}
-                >
-                  {renderPreviewSection(id)}
-                </PreviewSection>
-              ))
-            ) : (
-              // Subpage previews
-              renderPagePreview()
-            )}
+            <iframe
+              key={iframeKey}
+              src={iframeUrl}
+              className="w-full h-full border-0"
+              title="Website Vorschau"
+              style={{ minHeight: "100%" }}
+            />
           </div>
         </div>
       </div>
@@ -546,114 +599,7 @@ const AdminContent = () => {
     }
   }
 
-  // ========== PAGE PREVIEWS ==========
-  function renderPagePreview() {
-    const padStyle = getPadding("md", previewMode);
-    const pageStyle: React.CSSProperties = { background: "#fff", color: "hsl(0 45% 14%)", minHeight: 300 };
-
-    switch (activePage) {
-      case "menu":
-        return (
-          <div style={{ ...pageStyle, ...padStyle }}>
-            <h1 className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }}>
-              {content.menu_title}
-            </h1>
-            <p className="text-sm opacity-60 uppercase tracking-wide mb-6">{content.menu_subtitle}</p>
-            <div className="space-y-3">
-              {["Vorspeisen & Salate", "PIZZA", "Pasta", "Fisch & Fleisch"].map((cat) => (
-                <div key={cat}>
-                  <h3 className="font-bold text-sm uppercase tracking-wide mb-2 opacity-80">{cat}</h3>
-                  <div className={cn("grid gap-2", previewMode === "mobile" ? "grid-cols-1" : "grid-cols-3")}>
-                    {[1, 2, 3].map((n) => (
-                      <div key={n} className="rounded-lg border p-3" style={{ borderColor: "hsl(0 10% 85%)" }}>
-                        <div className="w-full h-16 bg-muted/30 rounded mb-2" />
-                        <div className="h-3 bg-muted/40 rounded w-3/4 mb-1" />
-                        <div className="h-3 bg-muted/20 rounded w-1/2" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-
-      case "galerie": {
-        const imgs = (content.gallery_images || []).length > 0
-          ? content.gallery_images.map((g) => g.url)
-          : defaultGalleryImages;
-        return (
-          <div style={{ ...pageStyle, ...padStyle }}>
-            <h1 className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }}>
-              {content.gallery_title}
-            </h1>
-            <p className="text-sm opacity-60 uppercase tracking-wide mb-6">{content.gallery_text}</p>
-            <div className={cn("grid gap-2", previewMode === "mobile" ? "grid-cols-2" : "grid-cols-3")}>
-              {imgs.map((src, i) => (
-                <img key={i} src={src} alt={`Galerie ${i + 1}`} className="w-full h-32 object-cover rounded-lg" />
-              ))}
-            </div>
-          </div>
-        );
-      }
-
-      case "ueber-uns":
-        return (
-          <div style={{ ...pageStyle, ...padStyle }}>
-            <h1 className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }}>
-              {content.about_title}
-            </h1>
-            <p className="text-sm opacity-60 uppercase tracking-wide mb-6 max-w-2xl leading-relaxed">{content.about_text}</p>
-            <img src={content.about_image || teamPhoto} alt="Team" className="w-full max-w-md rounded-lg shadow-lg" />
-          </div>
-        );
-
-      case "catering":
-        return (
-          <div style={{ ...pageStyle, ...padStyle }}>
-            <h1 className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }}>
-              {content.catering_title}
-            </h1>
-            <p className="text-sm opacity-60 uppercase tracking-wide mb-6">{content.catering_text}</p>
-            <div className="flex flex-col gap-3">
-              {[
-                { name: "PIZZA PARTY", img: cateringPizzaImg, price: "CHF 30.00" },
-                { name: "PASTA CLASSICA", img: cateringPastaImg, price: "CHF 30.00" },
-                { name: "APERITIVO", img: cateringAperitivoImg, price: "CHF 35.00" },
-              ].map((pkg) => (
-                <div key={pkg.name} className="flex items-center rounded-xl overflow-hidden" style={{ background: "hsl(0 40% 18%)", border: "1px solid hsl(0 25% 25%)" }}>
-                  <div className="flex-1 p-4">
-                    <h3 className="font-bold uppercase tracking-wide text-sm" style={{ color: "hsl(30 25% 92%)" }}>{pkg.name}</h3>
-                    <p className="text-xs mt-1" style={{ color: "hsl(30 25% 92% / 0.7)" }}>Preis: {pkg.price} pro Person</p>
-                  </div>
-                  <img src={pkg.img} alt={pkg.name} className="w-20 h-20 object-contain p-2" />
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-
-      case "reservierung":
-        return (
-          <div style={{ ...pageStyle, ...padStyle }}>
-            <h1 className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }}>
-              {content.reservation_title}
-            </h1>
-            <p className="text-sm opacity-60 uppercase tracking-wide mb-6">{content.reservation_text}</p>
-            <div className="flex flex-col gap-3 max-w-sm">
-              {["Name", "E-Mail", "Telefon", "Datum", "Uhrzeit", "Personen"].map((f) => (
-                <div key={f} className="h-10 rounded-lg border px-3 flex items-center text-sm opacity-40" style={{ borderColor: "hsl(0 10% 80%)" }}>{f}</div>
-              ))}
-              <div className="h-11 rounded-lg flex items-center justify-center text-sm font-semibold uppercase" style={{ background: "hsl(0 40% 18%)", color: "hsl(30 25% 92%)" }}>Tisch reservieren</div>
-            </div>
-          </div>
-        );
-
-      default:
-        return null;
-    }
-  }
-
+  // ========== CONTENT EDITOR (Sidebar) ==========
   function renderContentEditor() {
     if (!activeSection) return null;
 
@@ -778,321 +724,9 @@ const AdminContent = () => {
         return <p className="text-sm text-muted-foreground">Keine Bearbeitungsoptionen</p>;
     }
   }
-
-  // ========== PREVIEW SECTIONS ==========
-  function renderPreviewSection(id: string) {
-    const layout = getResolvedLayout(id);
-    const isActive = activeSection === id;
-    const bgStyle = getBgStyle(layout.bgColor);
-    const padStyle = getPadding(layout.padding, previewMode);
-    const alignStyle = { textAlign: layout.textAlign } as React.CSSProperties;
-
-    // Custom section
-    const custom = content.custom_sections?.find((s) => s.id === id);
-    if (custom) {
-      return renderCustomPreview(custom, layout, isActive, bgStyle, padStyle, alignStyle);
-    }
-
-    switch (id) {
-      case "hero":
-        return (
-          <div
-            style={{
-              background: content.hero_image
-                ? `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${content.hero_image}) center/cover`
-                : "hsl(0 45% 14%)",
-              color: "hsl(30 25% 92%)",
-              ...padStyle,
-            }}
-            className={cn("flex items-center justify-between gap-6", layout.imagePosition === 'left' && "flex-row-reverse")}
-          >
-            <div className="flex-1" style={alignStyle}>
-              <InlineText
-                value={content.hero_title}
-                onChange={(v) => setContent((p) => ({ ...p, hero_title: v }))}
-                isActive={isActive}
-                as="h1"
-                multiline
-                className={cn("font-bold uppercase tracking-wide leading-tight mb-3 whitespace-pre-line", previewMode === "mobile" ? "text-2xl" : "text-4xl")}
-                style={{ fontFamily: "'League Spartan', sans-serif" }}
-              />
-              <InlineText
-                value={content.hero_subtitle}
-                onChange={(v) => setContent((p) => ({ ...p, hero_subtitle: v }))}
-                isActive={isActive}
-                as="p"
-                className="text-base opacity-70 mb-6"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}
-              />
-              <div className="flex flex-wrap gap-3">
-                {["Jetzt bestellen", "Tisch reservieren", "Catering Anfrage"].map((btn) => (
-                  <span key={btn} className="px-5 py-2.5 rounded-lg text-sm font-semibold border-2 border-current">{btn}</span>
-                ))}
-              </div>
-            </div>
-            {previewMode === "desktop" && layout.imagePosition !== 'background' && (
-              <img src={mascotImg} alt="Maskottchen" className="w-48 h-auto flex-shrink-0" />
-            )}
-          </div>
-        );
-
-      case "menu":
-        return (
-          <div style={{ ...bgStyle, ...padStyle }}>
-            <div style={alignStyle}>
-              <InlineText value={content.menu_title} onChange={(v) => setContent((p) => ({ ...p, menu_title: v }))} isActive={isActive} as="h2"
-                className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }} />
-              <InlineText value={content.menu_subtitle} onChange={(v) => setContent((p) => ({ ...p, menu_subtitle: v }))} isActive={isActive} as="p"
-                className="text-sm opacity-60 uppercase tracking-wide mb-6" />
-            </div>
-            <div className="relative inline-block">
-              <div className="rounded-2xl p-4 flex flex-col gap-2 relative z-10" style={{ background: "hsl(0 40% 18%)", border: "1px solid hsl(0 25% 25%)" }}>
-                {["Vorspeisen & Salate", "PIZZA", "Pasta", "Fisch & Fleisch", "Kinder Pizza", "Getränke"].map((cat) => (
-                  <span key={cat} className="block text-center px-5 py-2 rounded-lg text-sm font-semibold uppercase tracking-wide border-2" style={{ color: "hsl(30 25% 92%)", borderColor: "hsl(30 25% 92% / 0.4)" }}>{cat}</span>
-                ))}
-              </div>
-              {previewMode === "desktop" && (
-                <img src={pizzaImg} alt="Pizza" className="absolute top-1/2 -translate-y-1/3 left-[60%] w-72 h-auto z-0 pointer-events-none" />
-              )}
-            </div>
-          </div>
-        );
-
-      case "catering":
-        return (
-          <div style={{ ...bgStyle, ...padStyle }}>
-            <div style={alignStyle}>
-              <InlineText value={content.catering_title} onChange={(v) => setContent((p) => ({ ...p, catering_title: v }))} isActive={isActive} as="h2"
-                className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }} />
-              <InlineText value={content.catering_text} onChange={(v) => setContent((p) => ({ ...p, catering_text: v }))} isActive={isActive} as="p"
-                className="text-sm opacity-60 uppercase tracking-wide mb-6" />
-            </div>
-            <div className="flex flex-col gap-3">
-              {[
-                { name: "PIZZA PARTY", img: cateringPizzaImg, price: "CHF 30.00" },
-                { name: "PASTA CLASSICA", img: cateringPastaImg, price: "CHF 30.00" },
-                { name: "APERITIVO", img: cateringAperitivoImg, price: "CHF 35.00" },
-              ].map((pkg) => (
-                <div key={pkg.name} className="flex items-center rounded-xl overflow-hidden" style={{ background: "hsl(0 40% 18%)", border: "1px solid hsl(0 25% 25%)" }}>
-                  <div className="flex-1 p-4">
-                    <h3 className="font-bold uppercase tracking-wide text-sm" style={{ color: "hsl(30 25% 92%)" }}>{pkg.name}</h3>
-                    <p className="text-xs mt-1" style={{ color: "hsl(30 25% 92% / 0.7)" }}>Preis: {pkg.price} pro Person</p>
-                  </div>
-                  <img src={pkg.img} alt={pkg.name} className="w-20 h-20 object-contain p-2" />
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-
-      case "gallery": {
-        const imgs = (content.gallery_images || []).length > 0
-          ? content.gallery_images.map((g) => g.url)
-          : defaultGalleryImages;
-        return (
-          <div style={{ ...bgStyle, ...padStyle }}>
-            <div style={alignStyle}>
-              <InlineText value={content.gallery_title} onChange={(v) => setContent((p) => ({ ...p, gallery_title: v }))} isActive={isActive} as="h2"
-                className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }} />
-              <InlineText value={content.gallery_text} onChange={(v) => setContent((p) => ({ ...p, gallery_text: v }))} isActive={isActive} as="p"
-                className="text-sm opacity-60 uppercase tracking-wide mb-4" />
-            </div>
-            <div className={cn("grid gap-2", `grid-cols-${previewMode === "mobile" ? 2 : layout.columns}`)}>
-              {imgs.map((src, i) => (
-                <img key={i} src={src} alt={`Galerie ${i + 1}`} className="w-full h-24 object-cover rounded-lg" />
-              ))}
-            </div>
-          </div>
-        );
-      }
-
-      case "about":
-        return (
-          <div style={{ ...bgStyle, ...padStyle }}>
-            <div className={cn("flex gap-6", layout.imagePosition === 'left' ? 'flex-row-reverse' : '', layout.imagePosition === 'top' ? 'flex-col-reverse' : '', layout.imagePosition === 'bottom' ? 'flex-col' : '')} style={alignStyle}>
-              <div className="flex-1">
-                <InlineText value={content.about_title} onChange={(v) => setContent((p) => ({ ...p, about_title: v }))} isActive={isActive} as="h2"
-                  className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }} />
-                <InlineText value={content.about_text} onChange={(v) => setContent((p) => ({ ...p, about_text: v }))} isActive={isActive} as="p"
-                  multiline className="text-sm opacity-60 uppercase tracking-wide mb-4 max-w-xl leading-relaxed" />
-              </div>
-              {layout.imagePosition !== 'background' && (
-                <div className="flex-shrink-0">
-                  <img src={content.about_image || teamPhoto} alt="Team" className="w-full max-w-xs rounded-lg shadow-lg" />
-                  {isActive && (
-                    <label className="mt-2 block text-center">
-                      <span className="text-xs text-blue-500 cursor-pointer hover:underline">Bild ändern</span>
-                      <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadImage((url) => setContent((p) => ({ ...p, about_image: url })), f); }} />
-                    </label>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        );
-
-      case "reservation":
-        return (
-          <div style={{ ...bgStyle, ...padStyle }}>
-            <div style={alignStyle}>
-              <InlineText value={content.reservation_title} onChange={(v) => setContent((p) => ({ ...p, reservation_title: v }))} isActive={isActive} as="h2"
-                className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }} />
-              <InlineText value={content.reservation_text} onChange={(v) => setContent((p) => ({ ...p, reservation_text: v }))} isActive={isActive} as="p"
-                className="text-sm opacity-60 uppercase tracking-wide mb-4" />
-            </div>
-            <div className="flex flex-col gap-2 max-w-xs">
-              {["Name", "E-Mail", "Telefon"].map((f) => (
-                <div key={f} className="h-8 rounded-lg border px-3 flex items-center text-xs opacity-40" style={{ borderColor: "currentColor" }}>{f}</div>
-              ))}
-              <div className="h-9 rounded-lg flex items-center justify-center text-xs font-semibold uppercase" style={{ background: "hsl(0 40% 18%)", color: "hsl(30 25% 92%)" }}>Tisch reservieren</div>
-            </div>
-          </div>
-        );
-
-      case "footer":
-        return (
-          <div style={{ background: "hsl(0 45% 14%)", color: "hsl(30 25% 92%)", ...padStyle }}>
-            <img src={mascotImg} alt="Maskottchen" className="h-16 w-auto mb-4" />
-            <div className={cn("grid gap-6", previewMode === "mobile" ? "grid-cols-1" : "grid-cols-2")}>
-              <div className="p-4" style={{ border: "1px solid hsl(30 25% 92% / 0.3)", background: "hsl(30 30% 88% / 0.1)" }}>
-                <h3 className="font-bold text-lg mb-3">Kontakt</h3>
-                <div className="space-y-2 text-sm opacity-90">
-                  <p>📍 {content.footer_address}</p>
-                  <p>📞 {content.footer_phone}</p>
-                  <p>✉️ {content.footer_email}</p>
-                </div>
-              </div>
-              <div className="p-4" style={{ border: "1px solid hsl(30 25% 92% / 0.3)", background: "hsl(30 30% 88% / 0.1)" }}>
-                <h3 className="font-bold text-lg mb-3">Öffnungszeiten</h3>
-                <div className="space-y-1 text-sm opacity-90">
-                  {[["Mo-Do", "11:00–14:00, 17:00–22:00"], ["Fr", "11:00–14:00, 17:00–23:00"], ["Sa", "11:00–23:00"], ["So", "14:00–22:00"]].map(([d, h]) => (
-                    <div key={d} className="flex justify-between text-xs"><span className="font-medium">{d}</span><span className="opacity-80">{h}</span></div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="mt-4 p-4" style={{ border: "1px solid hsl(30 25% 92% / 0.3)", background: "hsl(30 30% 88% / 0.1)" }}>
-              <h3 className="font-bold text-lg mb-2">Social Media</h3>
-              <div className="flex gap-4 text-sm opacity-90">
-                {content.social_instagram && <span>📸 {content.social_instagram}</span>}
-                {content.social_tiktok && <span>🎵 {content.social_tiktok}</span>}
-                {content.social_facebook && <span>📘 {content.social_facebook}</span>}
-                {content.social_linkedin && <span>💼 {content.social_linkedin}</span>}
-              </div>
-            </div>
-            <p className="text-xs opacity-50 mt-6 text-center">© {new Date().getFullYear()} Piratino AG</p>
-          </div>
-        );
-
-      default:
-        return <div style={padStyle} className="text-sm text-muted-foreground p-6">Unbekannte Sektion</div>;
-    }
-  }
-
-  function renderCustomPreview(sec: CustomSection, layout: SectionLayout, isActive: boolean, bgStyle: React.CSSProperties, padStyle: React.CSSProperties, alignStyle: React.CSSProperties) {
-    const textColor = layout.bgColor === 'dark' ? { color: "hsl(30 25% 92%)" } : { color: "hsl(0 45% 14%)" };
-
-    switch (sec.type) {
-      case "text_block":
-        return (
-          <div style={{ ...bgStyle, ...textColor, ...padStyle, ...alignStyle }}>
-            <InlineText value={sec.title} onChange={(v) => updateCustomContent(sec.id, "title", v)} isActive={isActive} as="h2"
-              className="text-2xl font-bold uppercase tracking-wider mb-3" style={{ fontFamily: "'League Spartan', sans-serif" }} placeholder="Titel eingeben..." />
-            <InlineText value={sec.text} onChange={(v) => updateCustomContent(sec.id, "text", v)} isActive={isActive} as="p"
-              multiline className="text-sm opacity-70 max-w-2xl leading-relaxed" placeholder="Text eingeben..." />
-          </div>
-        );
-
-      case "image_block":
-        return (
-          <div style={{ ...bgStyle, ...textColor, ...padStyle }} className={cn("flex gap-6 items-center", layout.imagePosition === 'left' ? 'flex-row-reverse' : '', layout.imagePosition === 'top' ? 'flex-col-reverse' : '', layout.imagePosition === 'bottom' ? 'flex-col' : '')}>
-            <div className="flex-1" style={alignStyle}>
-              <InlineText value={sec.title} onChange={(v) => updateCustomContent(sec.id, "title", v)} isActive={isActive} as="h2"
-                className="text-2xl font-bold uppercase tracking-wider mb-3" style={{ fontFamily: "'League Spartan', sans-serif" }} placeholder="Titel..." />
-              <InlineText value={sec.text} onChange={(v) => updateCustomContent(sec.id, "text", v)} isActive={isActive} as="p"
-                multiline className="text-sm opacity-70 leading-relaxed" placeholder="Beschreibung..." />
-            </div>
-            <div className="flex-shrink-0 w-full max-w-xs">
-              {sec.image ? (
-                <img src={sec.image} alt={sec.title} className="w-full rounded-lg shadow-lg" />
-              ) : (
-                <div className="w-full h-40 bg-muted/30 rounded-lg flex items-center justify-center border-2 border-dashed border-current/20">
-                  <span className="text-xs opacity-50">Bild hochladen</span>
-                </div>
-              )}
-            </div>
-          </div>
-        );
-
-      case "banner":
-        return (
-          <div
-            style={{
-              background: sec.image ? `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${sec.image}) center/cover` : "hsl(0 40% 18%)",
-              color: "hsl(30 25% 92%)",
-              ...padStyle,
-              ...alignStyle,
-            }}
-          >
-            <InlineText value={sec.title} onChange={(v) => updateCustomContent(sec.id, "title", v)} isActive={isActive} as="h2"
-              className="text-3xl font-bold uppercase tracking-wider mb-3" style={{ fontFamily: "'League Spartan', sans-serif" }} placeholder="Banner-Titel..." />
-            <InlineText value={sec.text} onChange={(v) => updateCustomContent(sec.id, "text", v)} isActive={isActive} as="p"
-              multiline className="text-lg opacity-80 max-w-xl" placeholder="Banner-Text..." />
-          </div>
-        );
-
-      case "cta":
-        return (
-          <div style={{ ...bgStyle, ...textColor, ...padStyle, ...alignStyle }}>
-            <InlineText value={sec.title} onChange={(v) => updateCustomContent(sec.id, "title", v)} isActive={isActive} as="h2"
-              className="text-2xl font-bold uppercase tracking-wider mb-3" style={{ fontFamily: "'League Spartan', sans-serif" }} placeholder="Überschrift..." />
-            <InlineText value={sec.text} onChange={(v) => updateCustomContent(sec.id, "text", v)} isActive={isActive} as="p"
-              multiline className="text-sm opacity-70 mb-6 max-w-xl" placeholder="Beschreibung..." />
-            <span className="inline-block px-8 py-3 rounded-lg font-semibold text-sm uppercase border-2 border-current">
-              {sec.buttonText || "Button"}
-            </span>
-          </div>
-        );
-
-      default:
-        return <div style={padStyle}>Block</div>;
-    }
-  }
 };
 
 // ===== HELPERS =====
-
-function getBgStyle(bgColor: string): React.CSSProperties {
-  switch (bgColor) {
-    case 'dark': return { background: "hsl(0 45% 14%)", color: "hsl(30 25% 92%)" };
-    case 'accent': return { background: "hsl(35 80% 95%)", color: "hsl(0 45% 14%)" };
-    default: return { background: "#fff", color: "hsl(0 45% 14%)" };
-  }
-}
-
-function getPadding(size: string, mode: string): React.CSSProperties {
-  const mobile = mode === "mobile";
-  switch (size) {
-    case 'sm': return { padding: mobile ? "1.5rem 1rem" : "2rem" };
-    case 'lg': return { padding: mobile ? "3rem 1.5rem" : "5rem 3rem" };
-    default: return { padding: mobile ? "2rem 1.5rem" : "3rem" };
-  }
-}
-
-const PreviewSection = ({ section, active, onClick, label, children }: {
-  section: string; active: string | null; onClick: () => void; label: string; children: React.ReactNode;
-}) => (
-  <div
-    data-section={section}
-    onClick={onClick}
-    className={cn("relative cursor-pointer transition-all group", active === section && "ring-2 ring-blue-500 ring-inset")}
-  >
-    <div className="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-      <span className="bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded shadow-lg">{label}</span>
-    </div>
-    {children}
-  </div>
-);
 
 const FieldLabel = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div>
