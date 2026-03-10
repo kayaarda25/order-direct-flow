@@ -255,6 +255,40 @@ const AdminContent = () => {
                       <FieldLabel label="Beschreibung">
                         <Textarea value={content.gallery_text} onChange={(e) => setContent((p) => ({ ...p, gallery_text: e.target.value }))} rows={3} />
                       </FieldLabel>
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground mb-2 block">Bilder ({(content.gallery_images || []).length})</label>
+                        <div className="space-y-2 mb-3">
+                          {(content.gallery_images || []).map((img, i) => (
+                            <div key={i} className="flex items-center gap-2 bg-secondary rounded-lg p-2">
+                              <img src={img.url} alt={img.alt} className="w-14 h-14 object-cover rounded" />
+                              <div className="flex-1 min-w-0">
+                                <Input
+                                  value={img.alt}
+                                  onChange={(e) => updateGalleryAlt(i, e.target.value)}
+                                  placeholder="Bildbeschreibung"
+                                  className="h-7 text-xs"
+                                />
+                              </div>
+                              <div className="flex flex-col gap-0.5">
+                                <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={() => moveGalleryImage(i, -1)} disabled={i === 0}>
+                                  <ChevronLeft className="h-3 w-3 rotate-90" />
+                                </Button>
+                                <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={() => moveGalleryImage(i, 1)} disabled={i === (content.gallery_images || []).length - 1}>
+                                  <ChevronRight className="h-3 w-3 rotate-90" />
+                                </Button>
+                              </div>
+                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => removeGalleryImage(i)}>
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                        <label className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer block hover:border-muted-foreground/50 transition-colors">
+                          <Plus className="mx-auto h-6 w-6 text-muted-foreground mb-1" />
+                          <span className="text-xs text-muted-foreground">Bild hinzufügen</span>
+                          <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleGalleryUpload(f); }} className="hidden" />
+                        </label>
+                      </div>
                     </div>
                   )}
                   {activeSection === "catering" && (
