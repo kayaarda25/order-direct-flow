@@ -34,9 +34,7 @@ export interface MenuCategory {
 export const categories: MenuCategory[] = [
   { id: "vorspeisen", name: "Vorspeisen", icon: "🥖" },
   { id: "salate", name: "Salate", icon: "🥗" },
-  { id: "pizza-32", name: "Pizza 32cm", icon: "🍕" },
-  { id: "pizza-45", name: "Pizza Grande 45cm", icon: "🍕" },
-  { id: "pizza-50", name: "Pizza 50cm", icon: "🍕" },
+  { id: "pizza", name: "Pizza", icon: "🍕" },
   { id: "kinder-pizza", name: "Kinder Pizza", icon: "🍕" },
   { id: "pasta", name: "Pasta", icon: "🍝" },
   { id: "fleisch-fisch-grill", name: "Fleisch, Fisch & Grill", icon: "🥩" },
