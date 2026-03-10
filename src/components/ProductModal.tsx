@@ -37,6 +37,8 @@ const ProductModal = ({ item, onClose, onAdded }: ProductModalProps) => {
     setSpecialNotes("");
   }, [item?.id, getDefaultModifiers]);
 
+  if (!item) return null;
+
   const handleModifierToggle = (groupId: string, modifier: Modifier, multiSelect: boolean) => {
     setSelectedModifiers((prev) => {
       if (multiSelect) {
