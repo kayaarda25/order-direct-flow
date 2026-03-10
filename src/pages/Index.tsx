@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useSiteContent } from "@/hooks/useSiteContent";
 import HeroSection from "@/components/HeroSection";
 import pizzaImg from "@/assets/pizza-overhead.png";
 import cateringPizzaImg from "@/assets/catering-pizza-party.png";
