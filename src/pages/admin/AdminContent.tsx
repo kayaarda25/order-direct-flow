@@ -15,8 +15,15 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Save, Upload, X, Monitor, Smartphone, ChevronUp, ChevronDown,
   Trash2, Plus, Eye, EyeOff, Type, ImageIcon, Megaphone, MousePointerClick,
-  GripVertical, Pencil, LayoutGrid,
+  GripVertical, Pencil, LayoutGrid, Globe,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
