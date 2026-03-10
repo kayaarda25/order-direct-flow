@@ -297,12 +297,12 @@ const AdminContent = () => {
       <div className="flex flex-1 overflow-hidden">
         {/* ===== SIDEBAR ===== */}
         <div className="w-[360px] border-r border-border bg-card overflow-y-auto shrink-0 flex flex-col">
-          {/* Tab bar */}
+          {/* Tab bar - only show sections tab for homepage */}
           <div className="flex border-b border-border shrink-0">
             {([
-              { id: "sections" as PanelTab, label: "Sektionen", icon: LayoutGrid },
+              ...(activePage === "home" ? [{ id: "sections" as PanelTab, label: "Sektionen", icon: LayoutGrid }] : []),
               { id: "content" as PanelTab, label: "Inhalt", icon: Pencil },
-              { id: "layout" as PanelTab, label: "Layout", icon: LayoutGrid },
+              ...(activePage === "home" ? [{ id: "layout" as PanelTab, label: "Layout", icon: LayoutGrid }] : []),
             ]).map((tab) => (
               <button
                 key={tab.id}
@@ -318,8 +318,8 @@ const AdminContent = () => {
           </div>
 
           <div className="flex-1 overflow-y-auto">
-            {/* TAB: Sections List */}
-            {panelTab === "sections" && (
+            {/* TAB: Sections List (home only) */}
+            {panelTab === "sections" && activePage === "home" && (
               <div className="p-3">
                 <div className="space-y-1 mb-4">
                   {sectionsOrder.map((id, idx) => (
@@ -384,17 +384,27 @@ const AdminContent = () => {
             )}
 
             {/* TAB: Content Editor */}
-            {panelTab === "content" && activeSection && (
+            {panelTab === "content" && (
               <div className="p-4 space-y-4">
-                <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">
-                  {getSectionLabel(activeSection)} – Inhalt
-                </h3>
-                {renderContentEditor()}
+                {activePage === "home" && activeSection ? (
+                  <>
+                    <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">
+                      {getSectionLabel(activeSection)} – Inhalt
+                    </h3>
+                    {renderContentEditor()}
+                  </>
+                ) : activePage !== "home" ? (
+                  renderPageContentEditor()
+                ) : (
+                  <div className="p-4 text-center text-sm text-muted-foreground">
+                    Klicke auf eine Sektion in der Vorschau
+                  </div>
+                )}
               </div>
             )}
 
-            {/* TAB: Layout */}
-            {panelTab === "layout" && activeSection && (
+            {/* TAB: Layout (home only) */}
+            {panelTab === "layout" && activeSection && activePage === "home" && (
               <div className="p-4">
                 <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide mb-4">
                   {getSectionLabel(activeSection)} – Layout
@@ -404,12 +414,6 @@ const AdminContent = () => {
                   onChange={(l) => updateSectionLayout(activeSection, l)}
                   sectionType={getSectionType(activeSection)}
                 />
-              </div>
-            )}
-
-            {panelTab !== "sections" && !activeSection && (
-              <div className="p-8 text-center text-sm text-muted-foreground">
-                Klicke auf eine Sektion in der Vorschau
               </div>
             )}
           </div>
@@ -429,23 +433,37 @@ const AdminContent = () => {
               <div className="flex items-center justify-between h-14 px-4">
                 <img src={logoImg} alt="Piratino" className="h-8 w-auto" />
                 <div className="flex items-center gap-4 text-sm" style={{ color: "hsl(30 25% 92% / 0.8)" }}>
-                  <span>Bestellen</span><span>Catering</span><span>Galerie</span><span>Über uns</span>
+                  {PAGES.filter(p => p.id !== "home").map((p) => (
+                    <span
+                      key={p.id}
+                      onClick={() => { setActivePage(p.id); setActiveSection(null); setPanelTab("content"); }}
+                      className={cn("cursor-pointer hover:opacity-100 transition-opacity", activePage === p.id ? "opacity-100 font-semibold" : "opacity-70")}
+                    >
+                      {p.label.split(" ").slice(1).join(" ")}
+                    </span>
+                  ))}
                 </div>
               </div>
             </div>
 
-            {/* Sections in order */}
-            {sectionsOrder.filter(isVisible).map((id) => (
-              <PreviewSection
-                key={id}
-                section={id}
-                active={activeSection}
-                onClick={() => { setActiveSection(id); setPanelTab("content"); }}
-                label={getSectionLabel(id)}
-              >
-                {renderPreviewSection(id)}
-              </PreviewSection>
-            ))}
+            {/* Page content */}
+            {activePage === "home" ? (
+              // Home page sections
+              sectionsOrder.filter(isVisible).map((id) => (
+                <PreviewSection
+                  key={id}
+                  section={id}
+                  active={activeSection}
+                  onClick={() => { setActiveSection(id); setPanelTab("content"); }}
+                  label={getSectionLabel(id)}
+                >
+                  {renderPreviewSection(id)}
+                </PreviewSection>
+              ))
+            ) : (
+              // Subpage previews
+              renderPagePreview()
+            )}
           </div>
         </div>
       </div>
