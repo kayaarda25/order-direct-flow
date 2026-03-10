@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { useSiteContent } from "@/hooks/useSiteContent";
 import { ArrowLeft, ArrowRight, Check, Users, MapPin, CalendarDays, Clock } from "lucide-react";
 import cateringPizzaImg from "@/assets/catering-pizza-party.png";
 import cateringPastaImg from "@/assets/catering-pasta.png";
