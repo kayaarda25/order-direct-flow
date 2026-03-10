@@ -422,11 +422,11 @@ const AdminContent = () => {
               section="menu"
               active={activeSection}
               onClick={() => setActiveSection("menu")}
-              label="Menü (automatisch)"
+              label="Menü bearbeiten"
             >
               <div style={{ background: "#fff", color: "hsl(0 45% 14%)", padding: previewMode === "mobile" ? "2rem 1.5rem" : "3rem" }}>
-                <h2 className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }}>Menu</h2>
-                <p className="text-sm opacity-60 uppercase tracking-wide mb-6">Im Restaurant geniessen, selbst abholen oder nach Hause bestellen</p>
+                <h2 className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }}>{content.menu_title || "Menu"}</h2>
+                <p className="text-sm opacity-60 uppercase tracking-wide mb-6">{content.menu_subtitle || "Im Restaurant geniessen, selbst abholen oder nach Hause bestellen"}</p>
                 <div className="relative inline-block">
                   <div className="rounded-2xl p-4 flex flex-col gap-2 relative z-10" style={{ background: "hsl(0 40% 18%)", border: "1px solid hsl(0 25% 25%)" }}>
                     {["Vorspeisen & Salate", "PIZZA", "Pasta", "Fisch & Fleisch", "Kinder Pizza", "Getränke"].map((cat) => (
