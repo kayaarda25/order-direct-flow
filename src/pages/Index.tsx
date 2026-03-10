@@ -159,10 +159,10 @@ const Index = () => {
             className="mb-12"
           >
             <h2 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground mb-3 uppercase tracking-wider">
-              Catering-Pakete
+              {content.catering_title || "Catering-Pakete"}
             </h2>
             <p className="text-primary-foreground/60 text-sm uppercase tracking-wide">
-              6 perfekt abgestimmte Catering-Pakete – individuell erweiterbar
+              {content.catering_text || "6 perfekt abgestimmte Catering-Pakete – individuell erweiterbar"}
             </p>
           </motion.div>
 
