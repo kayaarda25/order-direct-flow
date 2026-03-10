@@ -1,16 +1,11 @@
+import { useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import { Clock, Facebook, Instagram, Linkedin, MapPin, Music2, Phone } from "lucide-react";
 import pirateMascot from "@/assets/pirate-mascot.png";
+import { useSiteContent } from "@/hooks/useSiteContent";
+import { supabase } from "@/integrations/supabase/client";
 
-const openingHours = [
-  { day: "Montag", hours: "11:00 - 14:00 und 17:00 - 22:00" },
-  { day: "Dienstag", hours: "11:00 - 14:00 und 17:00 - 22:00" },
-  { day: "Mittwoch", hours: "11:00 - 14:00 und 17:00 - 22:00" },
-  { day: "Donnerstag", hours: "11:00 - 14:00 und 17:00 - 22:00" },
-  { day: "Freitag", hours: "11:00 - 14:00 und 17:00 - 23:00" },
-  { day: "Samstag", hours: "11:00 - 23:00" },
-  { day: "Sonntag", hours: "14:00 - 22:00" },
-];
+const DAY_NAMES = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
 
 const FooterCard = ({ title, children }: { title: string; children: ReactNode }) => (
   <section className="border border-primary-foreground/65 bg-primary/20 p-4">
@@ -19,7 +14,48 @@ const FooterCard = ({ title, children }: { title: string; children: ReactNode })
   </section>
 );
 
+interface HoursEntry { day: string; hours: string }
+
 const Footer = () => {
+  const { content } = useSiteContent();
+  const [openingHours, setOpeningHours] = useState<HoursEntry[]>([]);
+
+  useEffect(() => {
+    const fetchHours = async () => {
+      const { data } = await supabase
+        .from("opening_hours")
+        .select("*")
+        .order("day_of_week");
+      if (data && data.length > 0) {
+        setOpeningHours(
+          data.map((d: any) => {
+            const ranges = (d.time_ranges as number[][]) || [];
+            const hoursStr = ranges.length === 0
+              ? "Geschlossen"
+              : ranges
+                  .map(([sh, sm, eh, em]: number[]) =>
+                    `${String(sh).padStart(2, "0")}:${String(sm).padStart(2, "0")} - ${String(eh).padStart(2, "0")}:${String(em).padStart(2, "0")}`
+                  )
+                  .join(" und ");
+            return { day: DAY_NAMES[d.day_of_week], hours: hoursStr };
+          })
+        );
+      } else {
+        // Fallback
+        setOpeningHours([
+          { day: "Montag", hours: "11:00 - 14:00 und 17:00 - 22:00" },
+          { day: "Dienstag", hours: "11:00 - 14:00 und 17:00 - 22:00" },
+          { day: "Mittwoch", hours: "11:00 - 14:00 und 17:00 - 22:00" },
+          { day: "Donnerstag", hours: "11:00 - 14:00 und 17:00 - 22:00" },
+          { day: "Freitag", hours: "11:00 - 14:00 und 17:00 - 23:00" },
+          { day: "Samstag", hours: "11:00 - 23:00" },
+          { day: "Sonntag", hours: "14:00 - 22:00" },
+        ]);
+      }
+    };
+    fetchHours();
+  }, []);
+
   return (
     <footer className="mt-auto border-t border-border bg-primary text-primary-foreground">
       <div className="container py-10 md:py-14">
@@ -31,13 +67,13 @@ const Footer = () => {
               <div className="space-y-2">
                 <p className="flex items-start gap-2">
                   <MapPin className="mt-0.5 h-4 w-4" />
-                  <span>Badenerstrasse 696, 8048 Zürich</span>
+                  <span>{content.footer_address}</span>
                 </p>
                 <p className="flex items-center gap-2">
                   <Phone className="h-4 w-4" />
-                  <span>044 431 32 33</span>
+                  <span>{content.footer_phone}</span>
                 </p>
-                <p className="text-primary-foreground/85">piratinoag@hotmail.com</p>
+                <p className="text-primary-foreground/85">{content.footer_email}</p>
               </div>
             </FooterCard>
 

@@ -7,6 +7,7 @@ import gallery5 from "@/assets/gallery-5.jpg";
 import gallery6 from "@/assets/gallery-6.jpg";
 import gallery7 from "@/assets/gallery-7.jpg";
 import gallery8 from "@/assets/gallery-8.jpg";
+import { useSiteContent } from "@/hooks/useSiteContent";
 
 const galleryImages = [
   { src: gallery1, alt: "Restaurant Innenbereich" },
@@ -20,6 +21,8 @@ const galleryImages = [
 ];
 
 const GalleryPage = () => {
+  const { content } = useSiteContent();
+
   return (
     <div className="bg-white min-h-screen py-16 md:py-24">
       <div className="container">
@@ -29,10 +32,10 @@ const GalleryPage = () => {
           className="mb-8"
         >
           <h1 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground mb-3 uppercase tracking-wider">
-            Galerie
+            {content.gallery_title}
           </h1>
           <p className="text-primary-foreground/60 text-sm max-w-2xl uppercase tracking-wide">
-            In unserer Galerie bekommen Sie einen Eindruck von unseren Speisen und Getränken sowie vom Ambiente des Restaurants. Wir freuen uns auf Ihren baldigen Besuch!
+            {content.gallery_text}
           </p>
         </motion.div>
 
