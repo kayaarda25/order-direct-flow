@@ -218,7 +218,10 @@ const Index = () => {
           </motion.div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-            {galleryImages.map((img, i) => (
+            {((content.gallery_images && content.gallery_images.length > 0)
+              ? content.gallery_images.map((img) => ({ src: img.url, alt: img.alt }))
+              : galleryImages
+            ).map((img, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, scale: 0.95 }}
