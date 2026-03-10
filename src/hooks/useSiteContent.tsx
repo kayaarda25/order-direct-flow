@@ -106,6 +106,7 @@ const DEFAULT_CONTENT: SiteContent = {
   sections_visibility: {},
   sections_layout: {},
   custom_sections: [],
+  page_sections: {},
 };
 
 interface SiteContentContextType {
