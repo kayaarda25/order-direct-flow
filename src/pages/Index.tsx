@@ -102,10 +102,10 @@ const Index = () => {
             className="mb-6"
           >
             <h2 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground mb-3 uppercase tracking-wider">
-              Menu
+              {content.menu_title}
             </h2>
             <p className="text-primary-foreground/60 text-base uppercase tracking-wide">
-              Im Restaurant geniessen, selbst abholen oder nach Hause bestellen
+              {content.menu_subtitle}
             </p>
           </motion.div>
 
