@@ -247,10 +247,10 @@ const Index = () => {
             className="mb-8"
           >
             <h2 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground mb-3 uppercase tracking-wider">
-              Über uns
+              {content.about_title}
             </h2>
             <p className="text-primary-foreground/60 text-sm max-w-2xl uppercase tracking-wide">
-              Am besten, Sie lernen uns persönlich kennen und überzeugen sich vom Geschmack unserer Speisen! Unsere Pizzeria besteht bereits seit 2006. Seit dem bieten wir unseren Gästen leckere Pizzen sowie weitere italienische Gerichte und Highlights aus der Schweizer Küche an. Überzeugen Sie sich selbst:
+              {content.about_text}
             </p>
           </motion.div>
 
