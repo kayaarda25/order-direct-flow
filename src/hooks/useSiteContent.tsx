@@ -14,6 +14,13 @@ export interface SectionLayout {
   bgColor: 'white' | 'dark' | 'accent';
 }
 
+export interface ElementPosition {
+  x: number; // percentage 0-100
+  y: number; // percentage 0-100
+  width?: number; // percentage
+  scale?: number; // 0.1-3
+}
+
 export interface CustomSection {
   id: string;
   type: 'text_block' | 'image_block' | 'banner' | 'cta';
