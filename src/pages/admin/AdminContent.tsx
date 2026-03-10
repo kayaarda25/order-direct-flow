@@ -470,7 +470,190 @@ const AdminContent = () => {
     </div>
   );
 
-  // ========== CONTENT EDITOR (Sidebar) ==========
+  // ========== PAGE-SPECIFIC CONTENT EDITORS (Sidebar) ==========
+  function renderPageContentEditor() {
+    switch (activePage) {
+      case "menu":
+        return (
+          <div className="space-y-4">
+            <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">📋 Menü-Seite</h3>
+            <FieldLabel label="Titel"><Input value={content.menu_title} onChange={(e) => setContent((p) => ({ ...p, menu_title: e.target.value }))} /></FieldLabel>
+            <FieldLabel label="Untertitel"><Input value={content.menu_subtitle} onChange={(e) => setContent((p) => ({ ...p, menu_subtitle: e.target.value }))} /></FieldLabel>
+            <p className="text-xs text-muted-foreground border-t border-border pt-3">Die Menü-Produkte werden unter «Menü» im Admin verwaltet.</p>
+          </div>
+        );
+      case "galerie":
+        return (
+          <div className="space-y-4">
+            <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">🖼️ Galerie-Seite</h3>
+            <FieldLabel label="Titel"><Input value={content.gallery_title} onChange={(e) => setContent((p) => ({ ...p, gallery_title: e.target.value }))} /></FieldLabel>
+            <FieldLabel label="Beschreibung"><Textarea value={content.gallery_text} onChange={(e) => setContent((p) => ({ ...p, gallery_text: e.target.value }))} rows={3} /></FieldLabel>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-2 block">Bilder ({(content.gallery_images || []).length})</label>
+              <div className="space-y-2 mb-3">
+                {(content.gallery_images || []).map((img, i) => (
+                  <div key={i} className="flex items-center gap-2 bg-secondary rounded-lg p-2">
+                    <img src={img.url} alt={img.alt} className="w-12 h-12 object-cover rounded" />
+                    <Input value={img.alt} onChange={(e) => {
+                      const imgs = [...(content.gallery_images || [])];
+                      imgs[i] = { ...imgs[i], alt: e.target.value };
+                      setContent((p) => ({ ...p, gallery_images: imgs }));
+                    }} placeholder="Alt-Text" className="h-7 text-xs flex-1" />
+                    <div className="flex flex-col gap-0.5">
+                      <button onClick={() => moveGalleryImage(i, -1)} disabled={i === 0} className="p-0.5 disabled:opacity-30"><ChevronUp className="h-3 w-3" /></button>
+                      <button onClick={() => moveGalleryImage(i, 1)} disabled={i === (content.gallery_images || []).length - 1} className="p-0.5 disabled:opacity-30"><ChevronDown className="h-3 w-3" /></button>
+                    </div>
+                    <button onClick={() => removeGalleryImage(i)} className="p-1 text-destructive hover:bg-destructive/10 rounded"><Trash2 className="h-3.5 w-3.5" /></button>
+                  </div>
+                ))}
+              </div>
+              <label className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer block hover:border-muted-foreground/50 transition-colors">
+                <Plus className="mx-auto h-5 w-5 text-muted-foreground mb-1" />
+                <span className="text-xs text-muted-foreground">Bild hinzufügen</span>
+                <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) addGalleryImage(f); }} className="hidden" />
+              </label>
+            </div>
+          </div>
+        );
+      case "ueber-uns":
+        return (
+          <div className="space-y-4">
+            <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">📖 Über uns-Seite</h3>
+            <FieldLabel label="Titel"><Input value={content.about_title} onChange={(e) => setContent((p) => ({ ...p, about_title: e.target.value }))} /></FieldLabel>
+            <FieldLabel label="Text"><Textarea value={content.about_text} onChange={(e) => setContent((p) => ({ ...p, about_text: e.target.value }))} rows={5} /></FieldLabel>
+            <ImageField label="Bild" value={content.about_image} onUpload={(f) => uploadImage((url) => setContent((p) => ({ ...p, about_image: url })), f)} onRemove={() => setContent((p) => ({ ...p, about_image: "" }))} />
+          </div>
+        );
+      case "catering":
+        return (
+          <div className="space-y-4">
+            <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">🍽️ Catering-Seite</h3>
+            <FieldLabel label="Titel"><Input value={content.catering_title} onChange={(e) => setContent((p) => ({ ...p, catering_title: e.target.value }))} /></FieldLabel>
+            <FieldLabel label="Beschreibung"><Textarea value={content.catering_text} onChange={(e) => setContent((p) => ({ ...p, catering_text: e.target.value }))} rows={3} /></FieldLabel>
+            <p className="text-xs text-muted-foreground border-t border-border pt-3">Die Catering-Pakete sind aktuell fest definiert.</p>
+          </div>
+        );
+      case "reservierung":
+        return (
+          <div className="space-y-4">
+            <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">📅 Reservierung-Seite</h3>
+            <FieldLabel label="Titel"><Input value={content.reservation_title} onChange={(e) => setContent((p) => ({ ...p, reservation_title: e.target.value }))} /></FieldLabel>
+            <FieldLabel label="Beschreibung"><Textarea value={content.reservation_text} onChange={(e) => setContent((p) => ({ ...p, reservation_text: e.target.value }))} rows={3} /></FieldLabel>
+          </div>
+        );
+      default:
+        return null;
+    }
+  }
+
+  // ========== PAGE PREVIEWS ==========
+  function renderPagePreview() {
+    const padStyle = getPadding("md", previewMode);
+    const pageStyle: React.CSSProperties = { background: "#fff", color: "hsl(0 45% 14%)", minHeight: 300 };
+
+    switch (activePage) {
+      case "menu":
+        return (
+          <div style={{ ...pageStyle, ...padStyle }}>
+            <h1 className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }}>
+              {content.menu_title}
+            </h1>
+            <p className="text-sm opacity-60 uppercase tracking-wide mb-6">{content.menu_subtitle}</p>
+            <div className="space-y-3">
+              {["Vorspeisen & Salate", "PIZZA", "Pasta", "Fisch & Fleisch"].map((cat) => (
+                <div key={cat}>
+                  <h3 className="font-bold text-sm uppercase tracking-wide mb-2 opacity-80">{cat}</h3>
+                  <div className={cn("grid gap-2", previewMode === "mobile" ? "grid-cols-1" : "grid-cols-3")}>
+                    {[1, 2, 3].map((n) => (
+                      <div key={n} className="rounded-lg border p-3" style={{ borderColor: "hsl(0 10% 85%)" }}>
+                        <div className="w-full h-16 bg-muted/30 rounded mb-2" />
+                        <div className="h-3 bg-muted/40 rounded w-3/4 mb-1" />
+                        <div className="h-3 bg-muted/20 rounded w-1/2" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+
+      case "galerie": {
+        const imgs = (content.gallery_images || []).length > 0
+          ? content.gallery_images.map((g) => g.url)
+          : defaultGalleryImages;
+        return (
+          <div style={{ ...pageStyle, ...padStyle }}>
+            <h1 className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }}>
+              {content.gallery_title}
+            </h1>
+            <p className="text-sm opacity-60 uppercase tracking-wide mb-6">{content.gallery_text}</p>
+            <div className={cn("grid gap-2", previewMode === "mobile" ? "grid-cols-2" : "grid-cols-3")}>
+              {imgs.map((src, i) => (
+                <img key={i} src={src} alt={`Galerie ${i + 1}`} className="w-full h-32 object-cover rounded-lg" />
+              ))}
+            </div>
+          </div>
+        );
+      }
+
+      case "ueber-uns":
+        return (
+          <div style={{ ...pageStyle, ...padStyle }}>
+            <h1 className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }}>
+              {content.about_title}
+            </h1>
+            <p className="text-sm opacity-60 uppercase tracking-wide mb-6 max-w-2xl leading-relaxed">{content.about_text}</p>
+            <img src={content.about_image || teamPhoto} alt="Team" className="w-full max-w-md rounded-lg shadow-lg" />
+          </div>
+        );
+
+      case "catering":
+        return (
+          <div style={{ ...pageStyle, ...padStyle }}>
+            <h1 className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }}>
+              {content.catering_title}
+            </h1>
+            <p className="text-sm opacity-60 uppercase tracking-wide mb-6">{content.catering_text}</p>
+            <div className="flex flex-col gap-3">
+              {[
+                { name: "PIZZA PARTY", img: cateringPizzaImg, price: "CHF 30.00" },
+                { name: "PASTA CLASSICA", img: cateringPastaImg, price: "CHF 30.00" },
+                { name: "APERITIVO", img: cateringAperitivoImg, price: "CHF 35.00" },
+              ].map((pkg) => (
+                <div key={pkg.name} className="flex items-center rounded-xl overflow-hidden" style={{ background: "hsl(0 40% 18%)", border: "1px solid hsl(0 25% 25%)" }}>
+                  <div className="flex-1 p-4">
+                    <h3 className="font-bold uppercase tracking-wide text-sm" style={{ color: "hsl(30 25% 92%)" }}>{pkg.name}</h3>
+                    <p className="text-xs mt-1" style={{ color: "hsl(30 25% 92% / 0.7)" }}>Preis: {pkg.price} pro Person</p>
+                  </div>
+                  <img src={pkg.img} alt={pkg.name} className="w-20 h-20 object-contain p-2" />
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+
+      case "reservierung":
+        return (
+          <div style={{ ...pageStyle, ...padStyle }}>
+            <h1 className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }}>
+              {content.reservation_title}
+            </h1>
+            <p className="text-sm opacity-60 uppercase tracking-wide mb-6">{content.reservation_text}</p>
+            <div className="flex flex-col gap-3 max-w-sm">
+              {["Name", "E-Mail", "Telefon", "Datum", "Uhrzeit", "Personen"].map((f) => (
+                <div key={f} className="h-10 rounded-lg border px-3 flex items-center text-sm opacity-40" style={{ borderColor: "hsl(0 10% 80%)" }}>{f}</div>
+              ))}
+              <div className="h-11 rounded-lg flex items-center justify-center text-sm font-semibold uppercase" style={{ background: "hsl(0 40% 18%)", color: "hsl(30 25% 92%)" }}>Tisch reservieren</div>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  }
+
   function renderContentEditor() {
     if (!activeSection) return null;
 
