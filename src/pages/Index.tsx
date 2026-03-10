@@ -32,7 +32,7 @@ const galleryImages = [
 
 const menuCategories = [
   { name: "Vorspeisen & Salate", id: "vorspeisen" },
-  { name: "PIZZA", id: "pizza-32" },
+  { name: "PIZZA", id: "pizza" },
   { name: "Pasta", id: "pasta" },
   { name: "Fisch & Fleisch", id: "fleisch-fisch-grill" },
   { name: "Kinder Pizza", id: "kinder-pizza" },
