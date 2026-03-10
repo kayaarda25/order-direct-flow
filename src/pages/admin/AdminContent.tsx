@@ -262,15 +262,38 @@ const AdminContent = () => {
       const oldIndex = order.indexOf(active.id as string);
       const newIndex = order.indexOf(over.id as string);
       const newOrder = arrayMove(order, oldIndex, newIndex);
-      setContent((p) => ({ ...p, sections_order: newOrder }));
+      if (activePage === "home") {
+        setContent((p) => ({ ...p, sections_order: newOrder }));
+      } else {
+        setContent((p) => ({
+          ...p,
+          page_sections: {
+            ...p.page_sections,
+            [activePage]: { ...(p.page_sections?.[activePage] || { order: [], visibility: {}, custom_blocks: [] }), order: newOrder },
+          },
+        }));
+      }
     }
   };
 
   const toggleVisibility = (id: string) => {
-    setContent((p) => ({
-      ...p,
-      sections_visibility: { ...p.sections_visibility, [id]: !isVisible(id) },
-    }));
+    if (activePage === "home") {
+      setContent((p) => ({
+        ...p,
+        sections_visibility: { ...p.sections_visibility, [id]: !isVisible(id) },
+      }));
+    } else {
+      setContent((p) => {
+        const ps = p.page_sections?.[activePage] || { order: [], visibility: {}, custom_blocks: [] };
+        return {
+          ...p,
+          page_sections: {
+            ...p.page_sections,
+            [activePage]: { ...ps, visibility: { ...ps.visibility, [id]: !isVisible(id) } },
+          },
+        };
+      });
+    }
   };
 
   const addCustomSection = (type: CustomSection["type"]) => {
@@ -279,34 +302,87 @@ const AdminContent = () => {
       id, type, title: "", text: "", image: "", buttonText: "", buttonLink: "",
       layout: { ...DEFAULT_LAYOUT },
     };
-    setContent((p) => ({
-      ...p,
-      custom_sections: [...(p.custom_sections || []), section],
-      sections_order: [...sectionsOrder, id],
-    }));
+    if (activePage === "home") {
+      setContent((p) => ({
+        ...p,
+        custom_sections: [...(p.custom_sections || []), section],
+        sections_order: [...sectionsOrder, id],
+      }));
+    } else {
+      setContent((p) => {
+        const ps = p.page_sections?.[activePage] || { order: [], visibility: {}, custom_blocks: [] };
+        return {
+          ...p,
+          page_sections: {
+            ...p.page_sections,
+            [activePage]: {
+              ...ps,
+              custom_blocks: [...(ps.custom_blocks || []), section],
+              order: [...sectionsOrder, id],
+            },
+          },
+        };
+      });
+    }
     setActiveSection(id);
     setPanelTab("content");
     setShowAddBlock(false);
   };
 
   const removeCustomSection = (id: string) => {
-    setContent((p) => ({
-      ...p,
-      custom_sections: (p.custom_sections || []).filter((s) => s.id !== id),
-      sections_order: sectionsOrder.filter((s) => s !== id),
-    }));
+    if (activePage === "home") {
+      setContent((p) => ({
+        ...p,
+        custom_sections: (p.custom_sections || []).filter((s) => s.id !== id),
+        sections_order: sectionsOrder.filter((s) => s !== id),
+      }));
+    } else {
+      setContent((p) => {
+        const ps = p.page_sections?.[activePage] || { order: [], visibility: {}, custom_blocks: [] };
+        return {
+          ...p,
+          page_sections: {
+            ...p.page_sections,
+            [activePage]: {
+              ...ps,
+              custom_blocks: (ps.custom_blocks || []).filter((s) => s.id !== id),
+              order: sectionsOrder.filter((s) => s !== id),
+            },
+          },
+        };
+      });
+    }
     if (activeSection === id) setActiveSection(null);
   };
 
   const updateSectionLayout = (id: string, layout: Partial<SectionLayout>) => {
-    const custom = content.custom_sections?.find((s) => s.id === id);
+    const customs = activePage === "home" ? content.custom_sections : content.page_sections?.[activePage]?.custom_blocks;
+    const custom = customs?.find((s) => s.id === id);
     if (custom) {
-      setContent((p) => ({
-        ...p,
-        custom_sections: (p.custom_sections || []).map((s) =>
-          s.id === id ? { ...s, layout: { ...s.layout, ...layout } } : s
-        ),
-      }));
+      if (activePage === "home") {
+        setContent((p) => ({
+          ...p,
+          custom_sections: (p.custom_sections || []).map((s) =>
+            s.id === id ? { ...s, layout: { ...s.layout, ...layout } } : s
+          ),
+        }));
+      } else {
+        setContent((p) => {
+          const ps = p.page_sections?.[activePage] || { order: [], visibility: {}, custom_blocks: [] };
+          return {
+            ...p,
+            page_sections: {
+              ...p.page_sections,
+              [activePage]: {
+                ...ps,
+                custom_blocks: (ps.custom_blocks || []).map((s) =>
+                  s.id === id ? { ...s, layout: { ...s.layout, ...layout } } : s
+                ),
+              },
+            },
+          };
+        });
+      }
     } else {
       setContent((p) => ({
         ...p,
