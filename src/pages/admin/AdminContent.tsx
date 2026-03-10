@@ -530,9 +530,9 @@ const AdminContent = () => {
           {/* Tab bar */}
           <div className="flex border-b border-border shrink-0">
             {([
-              ...(activePage === "home" ? [{ id: "sections" as PanelTab, label: "Sektionen" }] : []),
+              { id: "sections" as PanelTab, label: "Sektionen" },
               { id: "content" as PanelTab, label: "Inhalt" },
-              ...(activePage === "home" ? [{ id: "layout" as PanelTab, label: "Layout" }] : []),
+              { id: "layout" as PanelTab, label: "Layout" },
             ]).map((tab) => (
               <button
                 key={tab.id}
@@ -548,8 +548,8 @@ const AdminContent = () => {
           </div>
 
           <div className="flex-1 overflow-y-auto">
-            {/* TAB: Sections List with Drag & Drop (home only) */}
-            {panelTab === "sections" && activePage === "home" && (
+            {/* TAB: Sections List with Drag & Drop (all pages) */}
+            {panelTab === "sections" && (
               <div className="p-3">
                 <DndContext
                   sensors={sensors}
