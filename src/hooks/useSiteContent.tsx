@@ -43,6 +43,7 @@ const DEFAULT_CONTENT: SiteContent = {
   footer_address: "Badenerstrasse 696, 8048 Zürich",
   gallery_title: "Galerie",
   gallery_text: "In unserer Galerie bekommen Sie einen Eindruck von unseren Speisen und Getränken sowie vom Ambiente des Restaurants. Wir freuen uns auf Ihren baldigen Besuch!",
+  gallery_images: [],
   reservation_title: "Tisch reservieren",
   reservation_text: "Reservieren Sie Ihren Tisch bei Piratino – wir freuen uns auf Ihren Besuch!",
   catering_title: "Catering buchen",
