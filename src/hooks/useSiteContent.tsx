@@ -115,6 +115,7 @@ const DEFAULT_CONTENT: SiteContent = {
   sections_visibility: {},
   sections_layout: {},
   custom_sections: [],
+  element_positions: {},
   page_sections: {},
 };
 
