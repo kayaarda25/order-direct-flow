@@ -1,8 +1,7 @@
-import { useState, useMemo } from "react";
-import { X, Minus, Plus, ArrowUp } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { X, Minus, Plus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { MenuItem, Modifier } from "@/data/menu";
-import { menuItems, upsellMap } from "@/data/menu";
 import { useCart, type CartItemType } from "@/context/CartContext";
 import { cn } from "@/lib/utils";
 
@@ -15,21 +14,30 @@ interface ProductModalProps {
 const ProductModal = ({ item, onClose, onAdded }: ProductModalProps) => {
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
-  const [selectedModifiers, setSelectedModifiers] = useState<Record<string, Modifier[]>>({});
   const [specialNotes, setSpecialNotes] = useState("");
 
-  if (!item) return null;
+  // Auto-select first option of required single-select modifier groups (like size)
+  const getDefaultModifiers = useCallback(() => {
+    if (!item) return {};
+    const defaults: Record<string, Modifier[]> = {};
+    item.modifierGroups.forEach((group) => {
+      if (group.required && !group.multiSelect && group.options.length > 0) {
+        defaults[group.id] = [group.options[0]];
+      }
+    });
+    return defaults;
+  }, [item]);
 
-  // Find upsell item (e.g., 32cm -> 45cm)
-  const upsellCategory = upsellMap[item.category];
-  const upsellItem = upsellCategory
-    ? menuItems.find(
-        (m) =>
-          m.category === upsellCategory &&
-          m.name.replace(/ Grande| XXL/g, "").replace(/ - \d+cm/g, "") ===
-            item.name.replace(/ Grande| XXL/g, "").replace(/ - \d+cm/g, "")
-      )
-    : null;
+  const [selectedModifiers, setSelectedModifiers] = useState<Record<string, Modifier[]>>({});
+
+  // Reset defaults when item changes
+  useEffect(() => {
+    setSelectedModifiers(getDefaultModifiers());
+    setQuantity(1);
+    setSpecialNotes("");
+  }, [item?.id, getDefaultModifiers]);
+
+  if (!item) return null;
 
   const handleModifierToggle = (groupId: string, modifier: Modifier, multiSelect: boolean) => {
     setSelectedModifiers((prev) => {
@@ -100,32 +108,6 @@ const ProductModal = ({ item, onClose, onAdded }: ProductModalProps) => {
             <p className="text-muted-foreground mt-1">{item.description}</p>
             <p className="text-primary font-bold text-xl mt-2">CHF {item.price.toFixed(2)}</p>
 
-            {/* Upsell suggestion */}
-            {upsellItem && (
-              <motion.button
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                onClick={() => {
-                  onClose();
-                  // Small delay to allow modal close then reopen
-                  setTimeout(() => {
-                    const event = new CustomEvent("openProduct", { detail: upsellItem });
-                    window.dispatchEvent(event);
-                  }, 200);
-                }}
-                className="mt-3 w-full flex items-center justify-between p-3 rounded-lg border-2 border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <ArrowUp className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-semibold text-card-foreground">
-                    Upgrade: {upsellItem.name}
-                  </span>
-                </div>
-                <span className="text-primary font-bold text-sm">
-                  +CHF {(upsellItem.price - item.price).toFixed(2)}
-                </span>
-              </motion.button>
-            )}
 
             {item.modifierGroups.map((group) => (
               <div key={group.id} className="mt-5">
