@@ -84,7 +84,7 @@ const AdminContent = () => {
     }
   };
 
-  const handleImageUpload = async (field: keyof ContentSettings, file: File) => {
+  const handleImageUpload = async (field: keyof SiteContent, file: File) => {
     if (!file.type.startsWith("image/")) return;
     if (file.size > 5 * 1024 * 1024) {
       toast({ title: "Datei zu groß", description: "Max. 5MB", variant: "destructive" });
