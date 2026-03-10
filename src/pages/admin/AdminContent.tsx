@@ -392,12 +392,30 @@ const AdminContent = () => {
   };
 
   const updateCustomContent = (id: string, field: string, value: string) => {
-    setContent((p) => ({
-      ...p,
-      custom_sections: (p.custom_sections || []).map((s) =>
-        s.id === id ? { ...s, [field]: value } : s
-      ),
-    }));
+    if (activePage === "home") {
+      setContent((p) => ({
+        ...p,
+        custom_sections: (p.custom_sections || []).map((s) =>
+          s.id === id ? { ...s, [field]: value } : s
+        ),
+      }));
+    } else {
+      setContent((p) => {
+        const ps = p.page_sections?.[activePage] || { order: [], visibility: {}, custom_blocks: [] };
+        return {
+          ...p,
+          page_sections: {
+            ...p.page_sections,
+            [activePage]: {
+              ...ps,
+              custom_blocks: (ps.custom_blocks || []).map((s) =>
+                s.id === id ? { ...s, [field]: value } : s
+              ),
+            },
+          },
+        };
+      });
+    }
   };
 
   // Image upload
