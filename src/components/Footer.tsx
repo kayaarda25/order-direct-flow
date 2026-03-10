@@ -41,7 +41,6 @@ const Footer = () => {
           })
         );
       } else {
-        // Fallback
         setOpeningHours([
           { day: "Montag", hours: "11:00 - 14:00 und 17:00 - 22:00" },
           { day: "Dienstag", hours: "11:00 - 14:00 und 17:00 - 22:00" },
@@ -90,22 +89,30 @@ const Footer = () => {
 
             <FooterCard title="Social Media">
               <div className="flex flex-wrap items-center gap-4">
-                <a href="#" aria-label="Instagram" className="inline-flex items-center gap-2 hover:opacity-80 transition-opacity">
-                  <Instagram className="h-5 w-5" />
-                  <span>@pizzapiratino</span>
-                </a>
-                <a href="#" aria-label="TikTok" className="inline-flex items-center gap-2 hover:opacity-80 transition-opacity">
-                  <Music2 className="h-5 w-5" />
-                  <span>@pizzapiratino</span>
-                </a>
-                <a href="#" aria-label="Facebook" className="inline-flex items-center gap-2 hover:opacity-80 transition-opacity">
-                  <Facebook className="h-5 w-5" />
-                  <span>Facebook</span>
-                </a>
-                <a href="#" aria-label="LinkedIn" className="inline-flex items-center gap-2 hover:opacity-80 transition-opacity">
-                  <Linkedin className="h-5 w-5" />
-                  <span>LinkedIn</span>
-                </a>
+                {content.social_instagram && (
+                  <a href="#" aria-label="Instagram" className="inline-flex items-center gap-2 hover:opacity-80 transition-opacity">
+                    <Instagram className="h-5 w-5" />
+                    <span>{content.social_instagram}</span>
+                  </a>
+                )}
+                {content.social_tiktok && (
+                  <a href="#" aria-label="TikTok" className="inline-flex items-center gap-2 hover:opacity-80 transition-opacity">
+                    <Music2 className="h-5 w-5" />
+                    <span>{content.social_tiktok}</span>
+                  </a>
+                )}
+                {content.social_facebook && (
+                  <a href="#" aria-label="Facebook" className="inline-flex items-center gap-2 hover:opacity-80 transition-opacity">
+                    <Facebook className="h-5 w-5" />
+                    <span>{content.social_facebook}</span>
+                  </a>
+                )}
+                {content.social_linkedin && (
+                  <a href="#" aria-label="LinkedIn" className="inline-flex items-center gap-2 hover:opacity-80 transition-opacity">
+                    <Linkedin className="h-5 w-5" />
+                    <span>{content.social_linkedin}</span>
+                  </a>
+                )}
               </div>
             </FooterCard>
           </div>

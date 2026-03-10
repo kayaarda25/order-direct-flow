@@ -2,8 +2,10 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { CalendarDays, Clock, Users, Phone, Mail, User } from "lucide-react";
+import { useSiteContent } from "@/hooks/useSiteContent";
 
 const ReservationPage = () => {
+  const { content } = useSiteContent();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -54,10 +56,10 @@ const ReservationPage = () => {
           className="mb-10"
         >
           <h1 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground mb-3 uppercase tracking-wider">
-            Tisch reservieren
+            {content.reservation_title}
           </h1>
           <p className="text-primary-foreground/60 text-sm uppercase tracking-wide">
-            Reservieren Sie Ihren Tisch bei Piratino – wir freuen uns auf Ihren Besuch!
+            {content.reservation_text}
           </p>
         </motion.div>
 

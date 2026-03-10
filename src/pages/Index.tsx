@@ -265,7 +265,7 @@ const Index = () => {
             className="max-w-2xl"
           >
             <img
-              src={teamPhoto}
+              src={content.about_image || teamPhoto}
               alt="Das Piratino Team"
               className="w-full rounded-lg shadow-lg"
             />
