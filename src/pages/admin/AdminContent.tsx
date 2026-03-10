@@ -510,6 +510,31 @@ const AdminContent = () => {
               </div>
             </PreviewSection>
 
+            {/* Reservation Section */}
+            <PreviewSection
+              section="reservation"
+              active={activeSection}
+              onClick={() => setActiveSection("reservation")}
+              label="Reservierung bearbeiten"
+            >
+              <div style={{ background: "#fff", color: "hsl(0 45% 14%)", padding: previewMode === "mobile" ? "2rem 1.5rem" : "3rem" }}>
+                <h2 className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ fontFamily: "'League Spartan', sans-serif" }}>
+                  {content.reservation_title || "Tisch reservieren"}
+                </h2>
+                <p className="text-sm opacity-60 uppercase tracking-wide mb-4 max-w-xl">
+                  {content.reservation_text || "Reservieren Sie Ihren Tisch..."}
+                </p>
+                <div className="flex flex-col gap-2 max-w-xs">
+                  {["Name", "E-Mail", "Telefon"].map((f) => (
+                    <div key={f} className="h-8 rounded-lg border border-current/20 px-3 flex items-center text-xs opacity-40">{f}</div>
+                  ))}
+                  <div className="h-9 rounded-lg flex items-center justify-center text-xs font-semibold uppercase" style={{ background: "hsl(0 40% 18%)", color: "hsl(30 25% 92%)" }}>
+                    Tisch reservieren
+                  </div>
+                </div>
+              </div>
+            </PreviewSection>
+
             {/* Footer */}
             <PreviewSection
               section="footer"
