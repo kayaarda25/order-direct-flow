@@ -107,7 +107,7 @@ const AdminContent = () => {
 
   if (loading) return <div className="py-8 text-center text-foreground">Laden...</div>;
 
-  const editableSections: Section[] = ["hero", "about", "footer"];
+  const editableSections: Section[] = ["hero", "about", "footer", "gallery", "catering"];
   const isEditable = editableSections.includes(activeSection);
 
   return (
