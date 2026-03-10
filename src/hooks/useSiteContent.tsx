@@ -14,6 +14,13 @@ export interface SectionLayout {
   bgColor: 'white' | 'dark' | 'accent';
 }
 
+export interface ElementPosition {
+  x: number; // percentage 0-100
+  y: number; // percentage 0-100
+  width?: number; // percentage
+  scale?: number; // 0.1-3
+}
+
 export interface CustomSection {
   id: string;
   type: 'text_block' | 'image_block' | 'banner' | 'cta';
@@ -69,6 +76,8 @@ export interface SiteContent {
   sections_visibility: Record<string, boolean>;
   sections_layout: Record<string, Partial<SectionLayout>>;
   custom_sections: CustomSection[];
+  // Element positions: sectionId -> elementId -> position
+  element_positions: Record<string, Record<string, ElementPosition>>;
   // Per-page custom blocks & ordering
   page_sections: Record<string, {
     order: string[];
@@ -106,6 +115,7 @@ const DEFAULT_CONTENT: SiteContent = {
   sections_visibility: {},
   sections_layout: {},
   custom_sections: [],
+  element_positions: {},
   page_sections: {},
 };
 
