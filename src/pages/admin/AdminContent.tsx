@@ -772,6 +772,68 @@ const AdminContent = () => {
             <FieldLabel label="Titel"><Textarea value={content.hero_title} onChange={(e) => setContent((p) => ({ ...p, hero_title: e.target.value }))} rows={2} /></FieldLabel>
             <FieldLabel label="Untertitel"><Input value={content.hero_subtitle} onChange={(e) => setContent((p) => ({ ...p, hero_subtitle: e.target.value }))} /></FieldLabel>
             <ImageField label="Hintergrundbild" value={content.hero_image} onUpload={(f) => uploadImage((url) => setContent((p) => ({ ...p, hero_image: url })), f)} onRemove={() => setContent((p) => ({ ...p, hero_image: "" }))} />
+            
+            <div className="border-t border-border pt-4">
+              <label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Elemente positionieren</label>
+              <FreePositionEditor
+                elements={[
+                  {
+                    id: "hero_title",
+                    label: "Titel",
+                    defaultX: 5,
+                    defaultY: 15,
+                    render: (scale) => (
+                      <div className="text-foreground font-bold text-xs uppercase leading-tight whitespace-pre-line max-w-[120px]" style={{ fontFamily: "'League Spartan', sans-serif" }}>
+                        {content.hero_title}
+                      </div>
+                    ),
+                  },
+                  {
+                    id: "hero_subtitle",
+                    label: "Untertitel",
+                    defaultX: 5,
+                    defaultY: 45,
+                    render: () => (
+                      <div className="text-muted-foreground text-[8px] max-w-[150px]">
+                        {content.hero_subtitle}
+                      </div>
+                    ),
+                  },
+                  {
+                    id: "hero_buttons",
+                    label: "Buttons",
+                    defaultX: 5,
+                    defaultY: 58,
+                    render: () => (
+                      <div className="flex gap-1">
+                        <div className="border border-foreground/50 rounded px-2 py-0.5 text-[6px] text-foreground">Bestellen</div>
+                        <div className="border border-foreground/50 rounded px-2 py-0.5 text-[6px] text-foreground">Reservieren</div>
+                        <div className="border border-foreground/50 rounded px-2 py-0.5 text-[6px] text-foreground">Catering</div>
+                      </div>
+                    ),
+                  },
+                  {
+                    id: "hero_mascot",
+                    label: "Maskottchen",
+                    defaultX: 65,
+                    defaultY: 20,
+                    defaultScale: 1,
+                    render: () => (
+                      <img src="/src/assets/pirate-mascot.png" alt="Maskottchen" className="w-16 h-auto pointer-events-none" />
+                    ),
+                  },
+                ]}
+                positions={content.element_positions?.hero || {}}
+                onChange={(pos) =>
+                  setContent((p) => ({
+                    ...p,
+                    element_positions: { ...p.element_positions, hero: pos },
+                  }))
+                }
+                bgColor="hsl(var(--background))"
+                bgImage={content.hero_image || undefined}
+              />
+            </div>
           </div>
         );
       case "menu":
