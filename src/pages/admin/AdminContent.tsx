@@ -233,9 +233,20 @@ const AdminContent = () => {
                       <ImageField label="Bild" value={content.about_image} onUpload={(f) => handleImageUpload("about_image", f)} onRemove={() => setContent((p) => ({ ...p, about_image: "" }))} />
                     </div>
                   )}
+                  {activeSection === "menu" && (
+                    <div className="space-y-4">
+                      <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">Menü bearbeiten</h3>
+                      <FieldLabel label="Titel">
+                        <Input value={content.menu_title} onChange={(e) => setContent((p) => ({ ...p, menu_title: e.target.value }))} />
+                      </FieldLabel>
+                      <FieldLabel label="Untertitel">
+                        <Input value={content.menu_subtitle} onChange={(e) => setContent((p) => ({ ...p, menu_subtitle: e.target.value }))} />
+                      </FieldLabel>
+                    </div>
+                  )}
                   {activeSection === "footer" && (
                     <div className="space-y-4">
-                      <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">Kontakt bearbeiten</h3>
+                      <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">Kontakt & Social Media</h3>
                       <FieldLabel label="Telefon">
                         <Input value={content.footer_phone} onChange={(e) => setContent((p) => ({ ...p, footer_phone: e.target.value }))} />
                       </FieldLabel>
@@ -244,6 +255,30 @@ const AdminContent = () => {
                       </FieldLabel>
                       <FieldLabel label="Adresse">
                         <Textarea value={content.footer_address} onChange={(e) => setContent((p) => ({ ...p, footer_address: e.target.value }))} rows={2} />
+                      </FieldLabel>
+                      <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide pt-2">Social Media</h3>
+                      <FieldLabel label="Instagram">
+                        <Input value={content.social_instagram} onChange={(e) => setContent((p) => ({ ...p, social_instagram: e.target.value }))} placeholder="@pizzapiratino" />
+                      </FieldLabel>
+                      <FieldLabel label="TikTok">
+                        <Input value={content.social_tiktok} onChange={(e) => setContent((p) => ({ ...p, social_tiktok: e.target.value }))} placeholder="@pizzapiratino" />
+                      </FieldLabel>
+                      <FieldLabel label="Facebook">
+                        <Input value={content.social_facebook} onChange={(e) => setContent((p) => ({ ...p, social_facebook: e.target.value }))} placeholder="Facebook" />
+                      </FieldLabel>
+                      <FieldLabel label="LinkedIn">
+                        <Input value={content.social_linkedin} onChange={(e) => setContent((p) => ({ ...p, social_linkedin: e.target.value }))} placeholder="LinkedIn" />
+                      </FieldLabel>
+                    </div>
+                  )}
+                  {activeSection === "reservation" && (
+                    <div className="space-y-4">
+                      <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">Reservierung bearbeiten</h3>
+                      <FieldLabel label="Titel">
+                        <Input value={content.reservation_title} onChange={(e) => setContent((p) => ({ ...p, reservation_title: e.target.value }))} />
+                      </FieldLabel>
+                      <FieldLabel label="Beschreibung">
+                        <Textarea value={content.reservation_text} onChange={(e) => setContent((p) => ({ ...p, reservation_text: e.target.value }))} rows={3} />
                       </FieldLabel>
                     </div>
                   )}
