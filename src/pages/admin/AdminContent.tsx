@@ -580,9 +580,10 @@ const AdminContent = () => {
                 <div className="mt-4 rounded-none p-4" style={{ border: "1px solid hsl(30 25% 92% / 0.3)", background: "hsl(30 30% 88% / 0.1)" }}>
                   <h3 className="font-bold text-lg mb-2">Social Media</h3>
                   <div className="flex gap-4 text-sm opacity-90">
-                    <span>📸 @pizzapiratino</span>
-                    <span>🎵 @pizzapiratino</span>
-                    <span>📘 Facebook</span>
+                    {content.social_instagram && <span>📸 {content.social_instagram}</span>}
+                    {content.social_tiktok && <span>🎵 {content.social_tiktok}</span>}
+                    {content.social_facebook && <span>📘 {content.social_facebook}</span>}
+                    {content.social_linkedin && <span>💼 {content.social_linkedin}</span>}
                   </div>
                 </div>
 
