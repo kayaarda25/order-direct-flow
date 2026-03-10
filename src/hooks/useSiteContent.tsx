@@ -76,6 +76,8 @@ export interface SiteContent {
   sections_visibility: Record<string, boolean>;
   sections_layout: Record<string, Partial<SectionLayout>>;
   custom_sections: CustomSection[];
+  // Element positions: sectionId -> elementId -> position
+  element_positions: Record<string, Record<string, ElementPosition>>;
   // Per-page custom blocks & ordering
   page_sections: Record<string, {
     order: string[];
