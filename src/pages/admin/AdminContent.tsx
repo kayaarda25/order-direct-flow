@@ -490,7 +490,7 @@ const AdminContent = () => {
       <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card shrink-0">
         <div className="flex items-center gap-3">
           <Globe className="h-4 w-4 text-muted-foreground" />
-          <Select value={activePage} onValueChange={(v) => { setActivePage(v as PageId); setActiveSection(null); setPanelTab(v === "home" ? "sections" : "content"); }}>
+          <Select value={activePage} onValueChange={(v) => { setActivePage(v as PageId); setActiveSection(null); setPanelTab("sections"); }}>
             <SelectTrigger className="w-[180px] h-8 text-sm">
               <SelectValue />
             </SelectTrigger>
