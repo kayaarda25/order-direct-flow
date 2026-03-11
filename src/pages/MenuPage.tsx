@@ -95,8 +95,8 @@ const MenuPage = () => {
                     ref={(el) => { sectionRefs.current[cat.id] = el; }}
                     className="mb-10"
                   >
-                    <h2 className="font-display text-xl md:text-2xl font-bold text-neutral-900 mb-1 flex items-center gap-2">
-                      <span>{cat.icon}</span> {cat.name}
+                    <h2 className="font-display text-xl md:text-2xl font-bold text-neutral-900 mb-1">
+                      {cat.name}
                     </h2>
                     <p className="text-neutral-500 text-sm mb-4">
                       {items.length} {items.length === 1 ? "Produkt" : "Produkte"}

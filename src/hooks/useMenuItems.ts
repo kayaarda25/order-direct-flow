@@ -26,25 +26,26 @@ export interface MenuItem {
   modifierGroups: ModifierGroup[];
   bestseller?: boolean;
   popular?: boolean;
+  deliveryPrice?: number | null;
+  pickupPrice?: number | null;
 }
 
 export interface MenuCategory {
   id: string;
   name: string;
-  icon: string;
 }
 
 export const categories: MenuCategory[] = [
-  { id: "vorspeisen", name: "Vorspeisen", icon: "🥖" },
-  { id: "salate", name: "Salate", icon: "🥗" },
-  { id: "pizza", name: "Pizza", icon: "🍕" },
-  { id: "kinder-pizza", name: "Kinder Pizza", icon: "🍕" },
-  { id: "pasta", name: "Pasta", icon: "🍝" },
-  { id: "fleisch-fisch-grill", name: "Fleisch, Fisch & Grill", icon: "🥩" },
-  { id: "kebab", name: "Kebabgerichte", icon: "🥙" },
-  { id: "beilagen", name: "Beilagen", icon: "🧆" },
-  { id: "desserts", name: "Desserts", icon: "🍰" },
-  { id: "getraenke", name: "Getränke", icon: "🥤" },
+  { id: "vorspeisen", name: "Vorspeisen" },
+  { id: "salate", name: "Salate" },
+  { id: "pizza", name: "Pizza" },
+  { id: "kinder-pizza", name: "Kinder Pizza" },
+  { id: "pasta", name: "Pasta" },
+  { id: "fleisch-fisch-grill", name: "Fleisch, Fisch & Grill" },
+  { id: "kebab", name: "Kebabgerichte" },
+  { id: "beilagen", name: "Beilagen" },
+  { id: "desserts", name: "Desserts" },
+  { id: "getraenke", name: "Getränke" },
 ];
 
 export const crossSellMap: Record<string, string[]> = {
@@ -72,6 +73,8 @@ function mapDbItem(row: any): MenuItem {
     modifierGroups: (row.modifier_groups as ModifierGroup[]) || [],
     bestseller: row.bestseller || false,
     popular: row.popular || false,
+    deliveryPrice: row.delivery_price,
+    pickupPrice: row.pickup_price,
   };
 }
 

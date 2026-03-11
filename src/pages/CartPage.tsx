@@ -1,10 +1,14 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import OrderTypeModal from "@/components/OrderTypeModal";
 
 const CartPage = () => {
   const { items, removeItem, updateQuantity, totalPrice, deliveryFee, orderType, setOrderType } = useCart();
+  const navigate = useNavigate();
+  const [showOrderTypeModal, setShowOrderTypeModal] = useState(false);
 
   if (items.length === 0) {
     return (
@@ -29,22 +33,6 @@ const CartPage = () => {
       </Link>
 
       <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-6">Warenkorb</h1>
-
-      <div className="flex gap-2 mb-6">
-        {(["delivery", "pickup"] as const).map((type) => (
-          <button
-            key={type}
-            onClick={() => setOrderType(type)}
-            className={`px-5 py-2.5 rounded-full font-semibold text-sm transition-all ${
-              orderType === type
-                ? "bg-primary text-primary-foreground"
-                : "bg-secondary text-secondary-foreground"
-            }`}
-          >
-            {type === "delivery" ? "🚗 Lieferung" : "🏪 Abholung"}
-          </button>
-        ))}
-      </div>
 
       <div className="space-y-3">
         {items.map((item) => (
@@ -115,12 +103,22 @@ const CartPage = () => {
         </div>
       </div>
 
-      <Link
-        to="/checkout"
+      <button
+        onClick={() => setShowOrderTypeModal(true)}
         className="block w-full bg-primary text-primary-foreground text-center py-4 rounded-xl font-semibold text-lg mt-6 hover:opacity-90 transition-opacity"
       >
-        Zur Kasse — CHF {totalPrice.toFixed(2)}
-      </Link>
+        Bestellen
+      </button>
+
+      <OrderTypeModal
+        open={showOrderTypeModal}
+        onClose={() => setShowOrderTypeModal(false)}
+        onConfirm={(type) => {
+          setOrderType(type);
+          setShowOrderTypeModal(false);
+          navigate("/checkout");
+        }}
+      />
     </div>
   );
 };

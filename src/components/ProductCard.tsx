@@ -2,7 +2,6 @@ import { Plus, Check, Flame, TrendingUp, Settings2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import type { MenuItem, Modifier } from "@/hooks/useMenuItems";
-import { canQuickAdd } from "@/hooks/useMenuItems";
 import { useCart, type CartItemType } from "@/context/CartContext";
 import { cn } from "@/lib/utils";
 
