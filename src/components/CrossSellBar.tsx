@@ -1,9 +1,10 @@
 import { motion } from "framer-motion";
 import { X, Plus, Check } from "lucide-react";
 import { useState } from "react";
-import type { MenuItem } from "@/data/menu";
-import { menuItems, crossSellMap } from "@/data/menu";
+import type { MenuItem } from "@/hooks/useMenuItems";
+import { crossSellMap } from "@/hooks/useMenuItems";
 import { useCart, type CartItemType } from "@/context/CartContext";
+import { useMenuItems } from "@/hooks/useMenuItems";
 
 interface CrossSellBarProps {
   triggerCategory: string;
@@ -13,10 +14,11 @@ interface CrossSellBarProps {
 
 const CrossSellBar = ({ triggerCategory, onDismiss }: CrossSellBarProps) => {
   const { addItem } = useCart();
+  const { items: allItems } = useMenuItems();
   const [addedIds, setAddedIds] = useState<Set<string>>(new Set());
 
   const suggestedCategories = crossSellMap[triggerCategory] || [];
-  const suggestions = menuItems
+  const suggestions = allItems
     .filter(
       (item) =>
         suggestedCategories.includes(item.category) &&
@@ -44,14 +46,14 @@ const CrossSellBar = ({ triggerCategory, onDismiss }: CrossSellBarProps) => {
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className="bg-accent/30 backdrop-blur-sm border-b border-border"
+      className="bg-amber-50 border-b border-amber-200"
     >
       <div className="container py-3">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-sm font-semibold text-foreground">
+          <p className="text-sm font-semibold text-neutral-900">
             ✨ Dazu passt perfekt:
           </p>
-          <button onClick={onDismiss} className="text-muted-foreground hover:text-foreground">
+          <button onClick={onDismiss} className="text-neutral-400 hover:text-neutral-600">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -64,7 +66,7 @@ const CrossSellBar = ({ triggerCategory, onDismiss }: CrossSellBarProps) => {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 onClick={() => !isAdded && handleQuickAdd(item)}
-                className="flex items-center gap-2.5 bg-card border border-border rounded-lg px-3 py-2 shrink-0 hover:border-primary/50 transition-colors"
+                className="flex items-center gap-2.5 bg-white border border-neutral-200 rounded-lg px-3 py-2 shrink-0 hover:border-neutral-400 transition-colors"
               >
                 <img
                   src={item.image}
@@ -72,11 +74,11 @@ const CrossSellBar = ({ triggerCategory, onDismiss }: CrossSellBarProps) => {
                   className="w-10 h-10 rounded-md object-cover"
                 />
                 <div className="text-left">
-                  <p className="text-sm font-medium text-card-foreground leading-tight">{item.name}</p>
-                  <p className="text-xs text-primary font-bold">+CHF {item.price.toFixed(2)}</p>
+                  <p className="text-sm font-medium text-neutral-900 leading-tight">{item.name}</p>
+                  <p className="text-xs text-neutral-900 font-bold">+CHF {item.price.toFixed(2)}</p>
                 </div>
                 <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${
-                  isAdded ? "bg-green-500 text-white" : "bg-primary/10 text-primary"
+                  isAdded ? "bg-green-500 text-white" : "bg-neutral-100 text-neutral-600"
                 }`}>
                   {isAdded ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
                 </div>
