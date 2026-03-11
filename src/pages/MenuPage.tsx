@@ -140,6 +140,23 @@ const MenuPage = () => {
       <div className="lg:hidden">
         <FloatingCartBar />
       </div>
+
+      <OrderTypeModal
+        open={showOrderTypeModal}
+        onClose={() => {
+          // Don't allow closing without choosing - go back
+          if (!orderTypeChosen) {
+            navigate("/");
+          } else {
+            setShowOrderTypeModal(false);
+          }
+        }}
+        onConfirm={(type) => {
+          setOrderType(type);
+          setOrderTypeChosen(true);
+          setShowOrderTypeModal(false);
+        }}
+      />
     </div>
   );
 };
