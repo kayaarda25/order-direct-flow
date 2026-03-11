@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -20,6 +20,11 @@ interface MenuItem {
   image_url: string | null;
   allergens: string[];
   available: boolean;
+  bestseller: boolean;
+  popular: boolean;
+  station: string;
+  modifier_groups: any[];
+  sort_order: number;
 }
 
 const AdminMenu = () => {
@@ -35,11 +40,13 @@ const AdminMenu = () => {
       const { data, error } = await supabase
         .from("menu_items")
         .select("*")
+        .order("sort_order" as any)
         .order("category")
         .order("name");
       if (error) throw error;
-      setMenuItems(data || []);
-    } catch {
+      setMenuItems((data as any[]) || []);
+    } catch (err) {
+      console.error("Fetch error:", err);
       toast({ title: "Fehler", description: "Menü konnte nicht geladen werden.", variant: "destructive" });
     } finally {
       setLoading(false);
@@ -116,7 +123,11 @@ const AdminMenu = () => {
                           <div className="w-12 h-12 rounded bg-muted flex items-center justify-center text-xs text-muted-foreground">—</div>
                         )}
                       </TableCell>
-                      <TableCell className="font-medium">{item.name}</TableCell>
+                      <TableCell className="font-medium">
+                        {item.name}
+                        {item.bestseller && <Badge variant="destructive" className="ml-2 text-xs">Bestseller</Badge>}
+                        {item.popular && <Badge variant="secondary" className="ml-2 text-xs">Beliebt</Badge>}
+                      </TableCell>
                       <TableCell>{item.category}</TableCell>
                       <TableCell>CHF {item.price.toFixed(2)}</TableCell>
                       <TableCell>

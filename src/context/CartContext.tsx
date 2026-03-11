@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
-import type { MenuItem, Modifier } from "@/data/menu";
+import type { MenuItem, Modifier } from "@/hooks/useMenuItems";
 
 export interface CartItemType {
   id: string;
