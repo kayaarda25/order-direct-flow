@@ -283,6 +283,7 @@ export const menuItems: MenuItem[] = [
           { id: "32cm", name: "32cm", price: 0 },
         ],
       },
+      pizzaExtras,
     ],
     popular: true,
   },
