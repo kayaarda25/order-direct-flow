@@ -130,7 +130,7 @@ const HeroSection = () => {
             className="max-w-2xl flex-1"
           >
             <h1
-              className="text-5xl md:text-6xl lg:text-7xl xl:text-4xl font-bold text-foreground leading-tight mb-4 uppercase tracking-wide whitespace-pre-line"
+              className="text-4xl font-bold text-foreground leading-tight mb-4 uppercase tracking-wide whitespace-pre-line"
               style={{ fontFamily: "'League Spartan', sans-serif" }}
             >
               {content.hero_title}
