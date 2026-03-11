@@ -74,18 +74,6 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
           loading="lazy"
         />
 
-        <div className="absolute top-2 left-2 flex gap-1.5">
-          {item.bestseller && (
-            <span className="bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md">
-              <Flame className="w-3 h-3" /> Bestseller
-            </span>
-          )}
-          {item.popular && !item.bestseller && (
-            <span className="bg-amber-500 text-white text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md">
-              <TrendingUp className="w-3 h-3" /> Beliebt
-            </span>
-          )}
-        </div>
       </div>
 
       <div className="p-3.5">
