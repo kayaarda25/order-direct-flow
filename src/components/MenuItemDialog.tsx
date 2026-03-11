@@ -17,16 +17,24 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { categories } from "@/data/menu";
+import { categories } from "@/hooks/useMenuItems";
 import { Upload, X } from "lucide-react";
+
+const PIZZA_CATEGORIES = ["pizza", "kinder-pizza"];
 
 const menuItemSchema = z.object({
   name: z.string().min(1, "Name ist erforderlich"),
   description: z.string().optional(),
   price: z.number().min(0, "Preis muss positiv sein"),
+  price_normal: z.number().optional(),
+  price_gross: z.number().optional(),
   category: z.string().min(1, "Kategorie ist erforderlich"),
   allergens: z.string().optional(),
   available: z.boolean().default(true),
+  bestseller: z.boolean().default(false),
+  popular: z.boolean().default(false),
+  delivery_price: z.number().optional(),
+  pickup_price: z.number().optional(),
 });
 
 type MenuItemFormData = z.infer<typeof menuItemSchema>;
@@ -40,6 +48,13 @@ interface MenuItem {
   image_url: string | null;
   allergens: string[];
   available: boolean;
+  bestseller: boolean;
+  popular: boolean;
+  station: string;
+  modifier_groups: any[];
+  sort_order: number;
+  delivery_price?: number | null;
+  pickup_price?: number | null;
 }
 
 interface MenuItemDialogProps {
@@ -48,6 +63,19 @@ interface MenuItemDialogProps {
   item?: MenuItem | null;
   onSaved: () => void;
   onClose: () => void;
+}
+
+function extractSizePrices(modifierGroups: any[]): { klein: number; normal: number; gross: number } | null {
+  const sizeGroup = modifierGroups?.find((g: any) => g.id === "groesse");
+  if (!sizeGroup) return null;
+  const klein = sizeGroup.options?.find((o: any) => o.id === "klein");
+  const normal = sizeGroup.options?.find((o: any) => o.id === "normal");
+  const gross = sizeGroup.options?.find((o: any) => o.id === "gross");
+  return {
+    klein: 0, // base price is klein
+    normal: normal?.price || 0,
+    gross: gross?.price || 0,
+  };
 }
 
 const MenuItemDialog = ({
@@ -69,21 +97,37 @@ const MenuItemDialog = ({
       name: "",
       description: "",
       price: 0,
+      price_normal: 0,
+      price_gross: 0,
       category: "",
       allergens: "",
       available: true,
+      bestseller: false,
+      popular: false,
+      delivery_price: undefined,
+      pickup_price: undefined,
     },
   });
 
+  const watchCategory = form.watch("category");
+  const isPizza = PIZZA_CATEGORIES.includes(watchCategory);
+
   useEffect(() => {
     if (item) {
+      const sizePrices = extractSizePrices(item.modifier_groups);
       form.reset({
         name: item.name,
         description: item.description || "",
         price: item.price,
+        price_normal: sizePrices?.normal || 0,
+        price_gross: sizePrices?.gross || 0,
         category: item.category,
-        allergens: item.allergens.join(", "),
+        allergens: item.allergens?.join(", ") || "",
         available: item.available,
+        bestseller: item.bestseller || false,
+        popular: item.popular || false,
+        delivery_price: item.delivery_price ?? undefined,
+        pickup_price: item.pickup_price ?? undefined,
       });
       setImagePreview(item.image_url);
       setImageFile(null);
@@ -92,46 +136,36 @@ const MenuItemDialog = ({
         name: "",
         description: "",
         price: 0,
+        price_normal: 0,
+        price_gross: 0,
         category: "",
         allergens: "",
         available: true,
+        bestseller: false,
+        popular: false,
+        delivery_price: undefined,
+        pickup_price: undefined,
       });
       setImagePreview(null);
       setImageFile(null);
     }
     setUploadProgress(0);
   }, [item, form]);
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // Validate file type
     if (!file.type.startsWith('image/')) {
-      toast({
-        title: "Ungültiger Dateityp",
-        description: "Bitte wählen Sie eine Bilddatei.",
-        variant: "destructive",
-      });
+      toast({ title: "Ungültiger Dateityp", description: "Bitte wähle eine Bilddatei.", variant: "destructive" });
       return;
     }
-
-    // Validate file size (5MB limit)
     if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: "Datei zu groß",
-        description: "Die Datei darf nicht größer als 5MB sein.",
-        variant: "destructive",
-      });
+      toast({ title: "Datei zu gross", description: "Max 5MB.", variant: "destructive" });
       return;
     }
-
     setImageFile(file);
-    
-    // Create preview
     const reader = new FileReader();
-    reader.onload = () => {
-      setImagePreview(reader.result as string);
-    };
+    reader.onload = () => setImagePreview(reader.result as string);
     reader.readAsDataURL(file);
   };
 
@@ -144,38 +178,23 @@ const MenuItemDialog = ({
   const uploadImage = async (file: File): Promise<string | null> => {
     const fileExt = file.name.split('.').pop();
     const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
-
     setUploadProgress(10);
-
-    const { error: uploadError } = await supabase.storage
-      .from('menu-images')
-      .upload(fileName, file);
-
-    if (uploadError) {
-      console.error('Upload error:', uploadError);
-      throw uploadError;
-    }
-
+    const { error: uploadError } = await supabase.storage.from('menu-images').upload(fileName, file);
+    if (uploadError) throw uploadError;
     setUploadProgress(80);
-
-    const { data } = supabase.storage
-      .from('menu-images')
-      .getPublicUrl(fileName);
-
+    const { data } = supabase.storage.from('menu-images').getPublicUrl(fileName);
     setUploadProgress(100);
     return data.publicUrl;
   };
+
   const onSubmit = async (data: MenuItemFormData) => {
     setIsLoading(true);
     try {
       let imageUrl = null;
-      
-      // Upload image if one is selected
       if (imageFile) {
         setUploadProgress(0);
         imageUrl = await uploadImage(imageFile);
       } else if (item?.image_url && !imageFile) {
-        // Keep existing image if no new file is selected
         imageUrl = item.image_url;
       }
 
@@ -183,7 +202,52 @@ const MenuItemDialog = ({
         ? data.allergens.split(",").map((a) => a.trim()).filter(Boolean)
         : [];
 
-      const menuItemData = {
+      // Build modifier groups
+      let modifierGroups: any[] = item?.modifier_groups || [];
+
+      if (PIZZA_CATEGORIES.includes(data.category)) {
+        // Build size modifier group
+        const sizeGroup = {
+          id: "groesse",
+          name: "Grösse",
+          required: true,
+          multiSelect: false,
+          options: [
+            { id: "klein", name: "Klein 24cm", price: 0 },
+            { id: "normal", name: "Normal 32cm", price: data.price_normal || 0 },
+            { id: "gross", name: "Gross 45cm", price: data.price_gross || 0 },
+          ],
+        };
+
+        // Keep extras group if exists, replace size group
+        const extrasGroup = modifierGroups.find((g: any) => g.id === "extras");
+        modifierGroups = [sizeGroup];
+        if (extrasGroup) modifierGroups.push(extrasGroup);
+
+        // If no extras group exists, add default pizza extras
+        if (!extrasGroup) {
+          modifierGroups.push({
+            id: "extras",
+            name: "Extra Zutaten",
+            required: false,
+            multiSelect: true,
+            options: [
+              { id: "extra-mozzarella", name: "Extra Mozzarella", price: 2.5 },
+              { id: "extra-gorgonzola", name: "Gorgonzola", price: 3.0 },
+              { id: "extra-salami", name: "Salami", price: 2.5 },
+              { id: "extra-prosciutto", name: "Prosciutto", price: 3.0 },
+              { id: "extra-funghi", name: "Champignons", price: 2.0 },
+              { id: "extra-olive", name: "Oliven", price: 2.0 },
+              { id: "extra-peperoni", name: "Peperoni", price: 2.0 },
+              { id: "extra-rucola", name: "Rucola", price: 1.5 },
+              { id: "extra-tonno", name: "Thunfisch", price: 3.0 },
+              { id: "extra-cipolla", name: "Zwiebeln", price: 1.5 },
+            ],
+          });
+        }
+      }
+
+      const menuItemData: any = {
         name: data.name,
         description: data.description || null,
         price: data.price,
@@ -191,42 +255,26 @@ const MenuItemDialog = ({
         image_url: imageUrl,
         allergens: allergensList,
         available: data.available,
+        bestseller: data.bestseller,
+        popular: data.popular,
+        modifier_groups: modifierGroups,
+        delivery_price: data.delivery_price || null,
+        pickup_price: data.pickup_price || null,
       };
 
       if (item) {
-        // Update existing item
-        const { error } = await supabase
-          .from("menu_items")
-          .update(menuItemData)
-          .eq("id", item.id);
-
+        const { error } = await supabase.from("menu_items").update(menuItemData).eq("id", item.id);
         if (error) throw error;
-
-        toast({
-          title: "Element aktualisiert",
-          description: "Das Menüelement wurde erfolgreich aktualisiert.",
-        });
+        toast({ title: "Element aktualisiert" });
       } else {
-        // Create new item
-        const { error } = await supabase
-          .from("menu_items")
-          .insert(menuItemData);
-
+        const { error } = await supabase.from("menu_items").insert(menuItemData);
         if (error) throw error;
-
-        toast({
-          title: "Element erstellt",
-          description: "Das neue Menüelement wurde erfolgreich erstellt.",
-        });
+        toast({ title: "Element erstellt" });
       }
 
       onSaved();
     } catch (error) {
-      toast({
-        title: "Fehler beim Speichern",
-        description: "Das Menüelement konnte nicht gespeichert werden.",
-        variant: "destructive",
-      });
+      toast({ title: "Fehler beim Speichern", description: String(error), variant: "destructive" });
     } finally {
       setIsLoading(false);
       setUploadProgress(0);
@@ -235,7 +283,7 @@ const MenuItemDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {item ? "Menüelement bearbeiten" : "Neues Menüelement"}
@@ -250,9 +298,7 @@ const MenuItemDialog = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
+                  <FormControl><Input {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -264,29 +310,7 @@ const MenuItemDialog = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Beschreibung</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="price"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Preis (CHF)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      {...field}
-                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                    />
-                  </FormControl>
+                  <FormControl><Textarea {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -300,14 +324,12 @@ const MenuItemDialog = ({
                   <FormLabel>Kategorie</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Kategorie wählen" />
-                      </SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder="Kategorie wählen" /></SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {categories.map((category) => (
                         <SelectItem key={category.id} value={category.id}>
-                          {category.icon} {category.name}
+                          {category.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -317,48 +339,136 @@ const MenuItemDialog = ({
               )}
             />
 
-            {/* Image Upload Section */}
+            {/* Base price - for pizza this is Klein 24cm */}
+            <FormField
+              control={form.control}
+              name="price"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{isPizza ? "Preis Klein 24cm (CHF)" : "Preis (CHF)"}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.5"
+                      min="0"
+                      {...field}
+                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Pizza size prices */}
+            {isPizza && (
+              <div className="grid grid-cols-2 gap-3 p-3 border border-neutral-200 rounded-lg bg-neutral-50">
+                <p className="col-span-2 text-sm font-semibold text-neutral-700">Pizza-Grössen (Aufpreis)</p>
+                <FormField
+                  control={form.control}
+                  name="price_normal"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs">Normal 32cm (+CHF)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.5"
+                          min="0"
+                          {...field}
+                          value={field.value ?? 0}
+                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="price_gross"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs">Gross 45cm (+CHF)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.5"
+                          min="0"
+                          {...field}
+                          value={field.value ?? 0}
+                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
+
+            {/* Delivery & Pickup prices */}
+            <div className="grid grid-cols-2 gap-3 p-3 border border-neutral-200 rounded-lg bg-neutral-50">
+              <p className="col-span-2 text-sm font-semibold text-neutral-700">Liefer- / Abholpreise (optional)</p>
+              <FormField
+                control={form.control}
+                name="delivery_price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs">Lieferpreis (CHF)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.5"
+                        min="0"
+                        placeholder="Standard"
+                        {...field}
+                        value={field.value ?? ""}
+                        onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="pickup_price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs">Abholpreis (CHF)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.5"
+                        min="0"
+                        placeholder="Standard"
+                        {...field}
+                        value={field.value ?? ""}
+                        onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Image Upload */}
             <div className="space-y-2">
               <FormLabel>Bild</FormLabel>
-              
               {!imagePreview ? (
                 <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
                   <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
-                  <div className="text-sm text-muted-foreground mb-2">
-                    Klicken Sie, um ein Bild auszuwählen
-                  </div>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileSelect}
-                    className="w-full"
-                  />
-                  <div className="text-xs text-muted-foreground mt-1">
-                    PNG, JPG, WEBP bis 5MB
-                  </div>
+                  <div className="text-sm text-muted-foreground mb-2">Bild auswählen</div>
+                  <Input type="file" accept="image/*" onChange={handleFileSelect} className="w-full" />
+                  <div className="text-xs text-muted-foreground mt-1">PNG, JPG, WEBP bis 5MB</div>
                 </div>
               ) : (
                 <div className="relative">
-                  <img
-                    src={imagePreview}
-                    alt="Vorschau"
-                    className="w-full h-32 object-cover rounded-lg border"
-                  />
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="sm"
-                    className="absolute top-2 right-2"
-                    onClick={removeImage}
-                  >
+                  <img src={imagePreview} alt="Vorschau" className="w-full h-32 object-cover rounded-lg border" />
+                  <Button type="button" variant="destructive" size="sm" className="absolute top-2 right-2" onClick={removeImage}>
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
               )}
-
-              {uploadProgress > 0 && uploadProgress < 100 && (
-                <Progress value={uploadProgress} className="w-full" />
-              )}
+              {uploadProgress > 0 && uploadProgress < 100 && <Progress value={uploadProgress} className="w-full" />}
             </div>
 
             <FormField
@@ -367,36 +477,47 @@ const MenuItemDialog = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Allergene (durch Kommas getrennt)</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="z.B. Gluten, Nüsse, Milch" />
-                  </FormControl>
+                  <FormControl><Input {...field} placeholder="z.B. Gluten, Nüsse, Milch" /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="available"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                  <div className="space-y-0.5">
-                    <FormLabel>Verfügbar</FormLabel>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-3 gap-3">
+              <FormField
+                control={form.control}
+                name="available"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col items-center gap-1 rounded-lg border p-3">
+                    <FormLabel className="text-xs">Verfügbar</FormLabel>
+                    <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="bestseller"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col items-center gap-1 rounded-lg border p-3">
+                    <FormLabel className="text-xs">Bestseller</FormLabel>
+                    <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="popular"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col items-center gap-1 rounded-lg border p-3">
+                    <FormLabel className="text-xs">Beliebt</FormLabel>
+                    <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={onClose}>
-                Abbrechen
-              </Button>
+              <Button type="button" variant="outline" onClick={onClose}>Abbrechen</Button>
               <Button type="submit" disabled={isLoading}>
                 {isLoading ? "Speichern..." : "Speichern"}
               </Button>

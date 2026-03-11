@@ -272,7 +272,7 @@ const CheckoutPage = () => {
         <div className="bg-card border border-border rounded-xl p-4 space-y-2">
           <div className="flex justify-between text-muted-foreground text-sm">
             <span>{items.length} Artikel</span>
-            <span>{orderType === "delivery" ? "🚗 Lieferung" : "🏪 Abholung"}</span>
+            <span>{orderType === "delivery" ? "Lieferung" : "Abholung"}</span>
           </div>
           <div className="flex justify-between text-foreground font-bold text-lg">
             <span>Total</span>

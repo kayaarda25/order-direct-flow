@@ -1,10 +1,14 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import OrderTypeModal from "@/components/OrderTypeModal";
 
 const FloatingCartBar = () => {
-  const { totalItems, totalPrice, deliveryFee } = useCart();
+  const { totalItems, totalPrice, setOrderType } = useCart();
+  const navigate = useNavigate();
+  const [showOrderTypeModal, setShowOrderTypeModal] = useState(false);
 
   if (totalItems === 0) return null;
 
@@ -17,9 +21,9 @@ const FloatingCartBar = () => {
         className="fixed bottom-0 left-0 right-0 z-50 p-3 md:p-4"
       >
         <div className="container max-w-2xl">
-          <Link
-            to="/cart"
-            className="flex items-center justify-between bg-primary text-primary-foreground rounded-xl px-5 py-3.5 shadow-2xl hover:opacity-95 transition-opacity"
+          <button
+            onClick={() => setShowOrderTypeModal(true)}
+            className="flex items-center justify-between w-full bg-primary text-primary-foreground rounded-xl px-5 py-3.5 shadow-2xl hover:opacity-95 transition-opacity"
           >
             <div className="flex items-center gap-3">
               <div className="relative">
@@ -28,13 +32,23 @@ const FloatingCartBar = () => {
                   {totalItems}
                 </span>
               </div>
-              <span className="font-semibold">Warenkorb ansehen</span>
+              <span className="font-semibold">Bestellen</span>
             </div>
             <span className="font-bold text-lg">
-              CHF {(totalPrice).toFixed(2)}
+              CHF {totalPrice.toFixed(2)}
             </span>
-          </Link>
+          </button>
         </div>
+
+        <OrderTypeModal
+          open={showOrderTypeModal}
+          onClose={() => setShowOrderTypeModal(false)}
+          onConfirm={(type) => {
+            setOrderType(type);
+            setShowOrderTypeModal(false);
+            navigate("/checkout");
+          }}
+        />
       </motion.div>
     </AnimatePresence>
   );

@@ -51,7 +51,7 @@ const CrossSellBar = ({ triggerCategory, onDismiss }: CrossSellBarProps) => {
       <div className="container py-3">
         <div className="flex items-center justify-between mb-2">
           <p className="text-sm font-semibold text-neutral-900">
-            ✨ Dazu passt perfekt:
+            Dazu passt perfekt:
           </p>
           <button onClick={onDismiss} className="text-neutral-400 hover:text-neutral-600">
             <X className="w-4 h-4" />
