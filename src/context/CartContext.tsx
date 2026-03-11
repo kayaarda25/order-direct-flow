@@ -21,6 +21,8 @@ interface CartContextType {
   deliveryFee: number;
   orderType: "delivery" | "pickup";
   setOrderType: (type: "delivery" | "pickup") => void;
+  orderTypeChosen: boolean;
+  setOrderTypeChosen: (chosen: boolean) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
