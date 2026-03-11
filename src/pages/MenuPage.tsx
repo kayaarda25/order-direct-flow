@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { useMenuItems, categories } from "@/hooks/useMenuItems";
 import type { MenuItem } from "@/hooks/useMenuItems";
 import CategoryBar from "@/components/CategoryBar";
@@ -8,15 +8,20 @@ import ProductModal from "@/components/ProductModal";
 import CrossSellBar from "@/components/CrossSellBar";
 import CartSidebar from "@/components/CartSidebar";
 import FloatingCartBar from "@/components/FloatingCartBar";
+import OrderTypeModal from "@/components/OrderTypeModal";
+import { useCart } from "@/context/CartContext";
 
 const MenuPage = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const categoryParam = searchParams.get("category");
   const [activeCategory, setActiveCategory] = useState(categoryParam || categories[0].id);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [lastAddedCategory, setLastAddedCategory] = useState<string | null>(null);
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const isScrolling = useRef(false);
+  const { orderTypeChosen, setOrderType, setOrderTypeChosen } = useCart();
+  const [showOrderTypeModal, setShowOrderTypeModal] = useState(!orderTypeChosen);
 
   const { groupedItems, loading } = useMenuItems();
 
@@ -135,6 +140,23 @@ const MenuPage = () => {
       <div className="lg:hidden">
         <FloatingCartBar />
       </div>
+
+      <OrderTypeModal
+        open={showOrderTypeModal}
+        onClose={() => {
+          // Don't allow closing without choosing - go back
+          if (!orderTypeChosen) {
+            navigate("/");
+          } else {
+            setShowOrderTypeModal(false);
+          }
+        }}
+        onConfirm={(type) => {
+          setOrderType(type);
+          setOrderTypeChosen(true);
+          setShowOrderTypeModal(false);
+        }}
+      />
     </div>
   );
 };

@@ -21,6 +21,8 @@ interface CartContextType {
   deliveryFee: number;
   orderType: "delivery" | "pickup";
   setOrderType: (type: "delivery" | "pickup") => void;
+  orderTypeChosen: boolean;
+  setOrderTypeChosen: (chosen: boolean) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -28,6 +30,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<CartItemType[]>([]);
   const [orderType, setOrderType] = useState<"delivery" | "pickup">("delivery");
+  const [orderTypeChosen, setOrderTypeChosen] = useState(false);
 
   const deliveryFee = orderType === "delivery" ? 5 : 0;
 
@@ -58,7 +61,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return (
     <CartContext.Provider
-      value={{ items, addItem, removeItem, updateQuantity, clearCart, totalItems, totalPrice, deliveryFee, orderType, setOrderType }}
+      value={{ items, addItem, removeItem, updateQuantity, clearCart, totalItems, totalPrice, deliveryFee, orderType, setOrderType, orderTypeChosen, setOrderTypeChosen }}
     >
       {children}
     </CartContext.Provider>
