@@ -135,7 +135,7 @@ const HeroSection = () => {
             >
               {content.hero_title}
             </h1>
-            <p className="text-xl md:text-2xl lg:text-3xl text-muted-foreground mb-10 font-body">
+            <p className="text-lg text-muted-foreground mb-10 font-body">
               {content.hero_subtitle}
             </p>
           </motion.div>
