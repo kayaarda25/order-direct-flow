@@ -142,26 +142,7 @@ const HeroSection = () => {
               {content.hero_subtitle}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link
-                to="/menu"
-                className="inline-flex items-center justify-center px-8 py-4 rounded-lg text-lg font-semibold border-2 border-foreground text-foreground hover:bg-foreground/10 transition-colors"
-              >
-                Jetzt bestellen
-              </Link>
-              <Link
-                to="/reservieren"
-                className="inline-flex items-center justify-center px-8 py-4 rounded-lg text-lg font-semibold border-2 border-foreground text-foreground hover:bg-foreground/10 transition-colors"
-              >
-                Tisch reservieren
-              </Link>
-              <Link
-                to="/catering"
-                className="inline-flex items-center justify-center px-8 py-4 rounded-lg text-lg font-semibold border-2 border-foreground text-foreground hover:bg-foreground/10 transition-colors"
-              >
-                Catering Anfrage
-              </Link>
-            </div>
+            <HeroOrderWidget />
           </motion.div>
 
           <motion.div
