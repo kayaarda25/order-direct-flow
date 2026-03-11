@@ -6,6 +6,7 @@ import CategoryBar from "@/components/CategoryBar";
 import ProductCard from "@/components/ProductCard";
 import ProductModal from "@/components/ProductModal";
 import CrossSellBar from "@/components/CrossSellBar";
+import CartSidebar from "@/components/CartSidebar";
 import FloatingCartBar from "@/components/FloatingCartBar";
 
 const MenuPage = () => {
@@ -17,7 +18,6 @@ const MenuPage = () => {
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const isScrolling = useRef(false);
 
-  // Scroll to category section when category changes
   useEffect(() => {
     if (categoryParam && categories.some((c) => c.id === categoryParam)) {
       setActiveCategory(categoryParam);
@@ -31,7 +31,7 @@ const MenuPage = () => {
     isScrolling.current = true;
     const el = sectionRefs.current[catId];
     if (el) {
-      const offset = 140; // account for sticky bars
+      const offset = 140;
       const y = el.getBoundingClientRect().top + window.scrollY - offset;
       window.scrollTo({ top: y, behavior: "smooth" });
       setTimeout(() => { isScrolling.current = false; }, 600);
@@ -43,7 +43,6 @@ const MenuPage = () => {
     scrollToCategory(catId);
   };
 
-  // Track active section on scroll
   useEffect(() => {
     const handleScroll = () => {
       if (isScrolling.current) return;
@@ -63,7 +62,6 @@ const MenuPage = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Group items by category
   const groupedItems = useMemo(() => {
     const groups: Record<string, MenuItem[]> = {};
     categories.forEach((cat) => {
@@ -78,10 +76,9 @@ const MenuPage = () => {
   };
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen bg-white">
       <CategoryBar activeCategory={activeCategory} onCategoryChange={handleCategoryChange} />
 
-      {/* Cross-sell suggestions */}
       {lastAddedCategory && (
         <CrossSellBar
           triggerCategory={lastAddedCategory}
@@ -91,36 +88,46 @@ const MenuPage = () => {
       )}
 
       <div className="container py-4">
-        {categories.map((cat) => {
-          const items = groupedItems[cat.id];
-          if (!items || items.length === 0) return null;
+        <div className="flex gap-6">
+          {/* Menu items - main area */}
+          <div className="flex-1 min-w-0">
+            {categories.map((cat) => {
+              const items = groupedItems[cat.id];
+              if (!items || items.length === 0) return null;
 
-          return (
-            <div
-              key={cat.id}
-              ref={(el) => { sectionRefs.current[cat.id] = el; }}
-              className="mb-10"
-            >
-              <h2 className="font-display text-xl md:text-2xl font-bold text-foreground mb-1 flex items-center gap-2">
-                <span>{cat.icon}</span> {cat.name}
-              </h2>
-              <p className="text-muted-foreground text-sm mb-4">
-                {items.length} {items.length === 1 ? "Produkt" : "Produkte"}
-              </p>
+              return (
+                <div
+                  key={cat.id}
+                  ref={(el) => { sectionRefs.current[cat.id] = el; }}
+                  className="mb-10"
+                >
+                  <h2 className="font-display text-xl md:text-2xl font-bold text-neutral-900 mb-1 flex items-center gap-2">
+                    <span>{cat.icon}</span> {cat.name}
+                  </h2>
+                  <p className="text-neutral-500 text-sm mb-4">
+                    {items.length} {items.length === 1 ? "Produkt" : "Produkte"}
+                  </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {items.map((item) => (
-                  <ProductCard
-                    key={item.id}
-                    item={item}
-                    onAdd={setSelectedItem}
-                    onQuickAdded={() => handleItemAdded(item.category)}
-                  />
-                ))}
-              </div>
-            </div>
-          );
-        })}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {items.map((item) => (
+                      <ProductCard
+                        key={item.id}
+                        item={item}
+                        onAdd={setSelectedItem}
+                        onQuickAdded={() => handleItemAdded(item.category)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Cart sidebar - desktop only */}
+          <div className="hidden lg:block w-80 flex-shrink-0">
+            <CartSidebar />
+          </div>
+        </div>
       </div>
 
       {selectedItem && (
@@ -131,7 +138,10 @@ const MenuPage = () => {
         />
       )}
 
-      <FloatingCartBar />
+      {/* Floating cart bar for mobile only */}
+      <div className="lg:hidden">
+        <FloatingCartBar />
+      </div>
     </div>
   );
 };
