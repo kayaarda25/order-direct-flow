@@ -1,7 +1,7 @@
-import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import mascotImg from "@/assets/pirate-mascot.png";
 import { useSiteContent, type ElementPosition } from "@/hooks/useSiteContent";
+import HeroOrderWidget from "@/components/HeroOrderWidget";
 
 const HeroSection = () => {
   const { content } = useSiteContent();
@@ -73,7 +73,7 @@ const HeroSection = () => {
             </p>
           </motion.div>
 
-          {/* Buttons */}
+          {/* Order Widget */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -86,26 +86,7 @@ const HeroSection = () => {
               transformOrigin: "top left",
             }}
           >
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link
-                to="/menu"
-                className="inline-flex items-center justify-center px-8 py-4 rounded-lg text-lg font-semibold border-2 border-foreground text-foreground hover:bg-foreground/10 transition-colors"
-              >
-                Jetzt bestellen
-              </Link>
-              <Link
-                to="/reservieren"
-                className="inline-flex items-center justify-center px-8 py-4 rounded-lg text-lg font-semibold border-2 border-foreground text-foreground hover:bg-foreground/10 transition-colors"
-              >
-                Tisch reservieren
-              </Link>
-              <Link
-                to="/catering"
-                className="inline-flex items-center justify-center px-8 py-4 rounded-lg text-lg font-semibold border-2 border-foreground text-foreground hover:bg-foreground/10 transition-colors"
-              >
-                Catering Anfrage
-              </Link>
-            </div>
+            <HeroOrderWidget />
           </motion.div>
 
           {/* Mascot */}
@@ -161,26 +142,7 @@ const HeroSection = () => {
               {content.hero_subtitle}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link
-                to="/menu"
-                className="inline-flex items-center justify-center px-8 py-4 rounded-lg text-lg font-semibold border-2 border-foreground text-foreground hover:bg-foreground/10 transition-colors"
-              >
-                Jetzt bestellen
-              </Link>
-              <Link
-                to="/reservieren"
-                className="inline-flex items-center justify-center px-8 py-4 rounded-lg text-lg font-semibold border-2 border-foreground text-foreground hover:bg-foreground/10 transition-colors"
-              >
-                Tisch reservieren
-              </Link>
-              <Link
-                to="/catering"
-                className="inline-flex items-center justify-center px-8 py-4 rounded-lg text-lg font-semibold border-2 border-foreground text-foreground hover:bg-foreground/10 transition-colors"
-              >
-                Catering Anfrage
-              </Link>
-            </div>
+            <HeroOrderWidget />
           </motion.div>
 
           <motion.div
