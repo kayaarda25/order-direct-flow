@@ -63,43 +63,58 @@ export type Database = {
         Row: {
           allergens: string[] | null
           available: boolean
+          bestseller: boolean
           category: string
           created_at: string
           delivery_price: number | null
           description: string | null
           id: string
           image_url: string | null
+          modifier_groups: Json
           name: string
           pickup_price: number | null
+          popular: boolean
           price: number
+          sort_order: number
+          station: string
           updated_at: string
         }
         Insert: {
           allergens?: string[] | null
           available?: boolean
+          bestseller?: boolean
           category: string
           created_at?: string
           delivery_price?: number | null
           description?: string | null
           id?: string
           image_url?: string | null
+          modifier_groups?: Json
           name: string
           pickup_price?: number | null
+          popular?: boolean
           price: number
+          sort_order?: number
+          station?: string
           updated_at?: string
         }
         Update: {
           allergens?: string[] | null
           available?: boolean
+          bestseller?: boolean
           category?: string
           created_at?: string
           delivery_price?: number | null
           description?: string | null
           id?: string
           image_url?: string | null
+          modifier_groups?: Json
           name?: string
           pickup_price?: number | null
+          popular?: boolean
           price?: number
+          sort_order?: number
+          station?: string
           updated_at?: string
         }
         Relationships: []
