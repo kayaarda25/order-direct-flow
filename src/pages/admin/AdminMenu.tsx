@@ -50,11 +50,15 @@ const AdminMenu = () => {
     if (!confirm("Element wirklich löschen?")) return;
     try {
       const { error } = await supabase.from("menu_items").delete().eq("id", id);
-      if (error) throw error;
+      if (error) {
+        console.error("Delete error:", error);
+        throw error;
+      }
       setMenuItems((items) => items.filter((i) => i.id !== id));
       toast({ title: "Gelöscht" });
-    } catch {
-      toast({ title: "Fehler beim Löschen", variant: "destructive" });
+    } catch (err) {
+      console.error("Delete failed:", err);
+      toast({ title: "Fehler beim Löschen", description: String(err), variant: "destructive" });
     }
   };
 

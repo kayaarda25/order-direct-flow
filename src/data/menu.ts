@@ -73,6 +73,30 @@ function makeModifierGroup(modifierString: string): ModifierGroup[] {
   ];
 }
 
+// Extra toppings for pizza customization
+const pizzaExtras: ModifierGroup = {
+  id: "extras",
+  name: "Pizza verfeinern",
+  required: false,
+  multiSelect: true,
+  options: [
+    { id: "extra-kaese", name: "Extra Käse", price: 2.5 },
+    { id: "mozzarella-bufala", name: "Mozzarella di Bufala", price: 3 },
+    { id: "schinken", name: "Schinken", price: 2.5 },
+    { id: "salami", name: "Salami", price: 2.5 },
+    { id: "peperoni", name: "Peperoni", price: 2 },
+    { id: "champignons", name: "Champignons", price: 2 },
+    { id: "oliven", name: "Oliven", price: 2 },
+    { id: "artischocken", name: "Artischocken", price: 2.5 },
+    { id: "rucola", name: "Rucola", price: 2 },
+    { id: "sardellen", name: "Sardellen", price: 3 },
+    { id: "zwiebeln", name: "Zwiebeln", price: 1.5 },
+    { id: "knoblauch", name: "Knoblauch", price: 1.5 },
+    { id: "ei", name: "Ei", price: 2 },
+    { id: "parma-schinken", name: "Parmaschinken", price: 3.5 },
+  ],
+};
+
 function slugify(name: string): string {
   return name
     .toLowerCase()
@@ -169,6 +193,7 @@ export const menuItems: MenuItem[] = [
           { id: "50cm", name: "50cm (XXL)", price: 19 },
         ],
       },
+      pizzaExtras,
     ],
     bestseller: true,
   },
@@ -192,6 +217,7 @@ export const menuItems: MenuItem[] = [
           { id: "50cm", name: "50cm (XXL)", price: 20 },
         ],
       },
+      pizzaExtras,
     ],
     popular: true,
   },
@@ -213,6 +239,7 @@ export const menuItems: MenuItem[] = [
           { id: "32cm", name: "32cm", price: 0 },
         ],
       },
+      pizzaExtras,
     ],
     bestseller: true,
   },
@@ -235,6 +262,7 @@ export const menuItems: MenuItem[] = [
           { id: "45cm", name: "45cm (Grande)", price: 14 },
         ],
       },
+      pizzaExtras,
     ],
   },
   {
@@ -255,6 +283,7 @@ export const menuItems: MenuItem[] = [
           { id: "32cm", name: "32cm", price: 0 },
         ],
       },
+      pizzaExtras,
     ],
     popular: true,
   },
@@ -276,6 +305,7 @@ export const menuItems: MenuItem[] = [
           { id: "32cm", name: "32cm", price: 0 },
         ],
       },
+      pizzaExtras,
     ],
   },
   {
@@ -296,6 +326,7 @@ export const menuItems: MenuItem[] = [
           { id: "32cm", name: "32cm", price: 0 },
         ],
       },
+      pizzaExtras,
     ],
   },
   {
@@ -316,7 +347,7 @@ export const menuItems: MenuItem[] = [
           { id: "32cm", name: "32cm", price: 0 },
         ],
       },
-      ...makeModifierGroup("Extra Käse, Extra Schinken, Salami, Pilze, Oliven, Peperoni"),
+      pizzaExtras,
     ],
   },
 

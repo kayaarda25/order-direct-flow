@@ -1,9 +1,10 @@
-import { Plus, Check, Flame, TrendingUp } from "lucide-react";
+import { Plus, Check, Flame, TrendingUp, Settings2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
-import type { MenuItem } from "@/data/menu";
+import type { MenuItem, Modifier } from "@/data/menu";
 import { canQuickAdd } from "@/data/menu";
 import { useCart, type CartItemType } from "@/context/CartContext";
+import { cn } from "@/lib/utils";
 
 interface ProductCardProps {
   item: MenuItem;
@@ -14,11 +15,28 @@ interface ProductCardProps {
 const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
   const { addItem } = useCart();
   const [justAdded, setJustAdded] = useState(false);
-  const isQuickAdd = canQuickAdd(item);
+
+  // Find the size modifier group
+  const sizeGroup = item.modifierGroups.find((g) => g.id === "groesse");
+  const extraToppingsGroup = item.modifierGroups.find((g) => g.id === "extras");
+  const [selectedSize, setSelectedSize] = useState<Modifier | null>(
+    sizeGroup?.options[0] || null
+  );
+
+  const currentPrice = item.price + (selectedSize?.price || 0);
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!isQuickAdd) {
+    const modifiers: Record<string, Modifier[]> = {};
+    if (sizeGroup && selectedSize) {
+      modifiers[sizeGroup.id] = [selectedSize];
+    }
+
+    // If there are extra required modifiers beyond size, open modal
+    const hasOtherRequired = item.modifierGroups.some(
+      (g) => g.id !== "groesse" && g.id !== "extras" && g.required
+    );
+    if (hasOtherRequired) {
       onAdd(item);
       return;
     }
@@ -27,9 +45,9 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
       id: "",
       menuItem: item,
       quantity: 1,
-      selectedModifiers: {},
+      selectedModifiers: modifiers,
       specialNotes: "",
-      totalPrice: item.price,
+      totalPrice: currentPrice,
     };
     addItem(cartItem);
     setJustAdded(true);
@@ -37,14 +55,22 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
     setTimeout(() => setJustAdded(false), 1200);
   };
 
+  const handleRefine = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onAdd(item);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-card rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group cursor-pointer"
-      onClick={() => onAdd(item)}
+      className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group border border-neutral-100"
     >
-      <div className="relative aspect-[4/3] overflow-hidden">
+      {/* Image */}
+      <div
+        className="relative aspect-[4/3] overflow-hidden cursor-pointer"
+        onClick={() => onAdd(item)}
+      >
         <img
           src={item.image}
           alt={item.name}
@@ -55,45 +81,78 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
         {/* Badges */}
         <div className="absolute top-2 left-2 flex gap-1.5">
           {item.bestseller && (
-            <span className="bg-primary text-primary-foreground text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md">
+            <span className="bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md">
               <Flame className="w-3 h-3" /> Bestseller
             </span>
           )}
           {item.popular && !item.bestseller && (
-            <span className="bg-accent text-accent-foreground text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md">
+            <span className="bg-amber-500 text-white text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md">
               <TrendingUp className="w-3 h-3" /> Beliebt
             </span>
           )}
         </div>
-
-        {/* Add button */}
-        <button
-          onClick={handleQuickAdd}
-          className="absolute bottom-3 right-3 w-11 h-11 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 transition-transform"
-        >
-          <AnimatePresence mode="wait">
-            {justAdded ? (
-              <motion.div key="check" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
-                <Check className="w-5 h-5" />
-              </motion.div>
-            ) : (
-              <motion.div key="plus" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
-                <Plus className="w-5 h-5" />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </button>
       </div>
 
       <div className="p-3.5">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="font-display font-semibold text-card-foreground text-base leading-tight">{item.name}</h3>
-          <span className="text-primary font-bold text-base whitespace-nowrap">CHF {item.price.toFixed(2)}</span>
-        </div>
-        <p className="text-muted-foreground text-sm mt-1 line-clamp-1">{item.description}</p>
-        {item.modifierGroups.length > 0 && (
-          <p className="text-xs text-muted-foreground/70 mt-1">Anpassbar</p>
+        {/* Name & description */}
+        <h3 className="font-display font-semibold text-neutral-900 text-base leading-tight">{item.name}</h3>
+        <p className="text-neutral-500 text-sm mt-1 line-clamp-2">{item.description}</p>
+
+        {/* Pizza verfeinern button */}
+        {extraToppingsGroup && (
+          <button
+            onClick={handleRefine}
+            className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-neutral-700 hover:text-neutral-900 transition-colors"
+          >
+            Pizza verfeinern <Settings2 className="w-4 h-4" />
+          </button>
         )}
+
+        {/* Inline size selector */}
+        {sizeGroup && sizeGroup.options.length > 1 && (
+          <div className="flex border border-neutral-200 rounded-lg overflow-hidden mt-3">
+            {sizeGroup.options.map((opt) => (
+              <button
+                key={opt.id}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedSize(opt);
+                }}
+                className={cn(
+                  "flex-1 py-2 text-xs font-semibold transition-all text-center",
+                  selectedSize?.id === opt.id
+                    ? "bg-neutral-900 text-white"
+                    : "bg-white text-neutral-600 hover:bg-neutral-50"
+                )}
+              >
+                {opt.name}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Price + add button */}
+        <div className="flex items-center justify-between mt-3">
+          <span className="text-neutral-900 font-bold text-base">
+            CHF {currentPrice.toFixed(2)}
+          </span>
+          <button
+            onClick={handleQuickAdd}
+            className="w-10 h-10 bg-neutral-900 text-white rounded-full flex items-center justify-center shadow-md hover:scale-110 active:scale-95 transition-transform"
+          >
+            <AnimatePresence mode="wait">
+              {justAdded ? (
+                <motion.div key="check" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
+                  <Check className="w-5 h-5" />
+                </motion.div>
+              ) : (
+                <motion.div key="plus" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
+                  <Plus className="w-5 h-5" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </button>
+        </div>
       </div>
     </motion.div>
   );

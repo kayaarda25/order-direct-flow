@@ -8,7 +8,7 @@ interface CategoryBarProps {
 
 const CategoryBar = ({ activeCategory, onCategoryChange }: CategoryBarProps) => {
   return (
-    <div className="sticky top-16 md:top-20 z-40 bg-background/80 backdrop-blur-lg border-b border-border">
+    <div className="sticky top-16 md:top-20 z-40 bg-white border-b border-neutral-200">
       <div className="container">
         <div className="flex gap-2 py-3 overflow-x-auto scrollbar-hide">
           {categories.map((cat) => (
@@ -18,8 +18,8 @@ const CategoryBar = ({ activeCategory, onCategoryChange }: CategoryBarProps) => 
               className={cn(
                 "flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all",
                 activeCategory === cat.id
-                  ? "bg-primary text-primary-foreground shadow-lg"
-                  : "bg-secondary text-secondary-foreground hover:bg-muted"
+                  ? "bg-neutral-900 text-white shadow-lg"
+                  : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
               )}
             >
               <span>{cat.icon}</span>
