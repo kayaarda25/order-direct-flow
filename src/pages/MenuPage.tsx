@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { useMenuItems, categories } from "@/hooks/useMenuItems";
 import type { MenuItem } from "@/hooks/useMenuItems";
 import CategoryBar from "@/components/CategoryBar";
@@ -8,6 +8,8 @@ import ProductModal from "@/components/ProductModal";
 import CrossSellBar from "@/components/CrossSellBar";
 import CartSidebar from "@/components/CartSidebar";
 import FloatingCartBar from "@/components/FloatingCartBar";
+import OrderTypeModal from "@/components/OrderTypeModal";
+import { useCart } from "@/context/CartContext";
 
 const MenuPage = () => {
   const [searchParams] = useSearchParams();
