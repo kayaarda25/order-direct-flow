@@ -28,6 +28,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<CartItemType[]>([]);
   const [orderType, setOrderType] = useState<"delivery" | "pickup">("delivery");
+  const [orderTypeChosen, setOrderTypeChosen] = useState(false);
 
   const deliveryFee = orderType === "delivery" ? 5 : 0;
 
