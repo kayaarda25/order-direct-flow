@@ -262,6 +262,7 @@ export const menuItems: MenuItem[] = [
           { id: "45cm", name: "45cm (Grande)", price: 14 },
         ],
       },
+      pizzaExtras,
     ],
   },
   {
