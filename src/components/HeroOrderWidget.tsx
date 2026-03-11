@@ -12,7 +12,10 @@ const HeroOrderWidget = () => {
   const handleOrder = () => {
     if (!selected) return;
     setOrderType(selected);
-    setOrderTypeChosen(true);
+    if (selected === "pickup") {
+      setOrderTypeChosen(true);
+    }
+    // For delivery, the MenuPage will show the PLZ modal
     navigate("/menu");
   };
 
