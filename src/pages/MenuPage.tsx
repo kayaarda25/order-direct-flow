@@ -13,12 +13,15 @@ import { useCart } from "@/context/CartContext";
 
 const MenuPage = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const categoryParam = searchParams.get("category");
   const [activeCategory, setActiveCategory] = useState(categoryParam || categories[0].id);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [lastAddedCategory, setLastAddedCategory] = useState<string | null>(null);
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const isScrolling = useRef(false);
+  const { orderTypeChosen, setOrderType, setOrderTypeChosen } = useCart();
+  const [showOrderTypeModal, setShowOrderTypeModal] = useState(!orderTypeChosen);
 
   const { groupedItems, loading } = useMenuItems();
 
