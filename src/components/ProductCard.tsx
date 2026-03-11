@@ -1,8 +1,8 @@
 import { Plus, Check, Flame, TrendingUp, Settings2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
-import type { MenuItem, Modifier } from "@/data/menu";
-import { canQuickAdd } from "@/data/menu";
+import type { MenuItem, Modifier } from "@/hooks/useMenuItems";
+import { canQuickAdd } from "@/hooks/useMenuItems";
 import { useCart, type CartItemType } from "@/context/CartContext";
 import { cn } from "@/lib/utils";
 
@@ -16,7 +16,6 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
   const { addItem } = useCart();
   const [justAdded, setJustAdded] = useState(false);
 
-  // Find the size modifier group
   const sizeGroup = item.modifierGroups.find((g) => g.id === "groesse");
   const extraToppingsGroup = item.modifierGroups.find((g) => g.id === "extras");
   const [selectedSize, setSelectedSize] = useState<Modifier | null>(
@@ -32,7 +31,6 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
       modifiers[sizeGroup.id] = [selectedSize];
     }
 
-    // If there are extra required modifiers beyond size, open modal
     const hasOtherRequired = item.modifierGroups.some(
       (g) => g.id !== "groesse" && g.id !== "extras" && g.required
     );
@@ -66,7 +64,6 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
       animate={{ opacity: 1, y: 0 }}
       className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group border border-neutral-100"
     >
-      {/* Image */}
       <div
         className="relative aspect-[4/3] overflow-hidden cursor-pointer"
         onClick={() => onAdd(item)}
@@ -78,7 +75,6 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
           loading="lazy"
         />
 
-        {/* Badges */}
         <div className="absolute top-2 left-2 flex gap-1.5">
           {item.bestseller && (
             <span className="bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md">
@@ -94,11 +90,9 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
       </div>
 
       <div className="p-3.5">
-        {/* Name & description */}
         <h3 className="font-display font-semibold text-neutral-900 text-base leading-tight">{item.name}</h3>
         <p className="text-neutral-500 text-sm mt-1 line-clamp-2">{item.description}</p>
 
-        {/* Pizza verfeinern button */}
         {extraToppingsGroup && (
           <button
             onClick={handleRefine}
@@ -108,7 +102,6 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
           </button>
         )}
 
-        {/* Inline size selector */}
         {sizeGroup && sizeGroup.options.length > 1 && (
           <div className="flex border border-neutral-200 rounded-lg overflow-hidden mt-3">
             {sizeGroup.options.map((opt) => (
@@ -131,7 +124,6 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
           </div>
         )}
 
-        {/* Price + add button */}
         <div className="flex items-center justify-between mt-3">
           <span className="text-neutral-900 font-bold text-base">
             CHF {currentPrice.toFixed(2)}

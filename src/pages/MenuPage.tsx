@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { menuItems, categories } from "@/data/menu";
-import type { MenuItem } from "@/data/menu";
+import { useMenuItems, categories } from "@/hooks/useMenuItems";
+import type { MenuItem } from "@/hooks/useMenuItems";
 import CategoryBar from "@/components/CategoryBar";
 import ProductCard from "@/components/ProductCard";
 import ProductModal from "@/components/ProductModal";
@@ -18,12 +18,12 @@ const MenuPage = () => {
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const isScrolling = useRef(false);
 
+  const { groupedItems, loading } = useMenuItems();
+
   useEffect(() => {
     if (categoryParam && categories.some((c) => c.id === categoryParam)) {
       setActiveCategory(categoryParam);
-      setTimeout(() => {
-        scrollToCategory(categoryParam);
-      }, 100);
+      setTimeout(() => scrollToCategory(categoryParam), 100);
     }
   }, [categoryParam]);
 
@@ -62,14 +62,6 @@ const MenuPage = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const groupedItems = useMemo(() => {
-    const groups: Record<string, MenuItem[]> = {};
-    categories.forEach((cat) => {
-      groups[cat.id] = menuItems.filter((item) => item.category === cat.id);
-    });
-    return groups;
-  }, []);
-
   const handleItemAdded = (category: string) => {
     setLastAddedCategory(category);
     setTimeout(() => setLastAddedCategory(null), 8000);
@@ -88,46 +80,48 @@ const MenuPage = () => {
       )}
 
       <div className="container py-4">
-        <div className="flex gap-6">
-          {/* Menu items - main area */}
-          <div className="flex-1 min-w-0">
-            {categories.map((cat) => {
-              const items = groupedItems[cat.id];
-              if (!items || items.length === 0) return null;
+        {loading ? (
+          <div className="text-center py-20 text-neutral-400">Menü wird geladen...</div>
+        ) : (
+          <div className="flex gap-6">
+            <div className="flex-1 min-w-0">
+              {categories.map((cat) => {
+                const items = groupedItems[cat.id];
+                if (!items || items.length === 0) return null;
 
-              return (
-                <div
-                  key={cat.id}
-                  ref={(el) => { sectionRefs.current[cat.id] = el; }}
-                  className="mb-10"
-                >
-                  <h2 className="font-display text-xl md:text-2xl font-bold text-neutral-900 mb-1 flex items-center gap-2">
-                    <span>{cat.icon}</span> {cat.name}
-                  </h2>
-                  <p className="text-neutral-500 text-sm mb-4">
-                    {items.length} {items.length === 1 ? "Produkt" : "Produkte"}
-                  </p>
+                return (
+                  <div
+                    key={cat.id}
+                    ref={(el) => { sectionRefs.current[cat.id] = el; }}
+                    className="mb-10"
+                  >
+                    <h2 className="font-display text-xl md:text-2xl font-bold text-neutral-900 mb-1 flex items-center gap-2">
+                      <span>{cat.icon}</span> {cat.name}
+                    </h2>
+                    <p className="text-neutral-500 text-sm mb-4">
+                      {items.length} {items.length === 1 ? "Produkt" : "Produkte"}
+                    </p>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {items.map((item) => (
-                      <ProductCard
-                        key={item.id}
-                        item={item}
-                        onAdd={setSelectedItem}
-                        onQuickAdded={() => handleItemAdded(item.category)}
-                      />
-                    ))}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {items.map((item) => (
+                        <ProductCard
+                          key={item.id}
+                          item={item}
+                          onAdd={setSelectedItem}
+                          onQuickAdded={() => handleItemAdded(item.category)}
+                        />
+                      ))}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
 
-          {/* Cart sidebar - desktop only */}
-          <div className="hidden lg:block w-80 flex-shrink-0">
-            <CartSidebar />
+            <div className="hidden lg:block w-80 flex-shrink-0">
+              <CartSidebar />
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {selectedItem && (
@@ -138,7 +132,6 @@ const MenuPage = () => {
         />
       )}
 
-      {/* Floating cart bar for mobile only */}
       <div className="lg:hidden">
         <FloatingCartBar />
       </div>
