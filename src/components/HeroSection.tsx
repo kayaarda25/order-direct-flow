@@ -135,10 +135,10 @@ const HeroSection = () => {
             transition={{ duration: 0.7 }}
             className="max-w-2xl flex-1"
           >
-            <h1 className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-foreground leading-tight mb-4 uppercase tracking-wide whitespace-pre-line" style={{ fontFamily: "'League Spartan', sans-serif" }}>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-tight mb-4 uppercase tracking-wide whitespace-pre-line" style={{ fontFamily: "'League Spartan', sans-serif" }}>
               {content.hero_title}
             </h1>
-            <p className="text-xl md:text-2xl lg:text-3xl text-muted-foreground mb-10 font-body">
+            <p className="text-base md:text-lg lg:text-xl text-muted-foreground mb-10 font-body">
               {content.hero_subtitle}
             </p>
           </motion.div>
