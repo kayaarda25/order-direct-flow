@@ -1,7 +1,7 @@
-import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import mascotImg from "@/assets/pirate-mascot.png";
 import { useSiteContent, type ElementPosition } from "@/hooks/useSiteContent";
+import HeroOrderWidget from "@/components/HeroOrderWidget";
 
 const HeroSection = () => {
   const { content } = useSiteContent();
