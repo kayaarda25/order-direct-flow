@@ -133,16 +133,14 @@ const HeroSection = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
-            className="max-w-2xl"
+            className="max-w-2xl flex-1"
           >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-4 uppercase tracking-wide whitespace-pre-line" style={{ fontFamily: "'League Spartan', sans-serif" }}>
+            <h1 className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-foreground leading-tight mb-4 uppercase tracking-wide whitespace-pre-line" style={{ fontFamily: "'League Spartan', sans-serif" }}>
               {content.hero_title}
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground mb-10 font-body">
+            <p className="text-xl md:text-2xl lg:text-3xl text-muted-foreground mb-10 font-body">
               {content.hero_subtitle}
             </p>
-
-            <HeroOrderWidget />
           </motion.div>
 
           <motion.div
@@ -151,11 +149,7 @@ const HeroSection = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="flex-shrink-0"
           >
-            <img
-              src={mascotImg}
-              alt="Piratino Maskottchen"
-              className="w-48 md:w-64 lg:w-80 h-auto"
-            />
+            <HeroOrderWidget />
           </motion.div>
         </div>
       </div>
