@@ -347,7 +347,7 @@ export const menuItems: MenuItem[] = [
           { id: "32cm", name: "32cm", price: 0 },
         ],
       },
-      ...makeModifierGroup("Extra Käse, Extra Schinken, Salami, Pilze, Oliven, Peperoni"),
+      pizzaExtras,
     ],
   },
 
