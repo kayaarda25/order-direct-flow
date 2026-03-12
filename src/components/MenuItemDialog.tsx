@@ -29,6 +29,10 @@ const menuItemSchema = z.object({
   price: z.number().min(0, "Preis muss positiv sein"),
   price_normal: z.number().optional(),
   price_gross: z.number().optional(),
+  // Per-size pickup prices for pizza
+  pickup_price_klein: z.number().optional(),
+  pickup_price_normal: z.number().optional(),
+  pickup_price_gross: z.number().optional(),
   // Drink size prices
   price_033: z.number().optional(),
   price_05: z.number().optional(),
