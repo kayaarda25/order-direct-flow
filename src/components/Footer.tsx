@@ -90,7 +90,7 @@ const Footer = () => {
             <FooterCard title="Social Media">
               <div className="flex flex-wrap items-center gap-4">
                 {content.social_instagram && (
-                  <a href="#" aria-label="Instagram" className="inline-flex items-center gap-2 hover:opacity-80 transition-opacity">
+                  <a href="https://www.instagram.com/pizzapiratino/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="inline-flex items-center gap-2 hover:opacity-80 transition-opacity">
                     <Instagram className="h-5 w-5" />
                     <span>{content.social_instagram}</span>
                   </a>
