@@ -34,6 +34,10 @@ const menuItemSchema = z.object({
   pickup_price_klein: z.number().optional(),
   pickup_price_normal: z.number().optional(),
   pickup_price_gross: z.number().optional(),
+  // Per-size delivery prices for pizza
+  delivery_price_klein: z.number().optional(),
+  delivery_price_normal: z.number().optional(),
+  delivery_price_gross: z.number().optional(),
   // Drink size prices
   price_033: z.number().optional(),
   price_05: z.number().optional(),
@@ -75,7 +79,7 @@ interface MenuItemDialogProps {
   onClose: () => void;
 }
 
-function extractSizePrices(basePrice: number, modifierGroups: any[]): { normal: number; gross: number; pickupKlein?: number; pickupNormal?: number; pickupGross?: number } | null {
+function extractSizePrices(basePrice: number, modifierGroups: any[]): { normal: number; gross: number; pickupKlein?: number; pickupNormal?: number; pickupGross?: number; deliveryKlein?: number; deliveryNormal?: number; deliveryGross?: number } | null {
   const sizeGroup = modifierGroups?.find((g: any) => g.id === "groesse");
   if (!sizeGroup) return null;
   const normal = sizeGroup.options?.find((o: any) => o.id === "normal");
@@ -87,6 +91,9 @@ function extractSizePrices(basePrice: number, modifierGroups: any[]): { normal: 
     pickupKlein: klein?.pickup_price,
     pickupNormal: normal?.pickup_price,
     pickupGross: gross?.pickup_price,
+    deliveryKlein: klein?.delivery_price,
+    deliveryNormal: normal?.delivery_price,
+    deliveryGross: gross?.delivery_price,
   };
 }
 
@@ -134,6 +141,9 @@ const MenuItemDialog = ({
       pickup_price_klein: undefined,
       pickup_price_normal: undefined,
       pickup_price_gross: undefined,
+      delivery_price_klein: undefined,
+      delivery_price_normal: undefined,
+      delivery_price_gross: undefined,
       price_033: 0,
       price_05: 0,
       price_15: 0,
@@ -164,6 +174,9 @@ const MenuItemDialog = ({
         pickup_price_klein: sizePrices?.pickupKlein,
         pickup_price_normal: sizePrices?.pickupNormal,
         pickup_price_gross: sizePrices?.pickupGross,
+        delivery_price_klein: sizePrices?.deliveryKlein,
+        delivery_price_normal: sizePrices?.deliveryNormal,
+        delivery_price_gross: sizePrices?.deliveryGross,
         price_033: drinkPrices?.p033 || 0,
         price_05: drinkPrices?.p05 || 0,
         price_15: drinkPrices?.p15 || 0,
@@ -204,6 +217,9 @@ const MenuItemDialog = ({
         pickup_price_klein: undefined,
         pickup_price_normal: undefined,
         pickup_price_gross: undefined,
+        delivery_price_klein: undefined,
+        delivery_price_normal: undefined,
+        delivery_price_gross: undefined,
         price_033: 0,
         price_05: 0,
         price_15: 0,
@@ -311,9 +327,9 @@ const MenuItemDialog = ({
           required: true,
           multiSelect: false,
           options: [
-            { id: "klein", name: "Klein 24cm", price: 0, pickup_price: data.pickup_price_klein ?? null },
-            { id: "normal", name: "Normal 32cm", price: (data.price_normal || data.price) - data.price, pickup_price: data.pickup_price_normal ?? null },
-            { id: "gross", name: "Gross 45cm", price: (data.price_gross || data.price) - data.price, pickup_price: data.pickup_price_gross ?? null },
+            { id: "klein", name: "Klein 24cm", price: 0, pickup_price: data.pickup_price_klein ?? null, delivery_price: data.delivery_price_klein ?? null },
+            { id: "normal", name: "Normal 32cm", price: (data.price_normal || data.price) - data.price, pickup_price: data.pickup_price_normal ?? null, delivery_price: data.delivery_price_normal ?? null },
+            { id: "gross", name: "Gross 45cm", price: (data.price_gross || data.price) - data.price, pickup_price: data.pickup_price_gross ?? null, delivery_price: data.delivery_price_gross ?? null },
           ],
         };
 
@@ -613,6 +629,70 @@ const MenuItemDialog = ({
                   <FormField
                     control={form.control}
                     name="pickup_price_gross"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">Gross 45cm</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            placeholder="Standard"
+                            {...field}
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 p-3 border border-border rounded-lg bg-muted/50">
+                  <p className="col-span-3 text-sm font-semibold text-foreground">Lieferpreise pro Grösse (optional)</p>
+                  <FormField
+                    control={form.control}
+                    name="delivery_price_klein"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">Klein 24cm</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            placeholder="Standard"
+                            {...field}
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="delivery_price_normal"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">Normal 32cm</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            placeholder="Standard"
+                            {...field}
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="delivery_price_gross"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-xs">Gross 45cm</FormLabel>

@@ -7,6 +7,7 @@ export interface Modifier {
   price: number;
   image_url?: string;
   pickup_price?: number | null;
+  delivery_price?: number | null;
 }
 
 export interface ModifierGroup {
