@@ -74,16 +74,18 @@ interface MenuItemDialogProps {
   onClose: () => void;
 }
 
-function extractSizePrices(modifierGroups: any[]): { klein: number; normal: number; gross: number } | null {
+function extractSizePrices(basePrice: number, modifierGroups: any[]): { normal: number; gross: number; pickupKlein?: number; pickupNormal?: number; pickupGross?: number } | null {
   const sizeGroup = modifierGroups?.find((g: any) => g.id === "groesse");
   if (!sizeGroup) return null;
-  const klein = sizeGroup.options?.find((o: any) => o.id === "klein");
   const normal = sizeGroup.options?.find((o: any) => o.id === "normal");
   const gross = sizeGroup.options?.find((o: any) => o.id === "gross");
+  const klein = sizeGroup.options?.find((o: any) => o.id === "klein");
   return {
-    klein: 0,
-    normal: normal?.price || 0,
-    gross: gross?.price || 0,
+    normal: basePrice + (normal?.price || 0),
+    gross: basePrice + (gross?.price || 0),
+    pickupKlein: klein?.pickup_price,
+    pickupNormal: normal?.pickup_price,
+    pickupGross: gross?.pickup_price,
   };
 }
 
