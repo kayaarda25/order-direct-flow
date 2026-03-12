@@ -117,8 +117,6 @@ function extractDrinkSizePrices(modifierGroups: any[]): { p033: number; p05: num
     pickup15: p15?.pickup_price,
   };
 }
-  };
-}
 
 const MenuItemDialog = ({
   open,
