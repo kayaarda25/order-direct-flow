@@ -395,9 +395,9 @@ const MenuItemDialog = ({
             required: true,
             multiSelect: false,
             options: [
-              { id: "0.33l", name: "0.33l", price: data.price_033 || 0, image_url: sizeImageUrls["0.33l"] || null },
-              { id: "0.5l", name: "0.5l", price: data.price_05 || 0, image_url: sizeImageUrls["0.5l"] || null },
-              { id: "1.5l", name: "1.5l", price: data.price_15 || 0, image_url: sizeImageUrls["1.5l"] || null },
+              { id: "0.33l", name: "0.33l", price: data.price_033 || 0, image_url: sizeImageUrls["0.33l"] || null, pickup_price: data.pickup_033 ?? null },
+              { id: "0.5l", name: "0.5l", price: data.price_05 || 0, image_url: sizeImageUrls["0.5l"] || null, pickup_price: data.pickup_05 ?? null },
+              { id: "1.5l", name: "1.5l", price: data.price_15 || 0, image_url: sizeImageUrls["1.5l"] || null, pickup_price: data.pickup_15 ?? null },
             ],
           };
           modifierGroups = [sizeGroup];
