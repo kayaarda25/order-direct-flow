@@ -25,7 +25,7 @@ const Header = () => {
             <Link to="/menu" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
               Jetzt bestellen
             </Link>
-            <Link to="/angebote" className="text-accent hover:text-accent/80 transition-colors font-medium">
+            <Link to="/angebote" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
               Angebote
             </Link>
             <Link to="/catering" className="text-foreground/80 hover:text-foreground transition-colors font-medium">

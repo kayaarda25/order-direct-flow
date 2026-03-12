@@ -335,6 +335,7 @@ const AngebotePage = () => {
 
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </div>
+    </div>
   );
 };
 
