@@ -39,11 +39,9 @@ const menuItemSchema = z.object({
   delivery_price_normal: z.number().optional(),
   delivery_price_gross: z.number().optional(),
   // Drink size prices (Lieferung)
-  price_033: z.number().optional(),
   price_05: z.number().optional(),
   price_15: z.number().optional(),
   // Drink size prices (Abholung)
-  pickup_033: z.number().optional(),
   pickup_05: z.number().optional(),
   pickup_15: z.number().optional(),
   category: z.string().min(1, "Kategorie ist erforderlich"),
@@ -101,18 +99,15 @@ function extractSizePrices(basePrice: number, modifierGroups: any[]): { normal: 
   };
 }
 
-function extractDrinkSizePrices(modifierGroups: any[]): { p033: number; p05: number; p15: number; pickup033?: number; pickup05?: number; pickup15?: number } | null {
+function extractDrinkSizePrices(modifierGroups: any[]): { p05: number; p15: number; pickup05?: number; pickup15?: number } | null {
   const sizeGroup = modifierGroups?.find((g: any) => g.id === "groesse");
   if (!sizeGroup) return null;
-  const p033 = sizeGroup.options?.find((o: any) => o.id === "0.33l");
   const p05 = sizeGroup.options?.find((o: any) => o.id === "0.5l");
   const p15 = sizeGroup.options?.find((o: any) => o.id === "1.5l");
-  if (!p033 && !p05 && !p15) return null;
+  if (!p05 && !p15) return null;
   return {
-    p033: p033?.price || 0,
     p05: p05?.price || 0,
     p15: p15?.price || 0,
-    pickup033: p033?.pickup_price,
     pickup05: p05?.pickup_price,
     pickup15: p15?.pickup_price,
   };
@@ -131,7 +126,6 @@ const MenuItemDialog = ({
   const [uploadProgress, setUploadProgress] = useState(0);
   // Per-size drink images
   const [drinkSizeImages, setDrinkSizeImages] = useState<Record<string, { file: File | null; preview: string | null }>>({
-    "0.33l": { file: null, preview: null },
     "0.5l": { file: null, preview: null },
     "1.5l": { file: null, preview: null },
   });
@@ -151,10 +145,8 @@ const MenuItemDialog = ({
       delivery_price_klein: undefined,
       delivery_price_normal: undefined,
       delivery_price_gross: undefined,
-      price_033: 0,
       price_05: 0,
       price_15: 0,
-      pickup_033: undefined,
       pickup_05: undefined,
       pickup_15: undefined,
       category: "",
@@ -188,10 +180,8 @@ const MenuItemDialog = ({
         delivery_price_klein: sizePrices?.deliveryKlein,
         delivery_price_normal: sizePrices?.deliveryNormal,
         delivery_price_gross: sizePrices?.deliveryGross,
-        price_033: drinkPrices?.p033 || 0,
         price_05: drinkPrices?.p05 || 0,
         price_15: drinkPrices?.p15 || 0,
-        pickup_033: drinkPrices?.pickup033,
         pickup_05: drinkPrices?.pickup05,
         pickup_15: drinkPrices?.pickup15,
         category: item.category,
@@ -208,7 +198,6 @@ const MenuItemDialog = ({
       const drinkSizeGroup = item.modifier_groups?.find((g: any) => g.id === "groesse");
       if (item.category === DRINK_CATEGORY && drinkSizeGroup) {
         const imgs: Record<string, { file: File | null; preview: string | null }> = {
-          "0.33l": { file: null, preview: null },
           "0.5l": { file: null, preview: null },
           "1.5l": { file: null, preview: null },
         };
@@ -219,7 +208,7 @@ const MenuItemDialog = ({
         });
         setDrinkSizeImages(imgs);
       } else {
-        setDrinkSizeImages({ "0.33l": { file: null, preview: null }, "0.5l": { file: null, preview: null }, "1.5l": { file: null, preview: null } });
+        setDrinkSizeImages({ "0.5l": { file: null, preview: null }, "1.5l": { file: null, preview: null } });
       }
     } else {
       form.reset({
@@ -234,10 +223,8 @@ const MenuItemDialog = ({
         delivery_price_klein: undefined,
         delivery_price_normal: undefined,
         delivery_price_gross: undefined,
-        price_033: 0,
         price_05: 0,
         price_15: 0,
-        pickup_033: undefined,
         pickup_05: undefined,
         pickup_15: undefined,
         category: "",
@@ -250,7 +237,7 @@ const MenuItemDialog = ({
       });
       setImagePreview(null);
       setImageFile(null);
-      setDrinkSizeImages({ "0.33l": { file: null, preview: null }, "0.5l": { file: null, preview: null }, "1.5l": { file: null, preview: null } });
+      setDrinkSizeImages({ "0.5l": { file: null, preview: null }, "1.5l": { file: null, preview: null } });
     }
     setUploadProgress(0);
   }, [item, form]);
@@ -381,7 +368,7 @@ const MenuItemDialog = ({
         if (existingGroesse) {
           // Upload per-size images
           const sizeImageUrls: Record<string, string | undefined> = {};
-          for (const sizeId of ["0.33l", "0.5l", "1.5l"]) {
+          for (const sizeId of ["0.5l", "1.5l"]) {
             const sizeImg = drinkSizeImages[sizeId];
             if (sizeImg?.file) {
               sizeImageUrls[sizeId] = (await uploadImage(sizeImg.file)) || undefined;
@@ -396,7 +383,6 @@ const MenuItemDialog = ({
             required: true,
             multiSelect: false,
             options: [
-              { id: "0.33l", name: "0.33l", price: data.price_033 || 0, image_url: sizeImageUrls["0.33l"] || null, pickup_price: data.pickup_033 ?? null },
               { id: "0.5l", name: "0.5l", price: data.price_05 || 0, image_url: sizeImageUrls["0.5l"] || null, pickup_price: data.pickup_05 ?? null },
               { id: "1.5l", name: "1.5l", price: data.price_15 || 0, image_url: sizeImageUrls["1.5l"] || null, pickup_price: data.pickup_15 ?? null },
             ],
@@ -678,7 +664,6 @@ const MenuItemDialog = ({
                 <div className="space-y-3 p-3 border border-border rounded-lg bg-muted/50">
                   <p className="text-sm font-semibold text-foreground">Getränke-Grössen Lieferung</p>
                   {[
-                    { sizeId: "0.33l", label: "0.33l", priceField: "price_033" as const },
                     { sizeId: "0.5l", label: "0.5l", priceField: "price_05" as const },
                     { sizeId: "1.5l", label: "1.5l", priceField: "price_15" as const },
                   ].map(({ sizeId, label, priceField }) => (
@@ -723,28 +708,8 @@ const MenuItemDialog = ({
                   ))}
                 </div>
 
-                <div className="grid grid-cols-3 gap-3 p-3 border border-border rounded-lg bg-muted/50">
-                  <p className="col-span-3 text-sm font-semibold text-foreground">Getränke-Grössen Abholung (optional)</p>
-                  <FormField
-                    control={form.control}
-                    name="pickup_033"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs">0.33l</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            step="0.5"
-                            min="0"
-                            placeholder="Standard"
-                            {...field}
-                            value={field.value ?? ""}
-                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
+                <div className="grid grid-cols-2 gap-3 p-3 border border-border rounded-lg bg-muted/50">
+                  <p className="col-span-2 text-sm font-semibold text-foreground">Getränke-Grössen Abholung (optional)</p>
                   <FormField
                     control={form.control}
                     name="pickup_05"
