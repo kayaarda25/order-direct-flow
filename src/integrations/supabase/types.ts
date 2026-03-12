@@ -203,6 +203,33 @@ export type Database = {
         }
         Relationships: []
       }
+      pizza_pass: {
+        Row: {
+          free_pizzas_available: number
+          id: string
+          passes_completed: number
+          pizza_count: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          free_pizzas_available?: number
+          id?: string
+          passes_completed?: number
+          pizza_count?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          free_pizzas_available?: number
+          id?: string
+          passes_completed?: number
+          pizza_count?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -259,6 +286,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_pizzas_to_pass: {
+        Args: { p_count: number; p_user_id: string }
+        Returns: Json
+      }
       award_points: {
         Args: { p_order_total: number; p_user_id: string }
         Returns: number

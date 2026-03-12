@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
-import { Gift, Star, Trophy, Crown, Sparkles, ChevronRight } from "lucide-react";
+import { Gift, Star, Trophy, Crown, Sparkles, ChevronRight, Pizza } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -14,6 +14,12 @@ interface Reward {
   reward_description: string | null;
   category: string;
   sort_order: number;
+}
+
+interface PizzaPass {
+  pizza_count: number;
+  free_pizzas_available: number;
+  passes_completed: number;
 }
 
 const tierIcons = [Gift, Star, Sparkles, Trophy, Crown, Crown];
@@ -37,6 +43,7 @@ const tierIconColors = [
 const AngebotePage = () => {
   const { user, profile } = useAuth();
   const [rewards, setRewards] = useState<Reward[]>([]);
+  const [pizzaPass, setPizzaPass] = useState<PizzaPass | null>(null);
   const [authOpen, setAuthOpen] = useState(false);
   const [redeeming, setRedeeming] = useState<string | null>(null);
 
@@ -47,35 +54,43 @@ const AngebotePage = () => {
       .eq("active", true)
       .order("sort_order")
       .then(({ data }) => {
-        if (data) setRewards(data as Reward[]);
+        if (data) setRewards((data as Reward[]).filter(r => r.category !== "pizza_pass"));
       });
   }, []);
 
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("pizza_pass")
+      .select("*")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data) setPizzaPass(data as PizzaPass);
+      });
+  }, [user]);
+
   const handleRedeem = async (reward: Reward) => {
-    if (!user) {
-      setAuthOpen(true);
-      return;
-    }
+    if (!user) { setAuthOpen(true); return; }
     if (!profile || profile.points_balance < reward.points_required) {
-      toast.error("Nicht genügend Punkte");
-      return;
+      toast.error("Nicht genügend Punkte"); return;
     }
     setRedeeming(reward.id);
     const { data, error } = await supabase.rpc("redeem_reward", {
-      p_user_id: user.id,
-      p_reward_id: reward.id,
+      p_user_id: user.id, p_reward_id: reward.id,
     });
     if (error || data === false) {
       toast.error("Einlösen fehlgeschlagen");
     } else {
       toast.success(`🎉 ${reward.reward_name} eingelöst! Zeige dies bei deiner nächsten Bestellung.`);
-      // Refresh profile to update points
       window.location.reload();
     }
     setRedeeming(null);
   };
 
   const pointsBalance = profile?.points_balance ?? 0;
+  const pizzaCount = pizzaPass?.pizza_count ?? 0;
+  const freePizzas = pizzaPass?.free_pizzas_available ?? 0;
 
   return (
     <div className="container py-8 md:py-12 max-w-4xl">
@@ -124,6 +139,86 @@ const AngebotePage = () => {
         </motion.div>
       )}
 
+      {/* Pizza Pass Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+        className="mb-12"
+      >
+        <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-6 text-center flex items-center justify-center gap-3">
+          <Pizza className="w-7 h-7 text-accent" />
+          Pizza Pass
+        </h2>
+        <div className="bg-gradient-to-br from-accent/15 to-warm/10 border border-accent/30 rounded-2xl p-6 md:p-8">
+          <div className="text-center mb-6">
+            <p className="text-foreground font-semibold text-lg mb-1">
+              Bestelle 10 Pizzen — die 11. ist <span className="text-accent">GRATIS!</span>
+            </p>
+            <p className="text-muted-foreground text-sm">
+              Jede bestellte Pizza zählt, egal welche Grösse oder Sorte.
+            </p>
+          </div>
+
+          {/* Pizza stamps */}
+          <div className="grid grid-cols-5 md:grid-cols-11 gap-2 md:gap-3 max-w-xl mx-auto mb-6">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <motion.div
+                key={i}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.3 + i * 0.05 }}
+                className={cn(
+                  "aspect-square rounded-xl flex items-center justify-center border-2 transition-all",
+                  i < pizzaCount
+                    ? "bg-accent/20 border-accent text-accent"
+                    : "bg-background/30 border-foreground/10 text-muted-foreground/30"
+                )}
+              >
+                <Pizza className="w-5 h-5 md:w-6 md:h-6" />
+              </motion.div>
+            ))}
+            {/* 11th = free! */}
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.8 }}
+              className={cn(
+                "aspect-square rounded-xl flex items-center justify-center border-2 relative",
+                pizzaCount >= 10 || freePizzas > 0
+                  ? "bg-accent border-accent text-accent-foreground"
+                  : "bg-background/30 border-dashed border-accent/40 text-accent/40"
+              )}
+            >
+              <Gift className="w-5 h-5 md:w-6 md:h-6" />
+              <span className="absolute -top-1 -right-1 text-[10px] font-bold bg-accent text-accent-foreground rounded-full w-4 h-4 flex items-center justify-center">
+                🎁
+              </span>
+            </motion.div>
+          </div>
+
+          {/* Status */}
+          {user ? (
+            <div className="text-center">
+              <p className="text-foreground font-semibold">
+                {freePizzas > 0
+                  ? `🎉 Du hast ${freePizzas} Gratis-Pizza${freePizzas > 1 ? "s" : ""} guthaben!`
+                  : `${pizzaCount}/10 Pizzen — noch ${10 - pizzaCount} bis zur Gratis-Pizza`}
+              </p>
+            </div>
+          ) : (
+            <div className="text-center">
+              <button
+                onClick={() => setAuthOpen(true)}
+                className="text-accent font-semibold hover:underline text-sm"
+              >
+                Anmelden um deinen Pizza Pass zu starten →
+              </button>
+            </div>
+          )}
+        </div>
+      </motion.div>
+
       {/* How it works */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
         {[
@@ -147,7 +242,7 @@ const AngebotePage = () => {
         ))}
       </div>
 
-      {/* Reward tiers - McDonald's style */}
+      {/* Reward tiers */}
       <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-6 text-center">
         Belohnungsstufen
       </h2>
@@ -171,7 +266,6 @@ const AngebotePage = () => {
                 colorClass
               )}
             >
-              {/* Points badge */}
               <div className="flex items-center gap-3 shrink-0">
                 <div className={cn("w-12 h-12 rounded-full bg-background/30 flex items-center justify-center", iconColor)}>
                   <Icon className="w-6 h-6" />
@@ -181,7 +275,6 @@ const AngebotePage = () => {
                 </div>
               </div>
 
-              {/* Reward info */}
               <div className="flex-1 min-w-0">
                 <h3 className="font-display text-lg md:text-xl font-bold text-foreground">{reward.reward_name}</h3>
                 {reward.reward_description && (
@@ -206,7 +299,6 @@ const AngebotePage = () => {
                 )}
               </div>
 
-              {/* Redeem button */}
               <button
                 onClick={() => handleRedeem(reward)}
                 disabled={!!redeeming || (user ? !canRedeem : false)}
