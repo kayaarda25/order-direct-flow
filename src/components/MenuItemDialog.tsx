@@ -647,6 +647,70 @@ const MenuItemDialog = ({
                     )}
                   />
                 </div>
+
+                <div className="grid grid-cols-3 gap-3 p-3 border border-border rounded-lg bg-muted/50">
+                  <p className="col-span-3 text-sm font-semibold text-foreground">Lieferpreise pro Grösse (optional)</p>
+                  <FormField
+                    control={form.control}
+                    name="delivery_price_klein"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">Klein 24cm</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            placeholder="Standard"
+                            {...field}
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="delivery_price_normal"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">Normal 32cm</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            placeholder="Standard"
+                            {...field}
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="delivery_price_gross"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">Gross 45cm</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            placeholder="Standard"
+                            {...field}
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
             )}
 
