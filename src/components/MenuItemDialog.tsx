@@ -370,6 +370,24 @@ const MenuItemDialog = ({
           };
           modifierGroups = [sizeGroup];
         }
+      } else if (data.category === PASTA_CATEGORY) {
+        // Ensure pasta type modifier exists
+        const hasPastaType = modifierGroups.some((g: any) => g.id === "pasta-art");
+        if (!hasPastaType) {
+          modifierGroups = [
+            {
+              id: "pasta-art",
+              name: "Pasta-Art",
+              required: true,
+              multiSelect: false,
+              options: [
+                { id: "penne", name: "Penne", price: 0 },
+                { id: "spaghetti", name: "Spaghetti", price: 0 },
+              ],
+            },
+            ...modifierGroups,
+          ];
+        }
       }
 
       const menuItemData: any = {
