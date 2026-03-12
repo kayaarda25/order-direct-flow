@@ -730,60 +730,125 @@ const MenuItemDialog = ({
               </div>
             )}
 
-            {/* Drink size prices & images */}
+            {/* Drink size prices & images - Lieferung */}
             {isDrink && (
-              <div className="space-y-3 p-3 border border-border rounded-lg bg-muted/50">
-                <p className="text-sm font-semibold text-foreground">Getränke-Grössen</p>
-                {[
-                  { sizeId: "0.33l", label: "0.33l", priceField: "price_033" as const },
-                  { sizeId: "0.5l", label: "0.5l", priceField: "price_05" as const },
-                  { sizeId: "1.5l", label: "1.5l", priceField: "price_15" as const },
-                ].map(({ sizeId, label, priceField }) => (
-                  <div key={sizeId} className="flex items-start gap-3 p-2 bg-card rounded-md border border-border">
-                    {/* Size image */}
-                    <div className="w-16 h-16 shrink-0">
-                      {drinkSizeImages[sizeId]?.preview ? (
-                        <div className="relative w-full h-full">
-                          <img src={drinkSizeImages[sizeId].preview!} alt={label} className="w-full h-full object-cover rounded" />
-                          <button type="button" onClick={() => removeDrinkSizeImage(sizeId)} className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center text-xs">
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      ) : (
-                        <label className="w-full h-full border-2 border-dashed border-border rounded flex items-center justify-center cursor-pointer hover:border-muted-foreground">
-                          <Upload className="w-4 h-4 text-muted-foreground" />
-                          <input type="file" accept="image/*" className="hidden" onChange={(e) => handleDrinkSizeImageSelect(sizeId, e)} />
-                        </label>
-                      )}
-                    </div>
-                    {/* Size price */}
-                    <div className="flex-1">
-                      <FormField
-                        control={form.control}
-                        name={priceField}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-xs font-semibold">{label} (CHF)</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                step="0.5"
-                                min="0"
-                                {...field}
-                                value={field.value ?? 0}
-                                onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                              />
-                            </FormControl>
-                          </FormItem>
+              <div className="space-y-3">
+                <div className="space-y-3 p-3 border border-border rounded-lg bg-muted/50">
+                  <p className="text-sm font-semibold text-foreground">Getränke-Grössen Lieferung</p>
+                  {[
+                    { sizeId: "0.33l", label: "0.33l", priceField: "price_033" as const },
+                    { sizeId: "0.5l", label: "0.5l", priceField: "price_05" as const },
+                    { sizeId: "1.5l", label: "1.5l", priceField: "price_15" as const },
+                  ].map(({ sizeId, label, priceField }) => (
+                    <div key={sizeId} className="flex items-start gap-3 p-2 bg-card rounded-md border border-border">
+                      <div className="w-16 h-16 shrink-0">
+                        {drinkSizeImages[sizeId]?.preview ? (
+                          <div className="relative w-full h-full">
+                            <img src={drinkSizeImages[sizeId].preview!} alt={label} className="w-full h-full object-cover rounded" />
+                            <button type="button" onClick={() => removeDrinkSizeImage(sizeId)} className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center text-xs">
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ) : (
+                          <label className="w-full h-full border-2 border-dashed border-border rounded flex items-center justify-center cursor-pointer hover:border-muted-foreground">
+                            <Upload className="w-4 h-4 text-muted-foreground" />
+                            <input type="file" accept="image/*" className="hidden" onChange={(e) => handleDrinkSizeImageSelect(sizeId, e)} />
+                          </label>
                         )}
-                      />
+                      </div>
+                      <div className="flex-1">
+                        <FormField
+                          control={form.control}
+                          name={priceField}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-xs font-semibold">{label} (CHF)</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  step="0.5"
+                                  min="0"
+                                  {...field}
+                                  value={field.value ?? 0}
+                                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 p-3 border border-border rounded-lg bg-muted/50">
+                  <p className="col-span-3 text-sm font-semibold text-foreground">Getränke-Grössen Abholung (optional)</p>
+                  <FormField
+                    control={form.control}
+                    name="pickup_033"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">0.33l</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            placeholder="Standard"
+                            {...field}
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="pickup_05"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">0.5l</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            placeholder="Standard"
+                            {...field}
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="pickup_15"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">1.5l</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            placeholder="Standard"
+                            {...field}
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
             )}
 
-            {/* Delivery/pickup prices - for all categories */}
+            {/* Delivery/pickup prices - for non-pizza, non-drink categories */}
+            {!isPizza && !isDrink && (
             <div className="grid grid-cols-2 gap-3 p-3 border border-border rounded-lg bg-muted/50">
               <p className="col-span-2 text-sm font-semibold text-foreground">Liefer- / Abholpreise (optional)</p>
               <FormField
@@ -827,6 +892,7 @@ const MenuItemDialog = ({
                 )}
               />
             </div>
+            )}
 
             {/* Image Upload */}
             <div className="space-y-2">
