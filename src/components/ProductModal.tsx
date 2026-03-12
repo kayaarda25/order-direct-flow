@@ -111,7 +111,7 @@ const ProductModal = ({ item, onClose, onAdded }: ProductModalProps) => {
           <div className="p-5">
             <h2 className="font-display text-2xl font-bold text-neutral-900">{item.name}</h2>
             <p className="text-neutral-500 mt-1">{item.description}</p>
-            <p className="text-neutral-900 font-bold text-xl mt-2">CHF {item.price.toFixed(2)}</p>
+            <p className="text-neutral-900 font-bold text-xl mt-2">CHF {basePrice.toFixed(2)}</p>
 
             {item.modifierGroups.map((group) => (
               <div key={group.id} className="mt-5">
