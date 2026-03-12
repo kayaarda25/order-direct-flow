@@ -93,7 +93,7 @@ const AngebotePage = () => {
   const freePizzas = pizzaPass?.free_pizzas_available ?? 0;
 
   return (
-    <div className="container py-8 md:py-12 max-w-4xl">
+    <div className="container py-8 md:py-12 max-w-4xl" style={{ background: 'white', minHeight: '100vh' }}>
       {/* Hero */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
