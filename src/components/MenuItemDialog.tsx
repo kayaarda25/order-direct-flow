@@ -327,9 +327,9 @@ const MenuItemDialog = ({
           required: true,
           multiSelect: false,
           options: [
-            { id: "klein", name: "Klein 24cm", price: 0, pickup_price: data.pickup_price_klein ?? null },
-            { id: "normal", name: "Normal 32cm", price: (data.price_normal || data.price) - data.price, pickup_price: data.pickup_price_normal ?? null },
-            { id: "gross", name: "Gross 45cm", price: (data.price_gross || data.price) - data.price, pickup_price: data.pickup_price_gross ?? null },
+            { id: "klein", name: "Klein 24cm", price: 0, pickup_price: data.pickup_price_klein ?? null, delivery_price: data.delivery_price_klein ?? null },
+            { id: "normal", name: "Normal 32cm", price: (data.price_normal || data.price) - data.price, pickup_price: data.pickup_price_normal ?? null, delivery_price: data.delivery_price_normal ?? null },
+            { id: "gross", name: "Gross 45cm", price: (data.price_gross || data.price) - data.price, pickup_price: data.pickup_price_gross ?? null, delivery_price: data.delivery_price_gross ?? null },
           ],
         };
 
