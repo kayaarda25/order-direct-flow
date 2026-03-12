@@ -110,6 +110,23 @@ const CheckoutPage = () => {
       });
 
       clearCart();
+
+      // Award loyalty points if user is logged in
+      if (user) {
+        try {
+          const { data: pointsAwarded } = await supabase.rpc("award_points", {
+            p_user_id: user.id,
+            p_order_total: totalPrice,
+          });
+          if (pointsAwarded) {
+            toast.success(`🎉 +${pointsAwarded} Punkte gesammelt!`);
+            refreshProfile();
+          }
+        } catch (err) {
+          console.error("Points award error:", err);
+        }
+      }
+
       toast.success("Bestellung erfolgreich gesendet!");
       navigate(`/order/${order.id}`);
     } catch (err) {
