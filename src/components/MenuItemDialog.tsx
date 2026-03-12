@@ -198,7 +198,6 @@ const MenuItemDialog = ({
       const drinkSizeGroup = item.modifier_groups?.find((g: any) => g.id === "groesse");
       if (item.category === DRINK_CATEGORY && drinkSizeGroup) {
         const imgs: Record<string, { file: File | null; preview: string | null }> = {
-          "0.33l": { file: null, preview: null },
           "0.5l": { file: null, preview: null },
           "1.5l": { file: null, preview: null },
         };
@@ -209,7 +208,7 @@ const MenuItemDialog = ({
         });
         setDrinkSizeImages(imgs);
       } else {
-        setDrinkSizeImages({ "0.33l": { file: null, preview: null }, "0.5l": { file: null, preview: null }, "1.5l": { file: null, preview: null } });
+        setDrinkSizeImages({ "0.5l": { file: null, preview: null }, "1.5l": { file: null, preview: null } });
       }
     } else {
       form.reset({
