@@ -55,23 +55,26 @@ const ProductModal = ({ item, onClose, onAdded }: ProductModalProps) => {
     .flat()
     .reduce((sum, m) => sum + m.price, 0);
 
-  // Check if selected size has a specific pickup price
+  // Check if selected size has a specific pickup/delivery price
   const selectedSizeModifier = selectedModifiers["groesse"]?.[0];
   const usePickupSizePrice = orderType === "pickup" && selectedSizeModifier?.pickup_price != null;
+  const useDeliverySizePrice = orderType === "delivery" && selectedSizeModifier?.delivery_price != null;
 
   // Use pickup or delivery price if available
   const basePrice = usePickupSizePrice
     ? selectedSizeModifier!.pickup_price!
-    : orderType === "pickup" && item.pickupPrice != null
-      ? item.pickupPrice
-      : orderType === "delivery" && item.deliveryPrice != null
-        ? item.deliveryPrice
-        : item.price;
+    : useDeliverySizePrice
+      ? selectedSizeModifier!.delivery_price!
+      : orderType === "pickup" && item.pickupPrice != null
+        ? item.pickupPrice
+        : orderType === "delivery" && item.deliveryPrice != null
+          ? item.deliveryPrice
+          : item.price;
 
-  // If using per-size pickup price, don't add modifier price for the size (it's already absolute)
+  // If using per-size price, don't add modifier price for the size (it's already absolute)
   const sizeModifierPrice = selectedSizeModifier?.price || 0;
   const otherModifierPrice = modifierPrice - sizeModifierPrice;
-  const totalPrice = usePickupSizePrice
+  const totalPrice = (usePickupSizePrice || useDeliverySizePrice)
     ? basePrice + otherModifierPrice
     : basePrice + modifierPrice;
 

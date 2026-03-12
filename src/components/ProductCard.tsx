@@ -21,11 +21,13 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
     sizeGroup?.options[0] || null
   );
 
-  // Use pickup or delivery price if available, otherwise base price
-  // For items with size modifiers that have per-size pickup prices, use those
+  // Use per-size pickup/delivery price if available
   const getEffectivePrice = () => {
     if (orderType === "pickup" && selectedSize?.pickup_price != null) {
       return selectedSize.pickup_price;
+    }
+    if (orderType === "delivery" && selectedSize?.delivery_price != null) {
+      return selectedSize.delivery_price;
     }
     const base = orderType === "pickup" && item.pickupPrice != null
       ? item.pickupPrice
