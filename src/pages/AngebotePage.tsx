@@ -69,8 +69,8 @@ const AngebotePage = () => {
       toast.error("Einlösen fehlgeschlagen");
     } else {
       toast.success(`🎉 ${reward.reward_name} eingelöst! Zeige dies bei deiner nächsten Bestellung.`);
-      // Refresh profile
-      const { useAuth } = await import("@/context/AuthContext");
+      // Refresh profile to update points
+      window.location.reload();
     }
     setRedeeming(null);
   };

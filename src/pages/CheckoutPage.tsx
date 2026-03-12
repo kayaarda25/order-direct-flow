@@ -20,6 +20,7 @@ const paymentMethods = [
 const CheckoutPage = () => {
   const { items, totalPrice, orderType, clearCart } = useCart();
   const { placeOrder } = useOrder();
+  const { user, refreshProfile } = useAuth();
   const navigate = useNavigate();
 
   const restaurantOpen = isRestaurantOpen();
