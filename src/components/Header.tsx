@@ -115,9 +115,9 @@ const Header = () => {
               <nav className="container flex flex-col gap-4 py-4">
                 <Link to="/" className="text-foreground font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Home</Link>
                 <Link to="/menu" className="text-foreground font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Jetzt bestellen</Link>
-                <Link to="/angebote" className="text-accent font-medium py-2 flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
-                  <Gift className="w-4 h-4" /> Angebote
-                  {user && <span className="text-xs bg-accent/20 px-2 py-0.5 rounded-full">{profile?.points_balance ?? 0} Pts</span>}
+                <Link to="/angebote" className="text-foreground font-medium py-2 flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+                  Angebote
+                  {user && <span className="text-xs bg-accent/20 text-accent px-2 py-0.5 rounded-full">{profile?.points_balance ?? 0} Pts</span>}
                 </Link>
                 <Link to="/catering" className="text-foreground font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Catering</Link>
                 <Link to="/reservieren" className="text-foreground font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Tisch reservieren</Link>
