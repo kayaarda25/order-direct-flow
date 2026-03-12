@@ -129,7 +129,6 @@ const MenuItemDialog = ({
   const [uploadProgress, setUploadProgress] = useState(0);
   // Per-size drink images
   const [drinkSizeImages, setDrinkSizeImages] = useState<Record<string, { file: File | null; preview: string | null }>>({
-    "0.33l": { file: null, preview: null },
     "0.5l": { file: null, preview: null },
     "1.5l": { file: null, preview: null },
   });
