@@ -99,18 +99,15 @@ function extractSizePrices(basePrice: number, modifierGroups: any[]): { normal: 
   };
 }
 
-function extractDrinkSizePrices(modifierGroups: any[]): { p033: number; p05: number; p15: number; pickup033?: number; pickup05?: number; pickup15?: number } | null {
+function extractDrinkSizePrices(modifierGroups: any[]): { p05: number; p15: number; pickup05?: number; pickup15?: number } | null {
   const sizeGroup = modifierGroups?.find((g: any) => g.id === "groesse");
   if (!sizeGroup) return null;
-  const p033 = sizeGroup.options?.find((o: any) => o.id === "0.33l");
   const p05 = sizeGroup.options?.find((o: any) => o.id === "0.5l");
   const p15 = sizeGroup.options?.find((o: any) => o.id === "1.5l");
-  if (!p033 && !p05 && !p15) return null;
+  if (!p05 && !p15) return null;
   return {
-    p033: p033?.price || 0,
     p05: p05?.price || 0,
     p15: p15?.price || 0,
-    pickup033: p033?.pickup_price,
     pickup05: p05?.pickup_price,
     pickup15: p15?.pickup_price,
   };
