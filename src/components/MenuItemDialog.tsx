@@ -722,28 +722,8 @@ const MenuItemDialog = ({
                   ))}
                 </div>
 
-                <div className="grid grid-cols-3 gap-3 p-3 border border-border rounded-lg bg-muted/50">
-                  <p className="col-span-3 text-sm font-semibold text-foreground">Getränke-Grössen Abholung (optional)</p>
-                  <FormField
-                    control={form.control}
-                    name="pickup_033"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs">0.33l</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            step="0.5"
-                            min="0"
-                            placeholder="Standard"
-                            {...field}
-                            value={field.value ?? ""}
-                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
+                <div className="grid grid-cols-2 gap-3 p-3 border border-border rounded-lg bg-muted/50">
+                  <p className="col-span-2 text-sm font-semibold text-foreground">Getränke-Grössen Abholung (optional)</p>
                   <FormField
                     control={form.control}
                     name="pickup_05"
