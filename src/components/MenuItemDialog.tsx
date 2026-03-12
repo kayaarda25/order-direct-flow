@@ -38,10 +38,14 @@ const menuItemSchema = z.object({
   delivery_price_klein: z.number().optional(),
   delivery_price_normal: z.number().optional(),
   delivery_price_gross: z.number().optional(),
-  // Drink size prices
+  // Drink size prices (Lieferung)
   price_033: z.number().optional(),
   price_05: z.number().optional(),
   price_15: z.number().optional(),
+  // Drink size prices (Abholung)
+  pickup_033: z.number().optional(),
+  pickup_05: z.number().optional(),
+  pickup_15: z.number().optional(),
   category: z.string().min(1, "Kategorie ist erforderlich"),
   allergens: z.string().optional(),
   available: z.boolean().default(true),
@@ -97,7 +101,7 @@ function extractSizePrices(basePrice: number, modifierGroups: any[]): { normal: 
   };
 }
 
-function extractDrinkSizePrices(modifierGroups: any[]): { p033: number; p05: number; p15: number } | null {
+function extractDrinkSizePrices(modifierGroups: any[]): { p033: number; p05: number; p15: number; pickup033?: number; pickup05?: number; pickup15?: number } | null {
   const sizeGroup = modifierGroups?.find((g: any) => g.id === "groesse");
   if (!sizeGroup) return null;
   const p033 = sizeGroup.options?.find((o: any) => o.id === "0.33l");
@@ -108,6 +112,9 @@ function extractDrinkSizePrices(modifierGroups: any[]): { p033: number; p05: num
     p033: p033?.price || 0,
     p05: p05?.price || 0,
     p15: p15?.price || 0,
+    pickup033: p033?.pickup_price,
+    pickup05: p05?.pickup_price,
+    pickup15: p15?.pickup_price,
   };
 }
 
@@ -147,6 +154,9 @@ const MenuItemDialog = ({
       price_033: 0,
       price_05: 0,
       price_15: 0,
+      pickup_033: undefined,
+      pickup_05: undefined,
+      pickup_15: undefined,
       category: "",
       allergens: "",
       available: true,
@@ -180,6 +190,9 @@ const MenuItemDialog = ({
         price_033: drinkPrices?.p033 || 0,
         price_05: drinkPrices?.p05 || 0,
         price_15: drinkPrices?.p15 || 0,
+        pickup_033: drinkPrices?.pickup033,
+        pickup_05: drinkPrices?.pickup05,
+        pickup_15: drinkPrices?.pickup15,
         category: item.category,
         allergens: item.allergens?.join(", ") || "",
         available: item.available,
@@ -223,6 +236,9 @@ const MenuItemDialog = ({
         price_033: 0,
         price_05: 0,
         price_15: 0,
+        pickup_033: undefined,
+        pickup_05: undefined,
+        pickup_15: undefined,
         category: "",
         allergens: "",
         available: true,
@@ -379,9 +395,9 @@ const MenuItemDialog = ({
             required: true,
             multiSelect: false,
             options: [
-              { id: "0.33l", name: "0.33l", price: data.price_033 || 0, image_url: sizeImageUrls["0.33l"] || null },
-              { id: "0.5l", name: "0.5l", price: data.price_05 || 0, image_url: sizeImageUrls["0.5l"] || null },
-              { id: "1.5l", name: "1.5l", price: data.price_15 || 0, image_url: sizeImageUrls["1.5l"] || null },
+              { id: "0.33l", name: "0.33l", price: data.price_033 || 0, image_url: sizeImageUrls["0.33l"] || null, pickup_price: data.pickup_033 ?? null },
+              { id: "0.5l", name: "0.5l", price: data.price_05 || 0, image_url: sizeImageUrls["0.5l"] || null, pickup_price: data.pickup_05 ?? null },
+              { id: "1.5l", name: "1.5l", price: data.price_15 || 0, image_url: sizeImageUrls["1.5l"] || null, pickup_price: data.pickup_15 ?? null },
             ],
           };
           modifierGroups = [sizeGroup];
@@ -498,8 +514,8 @@ const MenuItemDialog = ({
               )}
             />
 
-            {/* Base price - hidden for pizza (included in size grid below) */}
-            {!isPizza && (
+            {/* Base price - hidden for pizza and drinks */}
+            {!isPizza && !isDrink && (
               <FormField
                 control={form.control}
                 name="price"
@@ -714,60 +730,125 @@ const MenuItemDialog = ({
               </div>
             )}
 
-            {/* Drink size prices & images */}
+            {/* Drink size prices & images - Lieferung */}
             {isDrink && (
-              <div className="space-y-3 p-3 border border-border rounded-lg bg-muted/50">
-                <p className="text-sm font-semibold text-foreground">Getränke-Grössen</p>
-                {[
-                  { sizeId: "0.33l", label: "0.33l", priceField: "price_033" as const },
-                  { sizeId: "0.5l", label: "0.5l", priceField: "price_05" as const },
-                  { sizeId: "1.5l", label: "1.5l", priceField: "price_15" as const },
-                ].map(({ sizeId, label, priceField }) => (
-                  <div key={sizeId} className="flex items-start gap-3 p-2 bg-card rounded-md border border-border">
-                    {/* Size image */}
-                    <div className="w-16 h-16 shrink-0">
-                      {drinkSizeImages[sizeId]?.preview ? (
-                        <div className="relative w-full h-full">
-                          <img src={drinkSizeImages[sizeId].preview!} alt={label} className="w-full h-full object-cover rounded" />
-                          <button type="button" onClick={() => removeDrinkSizeImage(sizeId)} className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center text-xs">
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      ) : (
-                        <label className="w-full h-full border-2 border-dashed border-border rounded flex items-center justify-center cursor-pointer hover:border-muted-foreground">
-                          <Upload className="w-4 h-4 text-muted-foreground" />
-                          <input type="file" accept="image/*" className="hidden" onChange={(e) => handleDrinkSizeImageSelect(sizeId, e)} />
-                        </label>
-                      )}
-                    </div>
-                    {/* Size price */}
-                    <div className="flex-1">
-                      <FormField
-                        control={form.control}
-                        name={priceField}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-xs font-semibold">{label} (CHF)</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                step="0.5"
-                                min="0"
-                                {...field}
-                                value={field.value ?? 0}
-                                onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                              />
-                            </FormControl>
-                          </FormItem>
+              <div className="space-y-3">
+                <div className="space-y-3 p-3 border border-border rounded-lg bg-muted/50">
+                  <p className="text-sm font-semibold text-foreground">Getränke-Grössen Lieferung</p>
+                  {[
+                    { sizeId: "0.33l", label: "0.33l", priceField: "price_033" as const },
+                    { sizeId: "0.5l", label: "0.5l", priceField: "price_05" as const },
+                    { sizeId: "1.5l", label: "1.5l", priceField: "price_15" as const },
+                  ].map(({ sizeId, label, priceField }) => (
+                    <div key={sizeId} className="flex items-start gap-3 p-2 bg-card rounded-md border border-border">
+                      <div className="w-16 h-16 shrink-0">
+                        {drinkSizeImages[sizeId]?.preview ? (
+                          <div className="relative w-full h-full">
+                            <img src={drinkSizeImages[sizeId].preview!} alt={label} className="w-full h-full object-cover rounded" />
+                            <button type="button" onClick={() => removeDrinkSizeImage(sizeId)} className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center text-xs">
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ) : (
+                          <label className="w-full h-full border-2 border-dashed border-border rounded flex items-center justify-center cursor-pointer hover:border-muted-foreground">
+                            <Upload className="w-4 h-4 text-muted-foreground" />
+                            <input type="file" accept="image/*" className="hidden" onChange={(e) => handleDrinkSizeImageSelect(sizeId, e)} />
+                          </label>
                         )}
-                      />
+                      </div>
+                      <div className="flex-1">
+                        <FormField
+                          control={form.control}
+                          name={priceField}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-xs font-semibold">{label} (CHF)</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  step="0.5"
+                                  min="0"
+                                  {...field}
+                                  value={field.value ?? 0}
+                                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 p-3 border border-border rounded-lg bg-muted/50">
+                  <p className="col-span-3 text-sm font-semibold text-foreground">Getränke-Grössen Abholung (optional)</p>
+                  <FormField
+                    control={form.control}
+                    name="pickup_033"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">0.33l</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            placeholder="Standard"
+                            {...field}
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="pickup_05"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">0.5l</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            placeholder="Standard"
+                            {...field}
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="pickup_15"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">1.5l</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            placeholder="Standard"
+                            {...field}
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
             )}
 
-            {/* Delivery/pickup prices - for all categories */}
+            {/* Delivery/pickup prices - for non-pizza, non-drink categories */}
+            {!isPizza && !isDrink && (
             <div className="grid grid-cols-2 gap-3 p-3 border border-border rounded-lg bg-muted/50">
               <p className="col-span-2 text-sm font-semibold text-foreground">Liefer- / Abholpreise (optional)</p>
               <FormField
@@ -811,6 +892,7 @@ const MenuItemDialog = ({
                 )}
               />
             </div>
+            )}
 
             {/* Image Upload */}
             <div className="space-y-2">
