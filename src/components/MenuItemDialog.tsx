@@ -464,38 +464,58 @@ const MenuItemDialog = ({
               )}
             />
 
-            {/* Base price - for pizza this is Klein 24cm */}
-            <FormField
-              control={form.control}
-              name="price"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{isPizza ? "Preis Klein 24cm (CHF)" : "Preis (CHF)"}</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      step="0.5"
-                      min="0"
-                      {...field}
-                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Base price - hidden for pizza (included in size grid below) */}
+            {!isPizza && (
+              <FormField
+                control={form.control}
+                name="price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Preis (CHF)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.5"
+                        min="0"
+                        {...field}
+                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
-            {/* Pizza size prices */}
+            {/* Pizza size prices - all 3 in one grid */}
             {isPizza && (
               <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-3 p-3 border border-border rounded-lg bg-muted/50">
-                  <p className="col-span-2 text-sm font-semibold text-foreground">Pizza-Grössen (Preise)</p>
+                <div className="grid grid-cols-3 gap-3 p-3 border border-border rounded-lg bg-muted/50">
+                  <p className="col-span-3 text-sm font-semibold text-foreground">Pizza-Grössen (Preise CHF)</p>
+                  <FormField
+                    control={form.control}
+                    name="price"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">Klein 24cm</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            {...field}
+                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
                   <FormField
                     control={form.control}
                     name="price_normal"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-xs">Normal 32cm (CHF)</FormLabel>
+                        <FormLabel className="text-xs">Normal 32cm</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -514,7 +534,7 @@ const MenuItemDialog = ({
                     name="price_gross"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-xs">Gross 45cm (CHF)</FormLabel>
+                        <FormLabel className="text-xs">Gross 45cm</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -528,7 +548,6 @@ const MenuItemDialog = ({
                       </FormItem>
                     )}
                   />
-                </div>
 
                 <div className="grid grid-cols-3 gap-3 p-3 border border-border rounded-lg bg-muted/50">
                   <p className="col-span-3 text-sm font-semibold text-foreground">Abholpreise pro Grösse (optional)</p>
