@@ -22,6 +22,7 @@ import { Upload, X } from "lucide-react";
 
 const PIZZA_CATEGORIES = ["pizza", "kinder-pizza"];
 const DRINK_CATEGORY = "getraenke";
+const PASTA_CATEGORY = "pasta";
 
 const menuItemSchema = z.object({
   name: z.string().min(1, "Name ist erforderlich"),
