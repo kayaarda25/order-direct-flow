@@ -548,6 +548,7 @@ const MenuItemDialog = ({
                       </FormItem>
                     )}
                   />
+                </div>
 
                 <div className="grid grid-cols-3 gap-3 p-3 border border-border rounded-lg bg-muted/50">
                   <p className="col-span-3 text-sm font-semibold text-foreground">Abholpreise pro Grösse (optional)</p>
