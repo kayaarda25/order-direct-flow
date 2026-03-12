@@ -514,8 +514,8 @@ const MenuItemDialog = ({
               )}
             />
 
-            {/* Base price - hidden for pizza (included in size grid below) */}
-            {!isPizza && (
+            {/* Base price - hidden for pizza and drinks */}
+            {!isPizza && !isDrink && (
               <FormField
                 control={form.control}
                 name="price"
