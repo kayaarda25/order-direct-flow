@@ -54,7 +54,7 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
     }
 
     const hasOtherRequired = item.modifierGroups.some(
-      (g) => g.id !== "groesse" && g.id !== "extras" && g.required
+      (g) => g.id !== "groesse" && g.id !== "extras" && g.id !== "dressing" && g.required
     );
     if (hasOtherRequired) {
       onAdd(item);
