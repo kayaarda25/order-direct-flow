@@ -129,7 +129,7 @@ const AdminMenu = () => {
                         {item.popular && <Badge variant="secondary" className="ml-2 text-xs">Beliebt</Badge>}
                       </TableCell>
                       <TableCell>{item.category}</TableCell>
-                      <TableCell>CHF {item.price.toFixed(2)}</TableCell>
+                      <TableCell>CHF {(item.price || (item as any).delivery_price || (item as any).pickup_price || 0).toFixed(2)}</TableCell>
                       <TableCell>
                         <Badge variant={item.available ? "default" : "secondary"}>
                           {item.available ? "Aktiv" : "Inaktiv"}
