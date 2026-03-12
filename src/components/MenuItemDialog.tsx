@@ -152,7 +152,7 @@ const MenuItemDialog = ({
 
   useEffect(() => {
     if (item) {
-      const sizePrices = extractSizePrices(item.modifier_groups);
+      const sizePrices = extractSizePrices(item.price, item.modifier_groups);
       const drinkPrices = extractDrinkSizePrices(item.modifier_groups);
       form.reset({
         name: item.name,
@@ -160,6 +160,9 @@ const MenuItemDialog = ({
         price: item.price,
         price_normal: sizePrices?.normal || 0,
         price_gross: sizePrices?.gross || 0,
+        pickup_price_klein: sizePrices?.pickupKlein,
+        pickup_price_normal: sizePrices?.pickupNormal,
+        pickup_price_gross: sizePrices?.pickupGross,
         price_033: drinkPrices?.p033 || 0,
         price_05: drinkPrices?.p05 || 0,
         price_15: drinkPrices?.p15 || 0,
