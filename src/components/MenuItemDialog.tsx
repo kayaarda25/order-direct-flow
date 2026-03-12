@@ -678,7 +678,6 @@ const MenuItemDialog = ({
                 <div className="space-y-3 p-3 border border-border rounded-lg bg-muted/50">
                   <p className="text-sm font-semibold text-foreground">Getränke-Grössen Lieferung</p>
                   {[
-                    { sizeId: "0.33l", label: "0.33l", priceField: "price_033" as const },
                     { sizeId: "0.5l", label: "0.5l", priceField: "price_05" as const },
                     { sizeId: "1.5l", label: "1.5l", priceField: "price_15" as const },
                   ].map(({ sizeId, label, priceField }) => (
