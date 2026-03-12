@@ -17,8 +17,12 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
 
   const sizeGroup = item.modifierGroups.find((g) => g.id === "groesse");
   const extraToppingsGroup = item.modifierGroups.find((g) => g.id === "extras");
+  const dressingGroup = item.modifierGroups.find((g) => g.id === "dressing");
   const [selectedSize, setSelectedSize] = useState<Modifier | null>(
     sizeGroup?.options[0] || null
+  );
+  const [selectedDressing, setSelectedDressing] = useState<Modifier | null>(
+    dressingGroup?.options[0] || null
   );
 
   // Use per-size pickup/delivery price if available
