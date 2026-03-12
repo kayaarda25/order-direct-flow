@@ -49,6 +49,9 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
     if (sizeGroup && selectedSize) {
       modifiers[sizeGroup.id] = [selectedSize];
     }
+    if (dressingGroup && selectedDressing) {
+      modifiers[dressingGroup.id] = [selectedDressing];
+    }
 
     const hasOtherRequired = item.modifierGroups.some(
       (g) => g.id !== "groesse" && g.id !== "extras" && g.required
