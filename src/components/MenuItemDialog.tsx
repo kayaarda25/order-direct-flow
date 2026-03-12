@@ -452,7 +452,70 @@ const MenuItemDialog = ({
               </div>
             )}
 
-            {/* Delivery & Pickup prices */}
+            {/* Drink size prices */}
+            {isDrink && (
+              <div className="grid grid-cols-3 gap-3 p-3 border border-neutral-200 rounded-lg bg-neutral-50">
+                <p className="col-span-3 text-sm font-semibold text-neutral-700">Getränke-Grössen (CHF)</p>
+                <FormField
+                  control={form.control}
+                  name="price_033"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs">0.33l</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.5"
+                          min="0"
+                          {...field}
+                          value={field.value ?? 0}
+                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="price_05"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs">0.5l</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.5"
+                          min="0"
+                          {...field}
+                          value={field.value ?? 0}
+                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="price_15"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs">1.5l</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.5"
+                          min="0"
+                          {...field}
+                          value={field.value ?? 0}
+                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-3 p-3 border border-neutral-200 rounded-lg bg-neutral-50">
               <p className="col-span-2 text-sm font-semibold text-neutral-700">Liefer- / Abholpreise (optional)</p>
               <FormField
