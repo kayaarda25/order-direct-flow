@@ -17,8 +17,12 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
 
   const sizeGroup = item.modifierGroups.find((g) => g.id === "groesse");
   const extraToppingsGroup = item.modifierGroups.find((g) => g.id === "extras");
+  const dressingGroup = item.modifierGroups.find((g) => g.id === "dressing");
   const [selectedSize, setSelectedSize] = useState<Modifier | null>(
     sizeGroup?.options[0] || null
+  );
+  const [selectedDressing, setSelectedDressing] = useState<Modifier | null>(
+    dressingGroup?.options[0] || null
   );
 
   // Use per-size pickup/delivery price if available
@@ -45,9 +49,12 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
     if (sizeGroup && selectedSize) {
       modifiers[sizeGroup.id] = [selectedSize];
     }
+    if (dressingGroup && selectedDressing) {
+      modifiers[dressingGroup.id] = [selectedDressing];
+    }
 
     const hasOtherRequired = item.modifierGroups.some(
-      (g) => g.id !== "groesse" && g.id !== "extras" && g.required
+      (g) => g.id !== "groesse" && g.id !== "extras" && g.id !== "dressing" && g.required
     );
     if (hasOtherRequired) {
       onAdd(item);
@@ -117,6 +124,28 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
                 className={cn(
                   "flex-1 py-2 text-xs font-semibold transition-all text-center",
                   selectedSize?.id === opt.id
+                    ? "bg-neutral-900 text-white"
+                    : "bg-white text-neutral-600 hover:bg-neutral-50"
+                )}
+              >
+                {opt.name}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {dressingGroup && dressingGroup.options.length > 1 && (
+          <div className="flex flex-wrap border border-neutral-200 rounded-lg overflow-hidden mt-3">
+            {dressingGroup.options.map((opt) => (
+              <button
+                key={opt.id}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedDressing(opt);
+                }}
+                className={cn(
+                  "flex-1 py-2 text-xs font-semibold transition-all text-center min-w-[25%]",
+                  selectedDressing?.id === opt.id
                     ? "bg-neutral-900 text-white"
                     : "bg-white text-neutral-600 hover:bg-neutral-50"
                 )}
