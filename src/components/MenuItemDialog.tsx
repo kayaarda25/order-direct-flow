@@ -38,10 +38,14 @@ const menuItemSchema = z.object({
   delivery_price_klein: z.number().optional(),
   delivery_price_normal: z.number().optional(),
   delivery_price_gross: z.number().optional(),
-  // Drink size prices
+  // Drink size prices (Lieferung)
   price_033: z.number().optional(),
   price_05: z.number().optional(),
   price_15: z.number().optional(),
+  // Drink size prices (Abholung)
+  pickup_033: z.number().optional(),
+  pickup_05: z.number().optional(),
+  pickup_15: z.number().optional(),
   category: z.string().min(1, "Kategorie ist erforderlich"),
   allergens: z.string().optional(),
   available: z.boolean().default(true),
