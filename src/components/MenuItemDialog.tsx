@@ -138,12 +138,16 @@ const MenuItemDialog = ({
   useEffect(() => {
     if (item) {
       const sizePrices = extractSizePrices(item.modifier_groups);
+      const drinkPrices = extractDrinkSizePrices(item.modifier_groups);
       form.reset({
         name: item.name,
         description: item.description || "",
         price: item.price,
         price_normal: sizePrices?.normal || 0,
         price_gross: sizePrices?.gross || 0,
+        price_033: drinkPrices?.p033 || 0,
+        price_05: drinkPrices?.p05 || 0,
+        price_15: drinkPrices?.p15 || 0,
         category: item.category,
         allergens: item.allergens?.join(", ") || "",
         available: item.available,
@@ -161,6 +165,9 @@ const MenuItemDialog = ({
         price: 0,
         price_normal: 0,
         price_gross: 0,
+        price_033: 0,
+        price_05: 0,
+        price_15: 0,
         category: "",
         allergens: "",
         available: true,
