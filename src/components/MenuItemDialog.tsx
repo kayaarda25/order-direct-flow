@@ -118,6 +118,9 @@ const MenuItemDialog = ({
       price: 0,
       price_normal: 0,
       price_gross: 0,
+      price_033: 0,
+      price_05: 0,
+      price_15: 0,
       category: "",
       allergens: "",
       available: true,
@@ -130,6 +133,7 @@ const MenuItemDialog = ({
 
   const watchCategory = form.watch("category");
   const isPizza = PIZZA_CATEGORIES.includes(watchCategory);
+  const isDrink = watchCategory === DRINK_CATEGORY;
 
   useEffect(() => {
     if (item) {
