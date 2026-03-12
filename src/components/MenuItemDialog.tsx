@@ -275,6 +275,23 @@ const MenuItemDialog = ({
             ],
           });
         }
+      } else if (data.category === DRINK_CATEGORY) {
+        // Check if drink has existing groesse group (multi-size drink)
+        const existingGroesse = modifierGroups.find((g: any) => g.id === "groesse");
+        if (existingGroesse) {
+          const sizeGroup = {
+            id: "groesse",
+            name: "Grösse",
+            required: true,
+            multiSelect: false,
+            options: [
+              { id: "0.33l", name: "0.33l", price: data.price_033 || 0 },
+              { id: "0.5l", name: "0.5l", price: data.price_05 || 0 },
+              { id: "1.5l", name: "1.5l", price: data.price_15 || 0 },
+            ],
+          };
+          modifierGroups = [sizeGroup];
+        }
       }
 
       const menuItemData: any = {
