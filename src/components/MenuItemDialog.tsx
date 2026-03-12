@@ -34,6 +34,10 @@ const menuItemSchema = z.object({
   pickup_price_klein: z.number().optional(),
   pickup_price_normal: z.number().optional(),
   pickup_price_gross: z.number().optional(),
+  // Per-size delivery prices for pizza
+  delivery_price_klein: z.number().optional(),
+  delivery_price_normal: z.number().optional(),
+  delivery_price_gross: z.number().optional(),
   // Drink size prices
   price_033: z.number().optional(),
   price_05: z.number().optional(),
