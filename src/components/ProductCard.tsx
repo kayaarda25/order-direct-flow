@@ -75,7 +75,7 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
         onClick={() => onAdd(item)}
       >
         <img
-          src={item.image}
+          src={(selectedSize?.image_url) || item.image}
           alt={item.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"

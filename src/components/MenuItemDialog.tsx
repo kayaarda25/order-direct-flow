@@ -108,6 +108,12 @@ const MenuItemDialog = ({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
+  // Per-size drink images
+  const [drinkSizeImages, setDrinkSizeImages] = useState<Record<string, { file: File | null; preview: string | null }>>({
+    "0.33l": { file: null, preview: null },
+    "0.5l": { file: null, preview: null },
+    "1.5l": { file: null, preview: null },
+  });
   const { toast } = useToast();
 
   const form = useForm<MenuItemFormData>({
@@ -158,6 +164,23 @@ const MenuItemDialog = ({
       });
       setImagePreview(item.image_url);
       setImageFile(null);
+      // Load drink size images from modifier groups
+      const drinkSizeGroup = item.modifier_groups?.find((g: any) => g.id === "groesse");
+      if (item.category === DRINK_CATEGORY && drinkSizeGroup) {
+        const imgs: Record<string, { file: File | null; preview: string | null }> = {
+          "0.33l": { file: null, preview: null },
+          "0.5l": { file: null, preview: null },
+          "1.5l": { file: null, preview: null },
+        };
+        drinkSizeGroup.options?.forEach((opt: any) => {
+          if (opt.image_url && imgs[opt.id]) {
+            imgs[opt.id] = { file: null, preview: opt.image_url };
+          }
+        });
+        setDrinkSizeImages(imgs);
+      } else {
+        setDrinkSizeImages({ "0.33l": { file: null, preview: null }, "0.5l": { file: null, preview: null }, "1.5l": { file: null, preview: null } });
+      }
     } else {
       form.reset({
         name: "",
@@ -178,6 +201,7 @@ const MenuItemDialog = ({
       });
       setImagePreview(null);
       setImageFile(null);
+      setDrinkSizeImages({ "0.33l": { file: null, preview: null }, "0.5l": { file: null, preview: null }, "1.5l": { file: null, preview: null } });
     }
     setUploadProgress(0);
   }, [item, form]);
@@ -197,6 +221,34 @@ const MenuItemDialog = ({
     const reader = new FileReader();
     reader.onload = () => setImagePreview(reader.result as string);
     reader.readAsDataURL(file);
+  };
+
+  const handleDrinkSizeImageSelect = (sizeId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      toast({ title: "Ungültiger Dateityp", variant: "destructive" });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "Datei zu gross", description: "Max 5MB.", variant: "destructive" });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setDrinkSizeImages(prev => ({
+        ...prev,
+        [sizeId]: { file, preview: reader.result as string },
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeDrinkSizeImage = (sizeId: string) => {
+    setDrinkSizeImages(prev => ({
+      ...prev,
+      [sizeId]: { file: null, preview: null },
+    }));
   };
 
   const removeImage = () => {
@@ -276,18 +328,28 @@ const MenuItemDialog = ({
           });
         }
       } else if (data.category === DRINK_CATEGORY) {
-        // Check if drink has existing groesse group (multi-size drink)
         const existingGroesse = modifierGroups.find((g: any) => g.id === "groesse");
         if (existingGroesse) {
+          // Upload per-size images
+          const sizeImageUrls: Record<string, string | undefined> = {};
+          for (const sizeId of ["0.33l", "0.5l", "1.5l"]) {
+            const sizeImg = drinkSizeImages[sizeId];
+            if (sizeImg?.file) {
+              sizeImageUrls[sizeId] = (await uploadImage(sizeImg.file)) || undefined;
+            } else if (sizeImg?.preview) {
+              sizeImageUrls[sizeId] = sizeImg.preview;
+            }
+          }
+
           const sizeGroup = {
             id: "groesse",
             name: "Grösse",
             required: true,
             multiSelect: false,
             options: [
-              { id: "0.33l", name: "0.33l", price: data.price_033 || 0 },
-              { id: "0.5l", name: "0.5l", price: data.price_05 || 0 },
-              { id: "1.5l", name: "1.5l", price: data.price_15 || 0 },
+              { id: "0.33l", name: "0.33l", price: data.price_033 || 0, image_url: sizeImageUrls["0.33l"] || null },
+              { id: "0.5l", name: "0.5l", price: data.price_05 || 0, image_url: sizeImageUrls["0.5l"] || null },
+              { id: "1.5l", name: "1.5l", price: data.price_15 || 0, image_url: sizeImageUrls["1.5l"] || null },
             ],
           };
           modifierGroups = [sizeGroup];
@@ -452,67 +514,56 @@ const MenuItemDialog = ({
               </div>
             )}
 
-            {/* Drink size prices */}
+            {/* Drink size prices & images */}
             {isDrink && (
-              <div className="grid grid-cols-3 gap-3 p-3 border border-neutral-200 rounded-lg bg-neutral-50">
-                <p className="col-span-3 text-sm font-semibold text-neutral-700">Getränke-Grössen (CHF)</p>
-                <FormField
-                  control={form.control}
-                  name="price_033"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-xs">0.33l</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="0.5"
-                          min="0"
-                          {...field}
-                          value={field.value ?? 0}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="price_05"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-xs">0.5l</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="0.5"
-                          min="0"
-                          {...field}
-                          value={field.value ?? 0}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="price_15"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-xs">1.5l</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="0.5"
-                          min="0"
-                          {...field}
-                          value={field.value ?? 0}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+              <div className="space-y-3 p-3 border border-neutral-200 rounded-lg bg-neutral-50">
+                <p className="text-sm font-semibold text-neutral-700">Getränke-Grössen</p>
+                {[
+                  { sizeId: "0.33l", label: "0.33l", priceField: "price_033" as const },
+                  { sizeId: "0.5l", label: "0.5l", priceField: "price_05" as const },
+                  { sizeId: "1.5l", label: "1.5l", priceField: "price_15" as const },
+                ].map(({ sizeId, label, priceField }) => (
+                  <div key={sizeId} className="flex items-start gap-3 p-2 bg-white rounded-md border border-neutral-100">
+                    {/* Size image */}
+                    <div className="w-16 h-16 shrink-0">
+                      {drinkSizeImages[sizeId]?.preview ? (
+                        <div className="relative w-full h-full">
+                          <img src={drinkSizeImages[sizeId].preview!} alt={label} className="w-full h-full object-cover rounded" />
+                          <button type="button" onClick={() => removeDrinkSizeImage(sizeId)} className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs">
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="w-full h-full border-2 border-dashed border-neutral-300 rounded flex items-center justify-center cursor-pointer hover:border-neutral-400">
+                          <Upload className="w-4 h-4 text-neutral-400" />
+                          <input type="file" accept="image/*" className="hidden" onChange={(e) => handleDrinkSizeImageSelect(sizeId, e)} />
+                        </label>
+                      )}
+                    </div>
+                    {/* Size price */}
+                    <div className="flex-1">
+                      <FormField
+                        control={form.control}
+                        name={priceField}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs font-semibold">{label} (CHF)</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                step="0.5"
+                                min="0"
+                                {...field}
+                                value={field.value ?? 0}
+                                onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
 
