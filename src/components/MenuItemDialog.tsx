@@ -767,8 +767,7 @@ const MenuItemDialog = ({
               </div>
             )}
 
-            {/* Delivery/pickup prices - only for non-pizza (pizza has per-size pickup above) */}
-            {!isPizza && (
+            {/* Delivery/pickup prices - for all categories */}
             <div className="grid grid-cols-2 gap-3 p-3 border border-border rounded-lg bg-muted/50">
               <p className="col-span-2 text-sm font-semibold text-foreground">Liefer- / Abholpreise (optional)</p>
               <FormField
@@ -812,7 +811,6 @@ const MenuItemDialog = ({
                 )}
               />
             </div>
-            )}
 
             {/* Image Upload */}
             <div className="space-y-2">
