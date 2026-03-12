@@ -22,6 +22,7 @@ import { Upload, X } from "lucide-react";
 
 const PIZZA_CATEGORIES = ["pizza", "kinder-pizza"];
 const DRINK_CATEGORY = "getraenke";
+const PASTA_CATEGORY = "pasta";
 
 const menuItemSchema = z.object({
   name: z.string().min(1, "Name ist erforderlich"),
@@ -369,6 +370,24 @@ const MenuItemDialog = ({
           };
           modifierGroups = [sizeGroup];
         }
+      } else if (data.category === PASTA_CATEGORY) {
+        // Ensure pasta type modifier exists
+        const hasPastaType = modifierGroups.some((g: any) => g.id === "pasta-art");
+        if (!hasPastaType) {
+          modifierGroups = [
+            {
+              id: "pasta-art",
+              name: "Pasta-Art",
+              required: true,
+              multiSelect: false,
+              options: [
+                { id: "penne", name: "Penne", price: 0 },
+                { id: "spaghetti", name: "Spaghetti", price: 0 },
+              ],
+            },
+            ...modifierGroups,
+          ];
+        }
       }
 
       const menuItemData: any = {
@@ -463,38 +482,58 @@ const MenuItemDialog = ({
               )}
             />
 
-            {/* Base price - for pizza this is Klein 24cm */}
-            <FormField
-              control={form.control}
-              name="price"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{isPizza ? "Preis Klein 24cm (CHF)" : "Preis (CHF)"}</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      step="0.5"
-                      min="0"
-                      {...field}
-                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Base price - hidden for pizza (included in size grid below) */}
+            {!isPizza && (
+              <FormField
+                control={form.control}
+                name="price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Preis (CHF)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.5"
+                        min="0"
+                        {...field}
+                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
-            {/* Pizza size prices */}
+            {/* Pizza size prices - all 3 in one grid */}
             {isPizza && (
               <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-3 p-3 border border-border rounded-lg bg-muted/50">
-                  <p className="col-span-2 text-sm font-semibold text-foreground">Pizza-Grössen (Preise)</p>
+                <div className="grid grid-cols-3 gap-3 p-3 border border-border rounded-lg bg-muted/50">
+                  <p className="col-span-3 text-sm font-semibold text-foreground">Pizza-Grössen (Preise CHF)</p>
+                  <FormField
+                    control={form.control}
+                    name="price"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">Klein 24cm</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            {...field}
+                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
                   <FormField
                     control={form.control}
                     name="price_normal"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-xs">Normal 32cm (CHF)</FormLabel>
+                        <FormLabel className="text-xs">Normal 32cm</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -513,7 +552,7 @@ const MenuItemDialog = ({
                     name="price_gross"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-xs">Gross 45cm (CHF)</FormLabel>
+                        <FormLabel className="text-xs">Gross 45cm</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
