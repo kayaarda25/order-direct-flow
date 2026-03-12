@@ -122,8 +122,19 @@ const CheckoutPage = () => {
             toast.success(`🎉 +${pointsAwarded} Punkte gesammelt!`);
             refreshProfile();
           }
+
+          // Count pizzas in order for pizza pass
+          const pizzaCount = items
+            .filter(item => item.menuItem.category?.toLowerCase().includes("pizza"))
+            .reduce((sum, item) => sum + item.quantity, 0);
+          if (pizzaCount > 0) {
+            await supabase.rpc("add_pizzas_to_pass", {
+              p_user_id: user.id,
+              p_count: pizzaCount,
+            });
+          }
         } catch (err) {
-          console.error("Points award error:", err);
+          console.error("Points/pass award error:", err);
         }
       }
 
