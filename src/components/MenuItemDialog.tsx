@@ -77,9 +77,23 @@ function extractSizePrices(modifierGroups: any[]): { klein: number; normal: numb
   const normal = sizeGroup.options?.find((o: any) => o.id === "normal");
   const gross = sizeGroup.options?.find((o: any) => o.id === "gross");
   return {
-    klein: 0, // base price is klein
+    klein: 0,
     normal: normal?.price || 0,
     gross: gross?.price || 0,
+  };
+}
+
+function extractDrinkSizePrices(modifierGroups: any[]): { p033: number; p05: number; p15: number } | null {
+  const sizeGroup = modifierGroups?.find((g: any) => g.id === "groesse");
+  if (!sizeGroup) return null;
+  const p033 = sizeGroup.options?.find((o: any) => o.id === "0.33l");
+  const p05 = sizeGroup.options?.find((o: any) => o.id === "0.5l");
+  const p15 = sizeGroup.options?.find((o: any) => o.id === "1.5l");
+  if (!p033 && !p05 && !p15) return null;
+  return {
+    p033: p033?.price || 0,
+    p05: p05?.price || 0,
+    p15: p15?.price || 0,
   };
 }
 
