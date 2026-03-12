@@ -2,10 +2,11 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useOrder } from "@/context/OrderContext";
+import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getDeliveryZone } from "@/data/deliveryZones";
 import { isRestaurantOpen, getScheduledTimeSlots } from "@/utils/openingHours";
-import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, AlertCircle, Clock } from "lucide-react";
+import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, AlertCircle, Clock, Gift } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -19,6 +20,7 @@ const paymentMethods = [
 const CheckoutPage = () => {
   const { items, totalPrice, orderType, clearCart } = useCart();
   const { placeOrder } = useOrder();
+  const { user, refreshProfile } = useAuth();
   const navigate = useNavigate();
 
   const restaurantOpen = isRestaurantOpen();
@@ -108,6 +110,23 @@ const CheckoutPage = () => {
       });
 
       clearCart();
+
+      // Award loyalty points if user is logged in
+      if (user) {
+        try {
+          const { data: pointsAwarded } = await supabase.rpc("award_points", {
+            p_user_id: user.id,
+            p_order_total: totalPrice,
+          });
+          if (pointsAwarded) {
+            toast.success(`🎉 +${pointsAwarded} Punkte gesammelt!`);
+            refreshProfile();
+          }
+        } catch (err) {
+          console.error("Points award error:", err);
+        }
+      }
+
       toast.success("Bestellung erfolgreich gesendet!");
       navigate(`/order/${order.id}`);
     } catch (err) {
