@@ -223,10 +223,8 @@ const MenuItemDialog = ({
         delivery_price_klein: undefined,
         delivery_price_normal: undefined,
         delivery_price_gross: undefined,
-        price_033: 0,
         price_05: 0,
         price_15: 0,
-        pickup_033: undefined,
         pickup_05: undefined,
         pickup_15: undefined,
         category: "",
@@ -239,7 +237,7 @@ const MenuItemDialog = ({
       });
       setImagePreview(null);
       setImageFile(null);
-      setDrinkSizeImages({ "0.33l": { file: null, preview: null }, "0.5l": { file: null, preview: null }, "1.5l": { file: null, preview: null } });
+      setDrinkSizeImages({ "0.5l": { file: null, preview: null }, "1.5l": { file: null, preview: null } });
     }
     setUploadProgress(0);
   }, [item, form]);
