@@ -368,7 +368,7 @@ const MenuItemDialog = ({
         if (existingGroesse) {
           // Upload per-size images
           const sizeImageUrls: Record<string, string | undefined> = {};
-          for (const sizeId of ["0.33l", "0.5l", "1.5l"]) {
+          for (const sizeId of ["0.5l", "1.5l"]) {
             const sizeImg = drinkSizeImages[sizeId];
             if (sizeImg?.file) {
               sizeImageUrls[sizeId] = (await uploadImage(sizeImg.file)) || undefined;
@@ -383,7 +383,6 @@ const MenuItemDialog = ({
             required: true,
             multiSelect: false,
             options: [
-              { id: "0.33l", name: "0.33l", price: data.price_033 || 0, image_url: sizeImageUrls["0.33l"] || null, pickup_price: data.pickup_033 ?? null },
               { id: "0.5l", name: "0.5l", price: data.price_05 || 0, image_url: sizeImageUrls["0.5l"] || null, pickup_price: data.pickup_05 ?? null },
               { id: "1.5l", name: "1.5l", price: data.price_15 || 0, image_url: sizeImageUrls["1.5l"] || null, pickup_price: data.pickup_15 ?? null },
             ],
