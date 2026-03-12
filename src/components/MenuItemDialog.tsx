@@ -164,6 +164,23 @@ const MenuItemDialog = ({
       });
       setImagePreview(item.image_url);
       setImageFile(null);
+      // Load drink size images from modifier groups
+      const drinkSizeGroup = item.modifier_groups?.find((g: any) => g.id === "groesse");
+      if (item.category === DRINK_CATEGORY && drinkSizeGroup) {
+        const imgs: Record<string, { file: File | null; preview: string | null }> = {
+          "0.33l": { file: null, preview: null },
+          "0.5l": { file: null, preview: null },
+          "1.5l": { file: null, preview: null },
+        };
+        drinkSizeGroup.options?.forEach((opt: any) => {
+          if (opt.image_url && imgs[opt.id]) {
+            imgs[opt.id] = { file: null, preview: opt.image_url };
+          }
+        });
+        setDrinkSizeImages(imgs);
+      } else {
+        setDrinkSizeImages({ "0.33l": { file: null, preview: null }, "0.5l": { file: null, preview: null }, "1.5l": { file: null, preview: null } });
+      }
     } else {
       form.reset({
         name: "",
@@ -184,6 +201,7 @@ const MenuItemDialog = ({
       });
       setImagePreview(null);
       setImageFile(null);
+      setDrinkSizeImages({ "0.33l": { file: null, preview: null }, "0.5l": { file: null, preview: null }, "1.5l": { file: null, preview: null } });
     }
     setUploadProgress(0);
   }, [item, form]);
