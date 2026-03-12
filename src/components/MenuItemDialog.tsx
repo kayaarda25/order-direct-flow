@@ -108,6 +108,12 @@ const MenuItemDialog = ({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
+  // Per-size drink images
+  const [drinkSizeImages, setDrinkSizeImages] = useState<Record<string, { file: File | null; preview: string | null }>>({
+    "0.33l": { file: null, preview: null },
+    "0.5l": { file: null, preview: null },
+    "1.5l": { file: null, preview: null },
+  });
   const { toast } = useToast();
 
   const form = useForm<MenuItemFormData>({
