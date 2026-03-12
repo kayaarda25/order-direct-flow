@@ -12,7 +12,7 @@ interface ProductModalProps {
 }
 
 const ProductModal = ({ item, onClose, onAdded }: ProductModalProps) => {
-  const { addItem } = useCart();
+  const { addItem, orderType } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [specialNotes, setSpecialNotes] = useState("");
 
