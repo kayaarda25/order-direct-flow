@@ -21,6 +21,7 @@ import { categories } from "@/hooks/useMenuItems";
 import { Upload, X } from "lucide-react";
 
 const PIZZA_CATEGORIES = ["pizza", "kinder-pizza"];
+const DRINK_CATEGORY = "getraenke";
 
 const menuItemSchema = z.object({
   name: z.string().min(1, "Name ist erforderlich"),
@@ -28,6 +29,10 @@ const menuItemSchema = z.object({
   price: z.number().min(0, "Preis muss positiv sein"),
   price_normal: z.number().optional(),
   price_gross: z.number().optional(),
+  // Drink size prices
+  price_033: z.number().optional(),
+  price_05: z.number().optional(),
+  price_15: z.number().optional(),
   category: z.string().min(1, "Kategorie ist erforderlich"),
   allergens: z.string().optional(),
   available: z.boolean().default(true),
@@ -72,9 +77,23 @@ function extractSizePrices(modifierGroups: any[]): { klein: number; normal: numb
   const normal = sizeGroup.options?.find((o: any) => o.id === "normal");
   const gross = sizeGroup.options?.find((o: any) => o.id === "gross");
   return {
-    klein: 0, // base price is klein
+    klein: 0,
     normal: normal?.price || 0,
     gross: gross?.price || 0,
+  };
+}
+
+function extractDrinkSizePrices(modifierGroups: any[]): { p033: number; p05: number; p15: number } | null {
+  const sizeGroup = modifierGroups?.find((g: any) => g.id === "groesse");
+  if (!sizeGroup) return null;
+  const p033 = sizeGroup.options?.find((o: any) => o.id === "0.33l");
+  const p05 = sizeGroup.options?.find((o: any) => o.id === "0.5l");
+  const p15 = sizeGroup.options?.find((o: any) => o.id === "1.5l");
+  if (!p033 && !p05 && !p15) return null;
+  return {
+    p033: p033?.price || 0,
+    p05: p05?.price || 0,
+    p15: p15?.price || 0,
   };
 }
 
@@ -99,6 +118,9 @@ const MenuItemDialog = ({
       price: 0,
       price_normal: 0,
       price_gross: 0,
+      price_033: 0,
+      price_05: 0,
+      price_15: 0,
       category: "",
       allergens: "",
       available: true,
@@ -111,16 +133,21 @@ const MenuItemDialog = ({
 
   const watchCategory = form.watch("category");
   const isPizza = PIZZA_CATEGORIES.includes(watchCategory);
+  const isDrink = watchCategory === DRINK_CATEGORY;
 
   useEffect(() => {
     if (item) {
       const sizePrices = extractSizePrices(item.modifier_groups);
+      const drinkPrices = extractDrinkSizePrices(item.modifier_groups);
       form.reset({
         name: item.name,
         description: item.description || "",
         price: item.price,
         price_normal: sizePrices?.normal || 0,
         price_gross: sizePrices?.gross || 0,
+        price_033: drinkPrices?.p033 || 0,
+        price_05: drinkPrices?.p05 || 0,
+        price_15: drinkPrices?.p15 || 0,
         category: item.category,
         allergens: item.allergens?.join(", ") || "",
         available: item.available,
@@ -138,6 +165,9 @@ const MenuItemDialog = ({
         price: 0,
         price_normal: 0,
         price_gross: 0,
+        price_033: 0,
+        price_05: 0,
+        price_15: 0,
         category: "",
         allergens: "",
         available: true,
@@ -244,6 +274,23 @@ const MenuItemDialog = ({
               { id: "extra-cipolla", name: "Zwiebeln", price: 1.5 },
             ],
           });
+        }
+      } else if (data.category === DRINK_CATEGORY) {
+        // Check if drink has existing groesse group (multi-size drink)
+        const existingGroesse = modifierGroups.find((g: any) => g.id === "groesse");
+        if (existingGroesse) {
+          const sizeGroup = {
+            id: "groesse",
+            name: "Grösse",
+            required: true,
+            multiSelect: false,
+            options: [
+              { id: "0.33l", name: "0.33l", price: data.price_033 || 0 },
+              { id: "0.5l", name: "0.5l", price: data.price_05 || 0 },
+              { id: "1.5l", name: "1.5l", price: data.price_15 || 0 },
+            ],
+          };
+          modifierGroups = [sizeGroup];
         }
       }
 
@@ -405,7 +452,70 @@ const MenuItemDialog = ({
               </div>
             )}
 
-            {/* Delivery & Pickup prices */}
+            {/* Drink size prices */}
+            {isDrink && (
+              <div className="grid grid-cols-3 gap-3 p-3 border border-neutral-200 rounded-lg bg-neutral-50">
+                <p className="col-span-3 text-sm font-semibold text-neutral-700">Getränke-Grössen (CHF)</p>
+                <FormField
+                  control={form.control}
+                  name="price_033"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs">0.33l</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.5"
+                          min="0"
+                          {...field}
+                          value={field.value ?? 0}
+                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="price_05"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs">0.5l</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.5"
+                          min="0"
+                          {...field}
+                          value={field.value ?? 0}
+                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="price_15"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs">1.5l</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.5"
+                          min="0"
+                          {...field}
+                          value={field.value ?? 0}
+                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-3 p-3 border border-neutral-200 rounded-lg bg-neutral-50">
               <p className="col-span-2 text-sm font-semibold text-neutral-700">Liefer- / Abholpreise (optional)</p>
               <FormField
