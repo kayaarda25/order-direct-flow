@@ -12,7 +12,7 @@ interface ProductModalProps {
 }
 
 const ProductModal = ({ item, onClose, onAdded }: ProductModalProps) => {
-  const { addItem } = useCart();
+  const { addItem, orderType } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [specialNotes, setSpecialNotes] = useState("");
 
@@ -55,7 +55,14 @@ const ProductModal = ({ item, onClose, onAdded }: ProductModalProps) => {
     .flat()
     .reduce((sum, m) => sum + m.price, 0);
 
-  const totalPrice = item.price + modifierPrice;
+  // Use pickup or delivery price if available
+  const basePrice = orderType === "pickup" && item.pickupPrice != null
+    ? item.pickupPrice
+    : orderType === "delivery" && item.deliveryPrice != null
+      ? item.deliveryPrice
+      : item.price;
+
+  const totalPrice = basePrice + modifierPrice;
 
   const handleAdd = () => {
     const cartItem: CartItemType = {
@@ -104,7 +111,7 @@ const ProductModal = ({ item, onClose, onAdded }: ProductModalProps) => {
           <div className="p-5">
             <h2 className="font-display text-2xl font-bold text-neutral-900">{item.name}</h2>
             <p className="text-neutral-500 mt-1">{item.description}</p>
-            <p className="text-neutral-900 font-bold text-xl mt-2">CHF {item.price.toFixed(2)}</p>
+            <p className="text-neutral-900 font-bold text-xl mt-2">CHF {basePrice.toFixed(2)}</p>
 
             {item.modifierGroups.map((group) => (
               <div key={group.id} className="mt-5">
