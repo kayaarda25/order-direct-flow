@@ -223,6 +223,34 @@ const MenuItemDialog = ({
     reader.readAsDataURL(file);
   };
 
+  const handleDrinkSizeImageSelect = (sizeId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      toast({ title: "Ungültiger Dateityp", variant: "destructive" });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "Datei zu gross", description: "Max 5MB.", variant: "destructive" });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setDrinkSizeImages(prev => ({
+        ...prev,
+        [sizeId]: { file, preview: reader.result as string },
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeDrinkSizeImage = (sizeId: string) => {
+    setDrinkSizeImages(prev => ({
+      ...prev,
+      [sizeId]: { file: null, preview: null },
+    }));
+  };
+
   const removeImage = () => {
     setImageFile(null);
     setImagePreview(null);
