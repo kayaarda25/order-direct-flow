@@ -310,9 +310,9 @@ const MenuItemDialog = ({
           required: true,
           multiSelect: false,
           options: [
-            { id: "klein", name: "Klein 24cm", price: 0 },
-            { id: "normal", name: "Normal 32cm", price: data.price_normal || 0 },
-            { id: "gross", name: "Gross 45cm", price: data.price_gross || 0 },
+            { id: "klein", name: "Klein 24cm", price: 0, pickup_price: data.pickup_price_klein ?? null },
+            { id: "normal", name: "Normal 32cm", price: (data.price_normal || data.price) - data.price, pickup_price: data.pickup_price_normal ?? null },
+            { id: "gross", name: "Gross 45cm", price: (data.price_gross || data.price) - data.price, pickup_price: data.pickup_price_gross ?? null },
           ],
         };
 
