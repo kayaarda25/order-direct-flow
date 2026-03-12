@@ -29,6 +29,10 @@ const menuItemSchema = z.object({
   price: z.number().min(0, "Preis muss positiv sein"),
   price_normal: z.number().optional(),
   price_gross: z.number().optional(),
+  // Per-size pickup prices for pizza
+  pickup_price_klein: z.number().optional(),
+  pickup_price_normal: z.number().optional(),
+  pickup_price_gross: z.number().optional(),
   // Drink size prices
   price_033: z.number().optional(),
   price_05: z.number().optional(),
@@ -70,16 +74,18 @@ interface MenuItemDialogProps {
   onClose: () => void;
 }
 
-function extractSizePrices(modifierGroups: any[]): { klein: number; normal: number; gross: number } | null {
+function extractSizePrices(basePrice: number, modifierGroups: any[]): { normal: number; gross: number; pickupKlein?: number; pickupNormal?: number; pickupGross?: number } | null {
   const sizeGroup = modifierGroups?.find((g: any) => g.id === "groesse");
   if (!sizeGroup) return null;
-  const klein = sizeGroup.options?.find((o: any) => o.id === "klein");
   const normal = sizeGroup.options?.find((o: any) => o.id === "normal");
   const gross = sizeGroup.options?.find((o: any) => o.id === "gross");
+  const klein = sizeGroup.options?.find((o: any) => o.id === "klein");
   return {
-    klein: 0,
-    normal: normal?.price || 0,
-    gross: gross?.price || 0,
+    normal: basePrice + (normal?.price || 0),
+    gross: basePrice + (gross?.price || 0),
+    pickupKlein: klein?.pickup_price,
+    pickupNormal: normal?.pickup_price,
+    pickupGross: gross?.pickup_price,
   };
 }
 
@@ -124,6 +130,9 @@ const MenuItemDialog = ({
       price: 0,
       price_normal: 0,
       price_gross: 0,
+      pickup_price_klein: undefined,
+      pickup_price_normal: undefined,
+      pickup_price_gross: undefined,
       price_033: 0,
       price_05: 0,
       price_15: 0,
@@ -143,7 +152,7 @@ const MenuItemDialog = ({
 
   useEffect(() => {
     if (item) {
-      const sizePrices = extractSizePrices(item.modifier_groups);
+      const sizePrices = extractSizePrices(item.price, item.modifier_groups);
       const drinkPrices = extractDrinkSizePrices(item.modifier_groups);
       form.reset({
         name: item.name,
@@ -151,6 +160,9 @@ const MenuItemDialog = ({
         price: item.price,
         price_normal: sizePrices?.normal || 0,
         price_gross: sizePrices?.gross || 0,
+        pickup_price_klein: sizePrices?.pickupKlein,
+        pickup_price_normal: sizePrices?.pickupNormal,
+        pickup_price_gross: sizePrices?.pickupGross,
         price_033: drinkPrices?.p033 || 0,
         price_05: drinkPrices?.p05 || 0,
         price_15: drinkPrices?.p15 || 0,
@@ -188,6 +200,9 @@ const MenuItemDialog = ({
         price: 0,
         price_normal: 0,
         price_gross: 0,
+        pickup_price_klein: undefined,
+        pickup_price_normal: undefined,
+        pickup_price_gross: undefined,
         price_033: 0,
         price_05: 0,
         price_15: 0,
@@ -295,9 +310,9 @@ const MenuItemDialog = ({
           required: true,
           multiSelect: false,
           options: [
-            { id: "klein", name: "Klein 24cm", price: 0 },
-            { id: "normal", name: "Normal 32cm", price: data.price_normal || 0 },
-            { id: "gross", name: "Gross 45cm", price: data.price_gross || 0 },
+            { id: "klein", name: "Klein 24cm", price: 0, pickup_price: data.pickup_price_klein ?? null },
+            { id: "normal", name: "Normal 32cm", price: (data.price_normal || data.price) - data.price, pickup_price: data.pickup_price_normal ?? null },
+            { id: "gross", name: "Gross 45cm", price: (data.price_gross || data.price) - data.price, pickup_price: data.pickup_price_gross ?? null },
           ],
         };
 
@@ -471,71 +486,137 @@ const MenuItemDialog = ({
 
             {/* Pizza size prices */}
             {isPizza && (
-              <div className="grid grid-cols-2 gap-3 p-3 border border-neutral-200 rounded-lg bg-neutral-50">
-                <p className="col-span-2 text-sm font-semibold text-neutral-700">Pizza-Grössen (Aufpreis)</p>
-                <FormField
-                  control={form.control}
-                  name="price_normal"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-xs">Normal 32cm (+CHF)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="0.5"
-                          min="0"
-                          {...field}
-                          value={field.value ?? 0}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="price_gross"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-xs">Gross 45cm (+CHF)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="0.5"
-                          min="0"
-                          {...field}
-                          value={field.value ?? 0}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3 p-3 border border-border rounded-lg bg-muted/50">
+                  <p className="col-span-2 text-sm font-semibold text-foreground">Pizza-Grössen (Preise)</p>
+                  <FormField
+                    control={form.control}
+                    name="price_normal"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">Normal 32cm (CHF)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            {...field}
+                            value={field.value ?? 0}
+                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="price_gross"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">Gross 45cm (CHF)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            {...field}
+                            value={field.value ?? 0}
+                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 p-3 border border-border rounded-lg bg-muted/50">
+                  <p className="col-span-3 text-sm font-semibold text-foreground">Abholpreise pro Grösse (optional)</p>
+                  <FormField
+                    control={form.control}
+                    name="pickup_price_klein"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">Klein 24cm</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            placeholder="Standard"
+                            {...field}
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="pickup_price_normal"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">Normal 32cm</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            placeholder="Standard"
+                            {...field}
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="pickup_price_gross"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">Gross 45cm</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            placeholder="Standard"
+                            {...field}
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
             )}
 
             {/* Drink size prices & images */}
             {isDrink && (
-              <div className="space-y-3 p-3 border border-neutral-200 rounded-lg bg-neutral-50">
-                <p className="text-sm font-semibold text-neutral-700">Getränke-Grössen</p>
+              <div className="space-y-3 p-3 border border-border rounded-lg bg-muted/50">
+                <p className="text-sm font-semibold text-foreground">Getränke-Grössen</p>
                 {[
                   { sizeId: "0.33l", label: "0.33l", priceField: "price_033" as const },
                   { sizeId: "0.5l", label: "0.5l", priceField: "price_05" as const },
                   { sizeId: "1.5l", label: "1.5l", priceField: "price_15" as const },
                 ].map(({ sizeId, label, priceField }) => (
-                  <div key={sizeId} className="flex items-start gap-3 p-2 bg-white rounded-md border border-neutral-100">
+                  <div key={sizeId} className="flex items-start gap-3 p-2 bg-card rounded-md border border-border">
                     {/* Size image */}
                     <div className="w-16 h-16 shrink-0">
                       {drinkSizeImages[sizeId]?.preview ? (
                         <div className="relative w-full h-full">
                           <img src={drinkSizeImages[sizeId].preview!} alt={label} className="w-full h-full object-cover rounded" />
-                          <button type="button" onClick={() => removeDrinkSizeImage(sizeId)} className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs">
+                          <button type="button" onClick={() => removeDrinkSizeImage(sizeId)} className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center text-xs">
                             <X className="w-3 h-3" />
                           </button>
                         </div>
                       ) : (
-                        <label className="w-full h-full border-2 border-dashed border-neutral-300 rounded flex items-center justify-center cursor-pointer hover:border-neutral-400">
-                          <Upload className="w-4 h-4 text-neutral-400" />
+                        <label className="w-full h-full border-2 border-dashed border-border rounded flex items-center justify-center cursor-pointer hover:border-muted-foreground">
+                          <Upload className="w-4 h-4 text-muted-foreground" />
                           <input type="file" accept="image/*" className="hidden" onChange={(e) => handleDrinkSizeImageSelect(sizeId, e)} />
                         </label>
                       )}
@@ -567,8 +648,10 @@ const MenuItemDialog = ({
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-3 p-3 border border-neutral-200 rounded-lg bg-neutral-50">
-              <p className="col-span-2 text-sm font-semibold text-neutral-700">Liefer- / Abholpreise (optional)</p>
+            {/* Delivery/pickup prices - only for non-pizza (pizza has per-size pickup above) */}
+            {!isPizza && (
+            <div className="grid grid-cols-2 gap-3 p-3 border border-border rounded-lg bg-muted/50">
+              <p className="col-span-2 text-sm font-semibold text-foreground">Liefer- / Abholpreise (optional)</p>
               <FormField
                 control={form.control}
                 name="delivery_price"
@@ -610,6 +693,7 @@ const MenuItemDialog = ({
                 )}
               />
             </div>
+            )}
 
             {/* Image Upload */}
             <div className="space-y-2">

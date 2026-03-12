@@ -22,13 +22,20 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
   );
 
   // Use pickup or delivery price if available, otherwise base price
-  const basePrice = orderType === "pickup" && item.pickupPrice != null
-    ? item.pickupPrice
-    : orderType === "delivery" && item.deliveryPrice != null
-      ? item.deliveryPrice
-      : item.price;
+  // For items with size modifiers that have per-size pickup prices, use those
+  const getEffectivePrice = () => {
+    if (orderType === "pickup" && selectedSize?.pickup_price != null) {
+      return selectedSize.pickup_price;
+    }
+    const base = orderType === "pickup" && item.pickupPrice != null
+      ? item.pickupPrice
+      : orderType === "delivery" && item.deliveryPrice != null
+        ? item.deliveryPrice
+        : item.price;
+    return base + (selectedSize?.price || 0);
+  };
 
-  const currentPrice = basePrice + (selectedSize?.price || 0);
+  const currentPrice = getEffectivePrice();
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.stopPropagation();

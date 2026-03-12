@@ -6,6 +6,7 @@ export interface Modifier {
   name: string;
   price: number;
   image_url?: string;
+  pickup_price?: number | null;
 }
 
 export interface ModifierGroup {
