@@ -1,4 +1,4 @@
-import { Plus, Check, Flame, TrendingUp, Settings2 } from "lucide-react";
+import { Plus, Check, Settings2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import type { MenuItem, Modifier } from "@/hooks/useMenuItems";
@@ -12,7 +12,7 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
-  const { addItem } = useCart();
+  const { addItem, orderType } = useCart();
   const [justAdded, setJustAdded] = useState(false);
 
   const sizeGroup = item.modifierGroups.find((g) => g.id === "groesse");
@@ -21,7 +21,14 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
     sizeGroup?.options[0] || null
   );
 
-  const currentPrice = item.price + (selectedSize?.price || 0);
+  // Use pickup or delivery price if available, otherwise base price
+  const basePrice = orderType === "pickup" && item.pickupPrice != null
+    ? item.pickupPrice
+    : orderType === "delivery" && item.deliveryPrice != null
+      ? item.deliveryPrice
+      : item.price;
+
+  const currentPrice = basePrice + (selectedSize?.price || 0);
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.stopPropagation();

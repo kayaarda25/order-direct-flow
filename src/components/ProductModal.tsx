@@ -55,7 +55,14 @@ const ProductModal = ({ item, onClose, onAdded }: ProductModalProps) => {
     .flat()
     .reduce((sum, m) => sum + m.price, 0);
 
-  const totalPrice = item.price + modifierPrice;
+  // Use pickup or delivery price if available
+  const basePrice = orderType === "pickup" && item.pickupPrice != null
+    ? item.pickupPrice
+    : orderType === "delivery" && item.deliveryPrice != null
+      ? item.deliveryPrice
+      : item.price;
+
+  const totalPrice = basePrice + modifierPrice;
 
   const handleAdd = () => {
     const cartItem: CartItemType = {
