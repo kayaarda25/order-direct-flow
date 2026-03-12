@@ -61,13 +61,25 @@ export function canQuickAdd(item: MenuItem): boolean {
   return item.modifierGroups.length === 0 || !item.modifierGroups.some(g => g.required);
 }
 
+function optimizeImageUrl(url: string | null, width = 400): string {
+  if (!url) return "/placeholder.svg";
+  // Supabase storage transform for smaller images
+  if (url.includes("supabase.co/storage/v1/object/public/")) {
+    return url.replace(
+      "/storage/v1/object/public/",
+      `/storage/v1/render/image/public/`
+    ) + `?width=${width}&quality=75`;
+  }
+  return url;
+}
+
 function mapDbItem(row: any): MenuItem {
   return {
     id: row.id,
     name: row.name,
     description: row.description || "",
     price: row.price,
-    image: row.image_url || "/placeholder.svg",
+    image: optimizeImageUrl(row.image_url),
     category: row.category,
     station: row.station || "general",
     modifierGroups: (row.modifier_groups as ModifierGroup[]) || [],

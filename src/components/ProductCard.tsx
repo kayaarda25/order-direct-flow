@@ -64,7 +64,7 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
       className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group border border-neutral-100"
     >
       <div
-        className="relative aspect-[4/3] overflow-hidden cursor-pointer"
+        className="relative aspect-[4/3] overflow-hidden cursor-pointer bg-muted"
         onClick={() => onAdd(item)}
       >
         <img
@@ -72,8 +72,8 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
           alt={item.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
+          decoding="async"
         />
-
       </div>
 
       <div className="p-3.5">
