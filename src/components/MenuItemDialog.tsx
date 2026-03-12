@@ -170,6 +170,7 @@ const MenuItemDialog = ({
   const watchCategory = form.watch("category");
   const isPizza = PIZZA_CATEGORIES.includes(watchCategory);
   const isDrink = watchCategory === DRINK_CATEGORY;
+  const isSalad = watchCategory === "salate";
 
   useEffect(() => {
     if (item) {
@@ -515,7 +516,7 @@ const MenuItemDialog = ({
             />
 
             {/* Base price - hidden for pizza and drinks */}
-            {!isPizza && !isDrink && (
+            {!isPizza && !isDrink && !isSalad && (
               <FormField
                 control={form.control}
                 name="price"
