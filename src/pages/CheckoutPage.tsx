@@ -141,7 +141,7 @@ const CheckoutPage = () => {
         try {
           const { data: pointsAwarded } = await supabase.rpc("award_points", {
             p_user_id: user.id,
-            p_order_total: totalPrice,
+            p_order_total: adjustedTotal,
           });
           if (pointsAwarded) {
             toast.success(`🎉 +${pointsAwarded} Punkte gesammelt!`);
