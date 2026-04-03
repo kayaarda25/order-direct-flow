@@ -82,7 +82,7 @@ const AngebotePage = () => {
     if (error || data === false) {
       toast.error("Einlösen fehlgeschlagen");
     } else {
-      toast.success(`🎉 ${reward.reward_name} eingelöst! Zeige dies bei deiner nächsten Bestellung.`);
+      toast.success(`${reward.reward_name} eingelöst! Zeige dies bei deiner nächsten Bestellung.`);
       window.location.reload();
     }
     setRedeeming(null);
