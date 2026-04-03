@@ -131,7 +131,7 @@ const CheckoutPage = () => {
         orderType,
         paymentMethod: form.payment,
         notes: form.notes,
-        totalPrice,
+        totalPrice: adjustedTotal,
       });
 
       clearCart();
