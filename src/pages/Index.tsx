@@ -8,23 +8,24 @@ const Index = () => {
         src="https://www.canva.com/design/DAHBmbHufaM/-IyjnyoVp3hhYf9JBE0XIw/view?embed"
         allowFullScreen
         allow="fullscreen"
-        className="w-full h-full border-none"
+        className="border-none origin-top-left"
+        style={{ width: "111%", height: "111%", transform: "scale(0.9)", transformOrigin: "top left" }}
         title="Pizzeria Piratino Website"
       />
 
       {/* ── Header nav overlays ── */}
-      <Link to="/" className="absolute hover:bg-white/10 transition-colors" style={{ left: "22.5%", top: "3.2%", width: "6%", height: "4%" }} aria-label="Home" />
-      <Link to="/menu" className="absolute hover:bg-white/10 transition-colors" style={{ left: "30.5%", top: "3.2%", width: "5.5%", height: "4%" }} aria-label="Menu" />
-      <Link to="/galerie" className="absolute hover:bg-white/10 transition-colors" style={{ left: "38%", top: "3.2%", width: "5.5%", height: "4%" }} aria-label="Galerie" />
-      <Link to="/ueber-uns" className="absolute hover:bg-white/10 transition-colors" style={{ left: "46%", top: "3.2%", width: "6.5%", height: "4%" }} aria-label="Über uns" />
-      <a href="mailto:info@pizzeria-piratino.ch" className="absolute hover:bg-white/10 transition-colors" style={{ left: "54.5%", top: "3.2%", width: "6%", height: "4%" }} aria-label="Kontakt" />
-      <a href="tel:+41444313233" className="absolute hover:bg-white/10 transition-colors rounded-full" style={{ left: "73.5%", top: "2.5%", width: "14%", height: "5%" }} aria-label="044 431 32 33" />
-      <Link to="/cart" className="absolute hover:bg-white/10 transition-colors" style={{ left: "92%", top: "2.5%", width: "4%", height: "5%" }} aria-label="Warenkorb" />
+      <Link to="/" className="absolute z-10" style={{ left: "20.5%", top: "1.5%", width: "7%", height: "8%" }} aria-label="Home" />
+      <Link to="/menu" className="absolute z-10" style={{ left: "29%", top: "1.5%", width: "6%", height: "8%" }} aria-label="Menu" />
+      <Link to="/galerie" className="absolute z-10" style={{ left: "37%", top: "1.5%", width: "6.5%", height: "8%" }} aria-label="Galerie" />
+      <Link to="/ueber-uns" className="absolute z-10" style={{ left: "45%", top: "1.5%", width: "7.5%", height: "8%" }} aria-label="Über uns" />
+      <a href="mailto:info@pizzeria-piratino.ch" className="absolute z-10" style={{ left: "54.5%", top: "1.5%", width: "7%", height: "8%" }} aria-label="Kontakt" />
+      <a href="tel:+41444313233" className="absolute z-10" style={{ left: "72%", top: "2%", width: "16%", height: "7%" }} aria-label="Anrufen" />
+      <Link to="/cart" className="absolute z-10" style={{ left: "90%", top: "1.5%", width: "5%", height: "8%" }} aria-label="Warenkorb" />
 
       {/* ── Hero buttons ── */}
-      <Link to="/menu" className="absolute hover:bg-white/10 transition-colors rounded" style={{ left: "6.5%", top: "71%", width: "20%", height: "7%" }} aria-label="Jetzt bestellen" />
-      <Link to="/reservieren" className="absolute hover:bg-white/10 transition-colors rounded" style={{ left: "29%", top: "71%", width: "20%", height: "7%" }} aria-label="Tisch reservieren" />
-      <Link to="/catering" className="absolute hover:bg-white/10 transition-colors rounded" style={{ left: "51.5%", top: "71%", width: "20%", height: "7%" }} aria-label="Catering Anfrage" />
+      <Link to="/menu" className="absolute z-10" style={{ left: "6%", top: "65%", width: "22%", height: "8%" }} aria-label="Jetzt bestellen" />
+      <Link to="/reservieren" className="absolute z-10" style={{ left: "29.5%", top: "65%", width: "22%", height: "8%" }} aria-label="Tisch reservieren" />
+      <Link to="/catering" className="absolute z-10" style={{ left: "53%", top: "65%", width: "22%", height: "8%" }} aria-label="Catering Anfrage" />
     </div>
   );
 };
