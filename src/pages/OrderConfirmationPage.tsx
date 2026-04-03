@@ -64,7 +64,7 @@ const OrderConfirmationPage = () => {
         </div>
         <div className="flex justify-between items-center">
           <span className="text-muted-foreground">Art</span>
-          <span className="text-foreground">{order.orderType === "delivery" ? "🚗 Lieferung" : "🏪 Abholung"}</span>
+          <span className="text-foreground">{order.orderType === "delivery" ? "🚗 Lieferung" : "Abholung"}</span>
         </div>
       </div>
 
