@@ -82,7 +82,7 @@ const AngebotePage = () => {
     if (error || data === false) {
       toast.error("Einlösen fehlgeschlagen");
     } else {
-      toast.success(`🎉 ${reward.reward_name} eingelöst! Zeige dies bei deiner nächsten Bestellung.`);
+      toast.success(`${reward.reward_name} eingelöst! Zeige dies bei deiner nächsten Bestellung.`);
       window.location.reload();
     }
     setRedeeming(null);
@@ -193,7 +193,7 @@ const AngebotePage = () => {
             >
               <Gift className="w-5 h-5 md:w-6 md:h-6" />
               <span className="absolute -top-1 -right-1 text-[10px] font-bold bg-accent text-accent-foreground rounded-full w-4 h-4 flex items-center justify-center">
-                🎁
+                !
               </span>
             </motion.div>
           </div>
@@ -203,7 +203,7 @@ const AngebotePage = () => {
             <div className="text-center">
               <p className="text-foreground font-semibold">
                 {freePizzas > 0
-                  ? `🎉 Du hast ${freePizzas} Gratis-Pizza${freePizzas > 1 ? "s" : ""} guthaben!`
+                  ? `Du hast ${freePizzas} Gratis-Pizza${freePizzas > 1 ? "s" : ""} guthaben!`
                   : `${pizzaCount}/10 Pizzen — noch ${10 - pizzaCount} bis zur Gratis-Pizza`}
               </p>
             </div>
@@ -293,7 +293,7 @@ const AngebotePage = () => {
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
                       {canRedeem
-                        ? "✅ Bereit zum Einlösen!"
+                        ? "Bereit zum Einlösen!"
                         : `Noch ${reward.points_required - pointsBalance} Punkte`}
                     </p>
                   </div>
@@ -329,7 +329,7 @@ const AngebotePage = () => {
       >
         <h3 className="font-display text-lg font-bold text-foreground mb-2">Rechenbeispiel</h3>
         <p className="text-muted-foreground text-sm">
-          Eine Bestellung über <span className="text-foreground font-semibold">CHF 30.00</span> = <span className="text-accent font-bold">150 Punkte</span> = Gratis Getränk! 🎉
+          Eine Bestellung über <span className="text-foreground font-semibold">CHF 30.00</span> = <span className="text-accent font-bold">150 Punkte</span> = Gratis Getränk!
         </p>
       </motion.div>
 
