@@ -211,7 +211,7 @@ const AngebotePage = () => {
             <div className="text-center">
               <button
                 onClick={() => setAuthOpen(true)}
-                className="text-accent font-semibold hover:underline text-sm"
+                className="text-primary font-semibold hover:underline text-sm"
               >
                 Anmelden um deinen Pizza Pass zu starten →
               </button>
