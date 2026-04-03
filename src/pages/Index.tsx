@@ -109,7 +109,7 @@ const Index = () => {
             </p>
           </motion.div>
 
-          <div className="relative mt-10 inline-block">
+          <div className="relative mt-10 flex items-center">
             {/* Dark card with category buttons */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -135,12 +135,12 @@ const Index = () => {
               ))}
             </motion.div>
 
-            {/* Pizza image behind the card, anchored to card's right edge */}
+            {/* Pizza image next to the card */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              className="absolute top-1/2 -translate-y-1/3 left-[60%] z-0 pointer-events-none"
+              className="hidden md:block -ml-12 z-0"
             >
               <img src={pizzaImg} alt="Pizza" className="w-64 md:w-80 lg:w-96 h-auto" />
             </motion.div>
