@@ -18,7 +18,7 @@ const paymentMethods = [
 ];
 
 const CheckoutPage = () => {
-  const { items, totalPrice, orderType, clearCart, freePizzaApplied, setFreePizzaApplied } = useCart();
+  const { items, totalPrice, orderType, clearCart, freePizzasRedeemed, setFreePizzasRedeemed } = useCart();
   const { placeOrder } = useOrder();
   const { user, refreshProfile } = useAuth();
   const navigate = useNavigate();
@@ -35,19 +35,23 @@ const CheckoutPage = () => {
       .from("pizza_pass")
       .select("free_pizzas_available")
       .eq("user_id", user.id)
-      .single()
+      .maybeSingle()
       .then(({ data }) => {
         if (data) setFreePizzasAvailable(data.free_pizzas_available);
       });
   }, [user]);
 
-  // Find the most expensive pizza in the cart for the discount
+  // Find the N most expensive pizzas for discount (one per free pizza redeemed)
   const pizzaItems = items.filter(item => item.menuItem.category?.toLowerCase().includes("pizza"));
-  const bestPizzaDiscount = pizzaItems.length > 0
-    ? Math.max(...pizzaItems.map(item => item.totalPrice))
-    : 0;
+  const pizzaPricesSorted = pizzaItems
+    .flatMap(item => Array(item.quantity).fill(item.totalPrice))
+    .sort((a, b) => b - a);
+  const freePizzaDiscount = pizzaPricesSorted
+    .slice(0, freePizzasRedeemed)
+    .reduce((sum, p) => sum + p, 0);
 
-  const adjustedTotal = freePizzaApplied ? totalPrice - bestPizzaDiscount : totalPrice;
+  const maxRedeemable = Math.min(freePizzasAvailable, pizzaPricesSorted.length);
+  const adjustedTotal = totalPrice - freePizzaDiscount;
 
   const [form, setForm] = useState({
     name: "",
@@ -100,7 +104,7 @@ const CheckoutPage = () => {
         order_type: orderType,
         payment_type: form.payment,
         scheduled_time: form.scheduledTime || null,
-        special_notes: form.notes + (freePizzaApplied ? " [GRATIS-PIZZA EINGELÖST]" : ""),
+        special_notes: form.notes + (freePizzasRedeemed > 0 ? ` [${freePizzasRedeemed}x GRATIS-PIZZA EINGELÖST]` : ""),
         items: items.map((item) => ({
           name: item.menuItem.name,
           quantity: item.quantity,
@@ -137,8 +141,8 @@ const CheckoutPage = () => {
       // Award loyalty points and redeem free pizza if applicable
       if (user) {
         try {
-          // Redeem free pizza in DB
-          if (freePizzaApplied) {
+          // Redeem free pizzas in DB
+          for (let i = 0; i < freePizzasRedeemed; i++) {
             await supabase.rpc("redeem_free_pizza", { p_user_id: user.id });
           }
 
@@ -334,28 +338,28 @@ const CheckoutPage = () => {
           </div>
 
           {/* Free pizza redemption */}
-          {user && freePizzasAvailable > 0 && pizzaItems.length > 0 && !freePizzaApplied && (
+          {user && freePizzasAvailable > 0 && pizzaItems.length > 0 && freePizzasRedeemed < maxRedeemable && (
             <button
               type="button"
               onClick={() => {
-                setFreePizzaApplied(true);
+                setFreePizzasRedeemed(freePizzasRedeemed + 1);
                 toast.success("Gratis-Pizza wird beim Bestellen eingelöst!");
               }}
               className="w-full flex items-center justify-center gap-2 bg-accent/10 border border-accent/30 text-accent rounded-lg py-2.5 font-semibold text-sm hover:bg-accent/20 transition-colors"
             >
               <Pizza className="w-4 h-4" />
-              Gratis-Pizza einlösen ({freePizzasAvailable} verfügbar)
+              Gratis-Pizza einlösen ({freePizzasAvailable - freePizzasRedeemed} verfügbar)
             </button>
           )}
 
-          {freePizzaApplied && (
+          {freePizzasRedeemed > 0 && (
             <div className="flex justify-between items-center text-sm">
               <span className="text-accent font-semibold flex items-center gap-1">
-                <Pizza className="w-4 h-4" /> Gratis-Pizza
+                <Pizza className="w-4 h-4" /> {freePizzasRedeemed}x Gratis-Pizza
               </span>
               <div className="flex items-center gap-2">
-                <span className="text-accent font-semibold">- CHF {bestPizzaDiscount.toFixed(2)}</span>
-                <button type="button" onClick={() => setFreePizzaApplied(false)} className="text-muted-foreground text-xs underline hover:text-foreground">Entfernen</button>
+                <span className="text-accent font-semibold">- CHF {freePizzaDiscount.toFixed(2)}</span>
+                <button type="button" onClick={() => setFreePizzasRedeemed(0)} className="text-muted-foreground text-xs underline hover:text-foreground">Entfernen</button>
               </div>
             </div>
           )}

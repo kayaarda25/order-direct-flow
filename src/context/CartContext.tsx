@@ -23,8 +23,8 @@ interface CartContextType {
   setOrderType: (type: "delivery" | "pickup") => void;
   orderTypeChosen: boolean;
   setOrderTypeChosen: (chosen: boolean) => void;
-  freePizzaApplied: boolean;
-  setFreePizzaApplied: (applied: boolean) => void;
+  freePizzasRedeemed: number;
+  setFreePizzasRedeemed: (count: number) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -33,7 +33,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [items, setItems] = useState<CartItemType[]>([]);
   const [orderType, setOrderType] = useState<"delivery" | "pickup">("delivery");
   const [orderTypeChosen, setOrderTypeChosen] = useState(false);
-  const [freePizzaApplied, setFreePizzaApplied] = useState(false);
+  const [freePizzasRedeemed, setFreePizzasRedeemed] = useState(0);
 
   const deliveryFee = orderType === "delivery" ? 5 : 0;
 
@@ -57,14 +57,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
   }, []);
 
-  const clearCart = useCallback(() => { setItems([]); setFreePizzaApplied(false); }, []);
+  const clearCart = useCallback(() => { setItems([]); setFreePizzasRedeemed(0); }, []);
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = items.reduce((sum, item) => sum + item.totalPrice * item.quantity, 0) + deliveryFee;
 
   return (
     <CartContext.Provider
-      value={{ items, addItem, removeItem, updateQuantity, clearCart, totalItems, totalPrice, deliveryFee, orderType, setOrderType, orderTypeChosen, setOrderTypeChosen, freePizzaApplied, setFreePizzaApplied }}
+      value={{ items, addItem, removeItem, updateQuantity, clearCart, totalItems, totalPrice, deliveryFee, orderType, setOrderType, orderTypeChosen, setOrderTypeChosen, freePizzasRedeemed, setFreePizzasRedeemed }}
     >
       {children}
     </CartContext.Provider>
