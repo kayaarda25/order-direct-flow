@@ -293,7 +293,7 @@ const AngebotePage = () => {
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
                       {canRedeem
-                        ? "✅ Bereit zum Einlösen!"
+                        ? "Bereit zum Einlösen!"
                         : `Noch ${reward.points_required - pointsBalance} Punkte`}
                     </p>
                   </div>
