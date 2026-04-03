@@ -33,7 +33,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [items, setItems] = useState<CartItemType[]>([]);
   const [orderType, setOrderType] = useState<"delivery" | "pickup">("delivery");
   const [orderTypeChosen, setOrderTypeChosen] = useState(false);
-  const [freePizzaApplied, setFreePizzaApplied] = useState(false);
+  const [freePizzasRedeemed, setFreePizzasRedeemed] = useState(0);
 
   const deliveryFee = orderType === "delivery" ? 5 : 0;
 
