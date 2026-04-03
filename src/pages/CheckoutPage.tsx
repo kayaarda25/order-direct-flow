@@ -134,8 +134,14 @@ const CheckoutPage = () => {
 
       clearCart();
 
-      // Award loyalty points if user is logged in
+      // Award loyalty points and redeem free pizza if applicable
       if (user) {
+        try {
+          // Redeem free pizza in DB
+          if (freePizzaApplied) {
+            await supabase.rpc("redeem_free_pizza", { p_user_id: user.id });
+          }
+
         try {
           const { data: pointsAwarded } = await supabase.rpc("award_points", {
             p_user_id: user.id,
