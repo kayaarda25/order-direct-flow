@@ -102,7 +102,7 @@ const CheckoutPage = () => {
         order_type: orderType,
         payment_type: form.payment,
         scheduled_time: form.scheduledTime || null,
-        special_notes: form.notes,
+        special_notes: form.notes + (freePizzaApplied ? " [GRATIS-PIZZA EINGELÖST]" : ""),
         items: items.map((item) => ({
           name: item.menuItem.name,
           quantity: item.quantity,
