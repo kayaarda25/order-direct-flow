@@ -26,6 +26,31 @@ const CheckoutPage = () => {
   const restaurantOpen = isRestaurantOpen();
   const scheduledSlots = useMemo(() => getScheduledTimeSlots(), []);
 
+  const [freePizzasAvailable, setFreePizzasAvailable] = useState(0);
+  const [freePizzaApplied, setFreePizzaApplied] = useState(false);
+  const [redeemingPizza, setRedeemingPizza] = useState(false);
+
+  // Check if user has free pizzas
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("pizza_pass")
+      .select("free_pizzas_available")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data) setFreePizzasAvailable(data.free_pizzas_available);
+      });
+  }, [user]);
+
+  // Find the most expensive pizza in the cart for the discount
+  const pizzaItems = items.filter(item => item.menuItem.category?.toLowerCase().includes("pizza"));
+  const bestPizzaDiscount = pizzaItems.length > 0
+    ? Math.max(...pizzaItems.map(item => item.totalPrice))
+    : 0;
+
+  const adjustedTotal = freePizzaApplied ? totalPrice - bestPizzaDiscount : totalPrice;
+
   const [form, setForm] = useState({
     name: "",
     phone: "",
