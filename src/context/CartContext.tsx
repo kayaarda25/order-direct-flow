@@ -57,7 +57,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
   }, []);
 
-  const clearCart = useCallback(() => { setItems([]); setFreePizzaApplied(false); }, []);
+  const clearCart = useCallback(() => { setItems([]); setFreePizzasRedeemed(0); }, []);
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = items.reduce((sum, item) => sum + item.totalPrice * item.quantity, 0) + deliveryFee;
