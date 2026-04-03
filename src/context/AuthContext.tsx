@@ -81,17 +81,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        setTimeout(() => fetchProfile(session.user.id), 0);
+        setTimeout(() => {
+          void syncProfile(session.user);
+        }, 0);
       } else {
         setProfile(null);
       }
       setIsLoading(false);
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      if (session?.user) fetchProfile(session.user.id);
+      if (session?.user) {
+        await syncProfile(session.user);
+      }
       setIsLoading(false);
     });
 
