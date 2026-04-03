@@ -151,7 +151,7 @@ const AngebotePage = () => {
           <Pizza className="w-7 h-7 text-primary" />
           Pizza Pass
         </h2>
-        <div className="bg-gradient-to-br from-accent/15 to-warm/10 border border-accent/30 rounded-2xl p-6 md:p-8">
+        <div className="bg-card border border-border rounded-2xl p-6 md:p-8">
           <div className="text-center mb-6">
             <p className="text-foreground font-semibold text-lg mb-1">
               Bestelle 10 Pizzen — die 11. ist <span className="text-accent">GRATIS!</span>
