@@ -172,8 +172,8 @@ const AngebotePage = () => {
                 className={cn(
                   "aspect-square rounded-xl flex items-center justify-center border-2 transition-all",
                   i < pizzaCount
-                    ? "bg-accent/20 border-accent text-accent"
-                    : "bg-background/30 border-foreground/10 text-muted-foreground/30"
+                    ? "bg-primary/20 border-primary text-primary"
+                    : "bg-muted/30 border-border text-muted-foreground/30"
                 )}
               >
                 <Pizza className="w-5 h-5 md:w-6 md:h-6" />
