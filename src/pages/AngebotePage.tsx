@@ -192,7 +192,7 @@ const AngebotePage = () => {
               )}
             >
               <Gift className="w-5 h-5 md:w-6 md:h-6" />
-              <span className="absolute -top-1 -right-1 text-[10px] font-bold bg-accent text-accent-foreground rounded-full w-4 h-4 flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 text-[10px] font-bold bg-primary text-primary-foreground rounded-full w-4 h-4 flex items-center justify-center">
                 !
               </span>
             </motion.div>
