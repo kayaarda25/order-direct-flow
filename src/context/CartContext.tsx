@@ -23,8 +23,8 @@ interface CartContextType {
   setOrderType: (type: "delivery" | "pickup") => void;
   orderTypeChosen: boolean;
   setOrderTypeChosen: (chosen: boolean) => void;
-  freePizzaApplied: boolean;
-  setFreePizzaApplied: (applied: boolean) => void;
+  freePizzasRedeemed: number;
+  setFreePizzasRedeemed: (count: number) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
