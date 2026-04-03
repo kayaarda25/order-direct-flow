@@ -329,9 +329,43 @@ const CheckoutPage = () => {
             <span>{items.length} Artikel</span>
             <span>{orderType === "delivery" ? "Lieferung" : "Abholung"}</span>
           </div>
+
+          {/* Free pizza redemption */}
+          {user && freePizzasAvailable > 0 && pizzaItems.length > 0 && !freePizzaApplied && (
+            <button
+              type="button"
+              disabled={redeemingPizza}
+              onClick={async () => {
+                setRedeemingPizza(true);
+                const { data, error } = await supabase.rpc("redeem_free_pizza", { p_user_id: user.id });
+                if (error || data === false) {
+                  toast.error("Gratis-Pizza konnte nicht eingelöst werden");
+                } else {
+                  setFreePizzaApplied(true);
+                  setFreePizzasAvailable(prev => prev - 1);
+                  toast.success("Gratis-Pizza eingelöst!");
+                }
+                setRedeemingPizza(false);
+              }}
+              className="w-full flex items-center justify-center gap-2 bg-accent/10 border border-accent/30 text-accent rounded-lg py-2.5 font-semibold text-sm hover:bg-accent/20 transition-colors"
+            >
+              <Pizza className="w-4 h-4" />
+              Gratis-Pizza einlösen ({freePizzasAvailable} verfügbar)
+            </button>
+          )}
+
+          {freePizzaApplied && (
+            <div className="flex justify-between text-sm">
+              <span className="text-accent font-semibold flex items-center gap-1">
+                <Pizza className="w-4 h-4" /> Gratis-Pizza
+              </span>
+              <span className="text-accent font-semibold">- CHF {bestPizzaDiscount.toFixed(2)}</span>
+            </div>
+          )}
+
           <div className="flex justify-between text-foreground font-bold text-lg">
             <span>Total</span>
-            <span>CHF {totalPrice.toFixed(2)}</span>
+            <span>CHF {adjustedTotal.toFixed(2)}</span>
           </div>
         </div>
 
