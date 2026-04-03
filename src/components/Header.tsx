@@ -48,7 +48,7 @@ const Header = () => {
               <div className="hidden md:flex items-center gap-2">
                 <Link
                   to="/angebote"
-                  className="flex items-center gap-1.5 bg-accent/10 border border-accent/30 text-accent px-3 py-1.5 rounded-full text-sm font-semibold hover:bg-accent/20 transition-colors"
+                  className="flex items-center gap-1.5 bg-primary/10 border border-primary/30 text-primary px-3 py-1.5 rounded-full text-sm font-semibold hover:bg-primary/20 transition-colors"
                 >
                   <Gift className="w-3.5 h-3.5" />
                   {profile?.points_balance ?? 0} Pts
