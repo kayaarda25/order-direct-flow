@@ -71,14 +71,16 @@ const App = () => {
                     {/* Admin routes */}
                     <Route path="/admin/*" element={<AdminRoutes />} />
                     
-                    {/* Public routes */}
+                    {/* Homepage - full iframe, no header/footer */}
+                    <Route path="/" element={<Index />} />
+
+                    {/* Public routes with header/footer */}
                     <Route path="/*" element={
                       <div className="flex flex-col min-h-screen">
                         {!isOpen && <ClosedBanner />}
                         <Header />
                         <main className="flex-1">
                           <Routes>
-                            <Route path="/" element={<Index />} />
                             <Route path="/menu" element={<MenuPage />} />
                             <Route path="/angebote" element={<AngebotePage />} />
                             <Route path="/galerie" element={<GalleryPage />} />
