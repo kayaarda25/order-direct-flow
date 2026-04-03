@@ -18,7 +18,7 @@ const paymentMethods = [
 ];
 
 const CheckoutPage = () => {
-  const { items, totalPrice, orderType, clearCart } = useCart();
+  const { items, totalPrice, orderType, clearCart, freePizzaApplied, setFreePizzaApplied } = useCart();
   const { placeOrder } = useOrder();
   const { user, refreshProfile } = useAuth();
   const navigate = useNavigate();
@@ -27,8 +27,6 @@ const CheckoutPage = () => {
   const scheduledSlots = useMemo(() => getScheduledTimeSlots(), []);
 
   const [freePizzasAvailable, setFreePizzasAvailable] = useState(0);
-  const [freePizzaApplied, setFreePizzaApplied] = useState(false);
-  const [redeemingPizza, setRedeemingPizza] = useState(false);
 
   // Check if user has free pizzas
   useEffect(() => {
@@ -136,15 +134,20 @@ const CheckoutPage = () => {
 
       clearCart();
 
-      // Award loyalty points if user is logged in
+      // Award loyalty points and redeem free pizza if applicable
       if (user) {
         try {
+          // Redeem free pizza in DB
+          if (freePizzaApplied) {
+            await supabase.rpc("redeem_free_pizza", { p_user_id: user.id });
+          }
+
           const { data: pointsAwarded } = await supabase.rpc("award_points", {
             p_user_id: user.id,
             p_order_total: adjustedTotal,
           });
           if (pointsAwarded) {
-            toast.success(`🎉 +${pointsAwarded} Punkte gesammelt!`);
+            toast.success(`+${pointsAwarded} Punkte gesammelt!`);
             refreshProfile();
           }
 
@@ -334,18 +337,9 @@ const CheckoutPage = () => {
           {user && freePizzasAvailable > 0 && pizzaItems.length > 0 && !freePizzaApplied && (
             <button
               type="button"
-              disabled={redeemingPizza}
-              onClick={async () => {
-                setRedeemingPizza(true);
-                const { data, error } = await supabase.rpc("redeem_free_pizza", { p_user_id: user.id });
-                if (error || data === false) {
-                  toast.error("Gratis-Pizza konnte nicht eingelöst werden");
-                } else {
-                  setFreePizzaApplied(true);
-                  setFreePizzasAvailable(prev => prev - 1);
-                  toast.success("Gratis-Pizza eingelöst!");
-                }
-                setRedeemingPizza(false);
+              onClick={() => {
+                setFreePizzaApplied(true);
+                toast.success("Gratis-Pizza wird beim Bestellen eingelöst!");
               }}
               className="w-full flex items-center justify-center gap-2 bg-accent/10 border border-accent/30 text-accent rounded-lg py-2.5 font-semibold text-sm hover:bg-accent/20 transition-colors"
             >
@@ -355,11 +349,14 @@ const CheckoutPage = () => {
           )}
 
           {freePizzaApplied && (
-            <div className="flex justify-between text-sm">
+            <div className="flex justify-between items-center text-sm">
               <span className="text-accent font-semibold flex items-center gap-1">
                 <Pizza className="w-4 h-4" /> Gratis-Pizza
               </span>
-              <span className="text-accent font-semibold">- CHF {bestPizzaDiscount.toFixed(2)}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-accent font-semibold">- CHF {bestPizzaDiscount.toFixed(2)}</span>
+                <button type="button" onClick={() => setFreePizzaApplied(false)} className="text-muted-foreground text-xs underline hover:text-foreground">Entfernen</button>
+              </div>
             </div>
           )}
 

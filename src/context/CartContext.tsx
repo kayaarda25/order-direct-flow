@@ -23,6 +23,8 @@ interface CartContextType {
   setOrderType: (type: "delivery" | "pickup") => void;
   orderTypeChosen: boolean;
   setOrderTypeChosen: (chosen: boolean) => void;
+  freePizzaApplied: boolean;
+  setFreePizzaApplied: (applied: boolean) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -31,6 +33,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [items, setItems] = useState<CartItemType[]>([]);
   const [orderType, setOrderType] = useState<"delivery" | "pickup">("delivery");
   const [orderTypeChosen, setOrderTypeChosen] = useState(false);
+  const [freePizzaApplied, setFreePizzaApplied] = useState(false);
 
   const deliveryFee = orderType === "delivery" ? 5 : 0;
 
@@ -54,14 +57,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
   }, []);
 
-  const clearCart = useCallback(() => setItems([]), []);
+  const clearCart = useCallback(() => { setItems([]); setFreePizzaApplied(false); }, []);
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = items.reduce((sum, item) => sum + item.totalPrice * item.quantity, 0) + deliveryFee;
 
   return (
     <CartContext.Provider
-      value={{ items, addItem, removeItem, updateQuantity, clearCart, totalItems, totalPrice, deliveryFee, orderType, setOrderType, orderTypeChosen, setOrderTypeChosen }}
+      value={{ items, addItem, removeItem, updateQuantity, clearCart, totalItems, totalPrice, deliveryFee, orderType, setOrderType, orderTypeChosen, setOrderTypeChosen, freePizzaApplied, setFreePizzaApplied }}
     >
       {children}
     </CartContext.Provider>
