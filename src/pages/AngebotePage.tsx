@@ -109,7 +109,7 @@ const AngebotePage = () => {
           Sammle Punkte, erhalte Belohnungen
         </h1>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          Für jeden ausgegebenen Franken erhältst du <span className="text-accent font-bold">5 Punkte</span>. Löse deine Punkte gegen leckere Belohnungen ein!
+          Für jeden ausgegebenen Franken erhältst du <span className="text-primary font-bold">5 Punkte</span>. Löse deine Punkte gegen leckere Belohnungen ein!
         </p>
       </motion.div>
 
