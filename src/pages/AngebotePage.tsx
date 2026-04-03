@@ -234,7 +234,7 @@ const AngebotePage = () => {
             transition={{ delay: i * 0.1 }}
             className="bg-card border border-border rounded-xl p-5 text-center"
           >
-            <div className="w-10 h-10 bg-accent/20 text-accent rounded-full flex items-center justify-center mx-auto mb-3 font-bold">
+            <div className="w-10 h-10 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-3 font-bold">
               {item.step}
             </div>
             <h3 className="font-display font-bold text-foreground mb-1">{item.title}</h3>
