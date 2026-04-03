@@ -101,9 +101,9 @@ const AngebotePage = () => {
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-10"
       >
-        <div className="inline-flex items-center gap-2 bg-accent/10 border border-accent/30 rounded-full px-4 py-1.5 mb-4">
-          <Gift className="w-4 h-4 text-accent" />
-          <span className="text-accent text-sm font-semibold">Piratino Bonusprogramm</span>
+        <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-full px-4 py-1.5 mb-4">
+          <Gift className="w-4 h-4 text-primary" />
+          <span className="text-primary text-sm font-semibold">Piratino Bonusprogramm</span>
         </div>
         <h1 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-3">
           Sammle Punkte, erhalte Belohnungen
