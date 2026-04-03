@@ -142,13 +142,12 @@ const CheckoutPage = () => {
             await supabase.rpc("redeem_free_pizza", { p_user_id: user.id });
           }
 
-        try {
           const { data: pointsAwarded } = await supabase.rpc("award_points", {
             p_user_id: user.id,
             p_order_total: adjustedTotal,
           });
           if (pointsAwarded) {
-            toast.success(`🎉 +${pointsAwarded} Punkte gesammelt!`);
+            toast.success(`+${pointsAwarded} Punkte gesammelt!`);
             refreshProfile();
           }
 
