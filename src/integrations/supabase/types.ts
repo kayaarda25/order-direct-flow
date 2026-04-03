@@ -295,6 +295,7 @@ export type Database = {
         Returns: number
       }
       is_admin: { Args: never; Returns: boolean }
+      redeem_free_pizza: { Args: { p_user_id: string }; Returns: boolean }
       redeem_reward: {
         Args: { p_reward_id: string; p_user_id: string }
         Returns: boolean

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useOrder } from "@/context/OrderContext";
@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getDeliveryZone } from "@/data/deliveryZones";
 import { isRestaurantOpen, getScheduledTimeSlots } from "@/utils/openingHours";
-import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, AlertCircle, Clock, Gift } from "lucide-react";
+import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, AlertCircle, Clock, Pizza } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -25,6 +25,31 @@ const CheckoutPage = () => {
 
   const restaurantOpen = isRestaurantOpen();
   const scheduledSlots = useMemo(() => getScheduledTimeSlots(), []);
+
+  const [freePizzasAvailable, setFreePizzasAvailable] = useState(0);
+  const [freePizzaApplied, setFreePizzaApplied] = useState(false);
+  const [redeemingPizza, setRedeemingPizza] = useState(false);
+
+  // Check if user has free pizzas
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("pizza_pass")
+      .select("free_pizzas_available")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data) setFreePizzasAvailable(data.free_pizzas_available);
+      });
+  }, [user]);
+
+  // Find the most expensive pizza in the cart for the discount
+  const pizzaItems = items.filter(item => item.menuItem.category?.toLowerCase().includes("pizza"));
+  const bestPizzaDiscount = pizzaItems.length > 0
+    ? Math.max(...pizzaItems.map(item => item.totalPrice))
+    : 0;
+
+  const adjustedTotal = freePizzaApplied ? totalPrice - bestPizzaDiscount : totalPrice;
 
   const [form, setForm] = useState({
     name: "",
@@ -77,7 +102,7 @@ const CheckoutPage = () => {
         order_type: orderType,
         payment_type: form.payment,
         scheduled_time: form.scheduledTime || null,
-        special_notes: form.notes,
+        special_notes: form.notes + (freePizzaApplied ? " [GRATIS-PIZZA EINGELÖST]" : ""),
         items: items.map((item) => ({
           name: item.menuItem.name,
           quantity: item.quantity,
@@ -106,7 +131,7 @@ const CheckoutPage = () => {
         orderType,
         paymentMethod: form.payment,
         notes: form.notes,
-        totalPrice,
+        totalPrice: adjustedTotal,
       });
 
       clearCart();
@@ -116,7 +141,7 @@ const CheckoutPage = () => {
         try {
           const { data: pointsAwarded } = await supabase.rpc("award_points", {
             p_user_id: user.id,
-            p_order_total: totalPrice,
+            p_order_total: adjustedTotal,
           });
           if (pointsAwarded) {
             toast.success(`🎉 +${pointsAwarded} Punkte gesammelt!`);
@@ -304,9 +329,43 @@ const CheckoutPage = () => {
             <span>{items.length} Artikel</span>
             <span>{orderType === "delivery" ? "Lieferung" : "Abholung"}</span>
           </div>
+
+          {/* Free pizza redemption */}
+          {user && freePizzasAvailable > 0 && pizzaItems.length > 0 && !freePizzaApplied && (
+            <button
+              type="button"
+              disabled={redeemingPizza}
+              onClick={async () => {
+                setRedeemingPizza(true);
+                const { data, error } = await supabase.rpc("redeem_free_pizza", { p_user_id: user.id });
+                if (error || data === false) {
+                  toast.error("Gratis-Pizza konnte nicht eingelöst werden");
+                } else {
+                  setFreePizzaApplied(true);
+                  setFreePizzasAvailable(prev => prev - 1);
+                  toast.success("Gratis-Pizza eingelöst!");
+                }
+                setRedeemingPizza(false);
+              }}
+              className="w-full flex items-center justify-center gap-2 bg-accent/10 border border-accent/30 text-accent rounded-lg py-2.5 font-semibold text-sm hover:bg-accent/20 transition-colors"
+            >
+              <Pizza className="w-4 h-4" />
+              Gratis-Pizza einlösen ({freePizzasAvailable} verfügbar)
+            </button>
+          )}
+
+          {freePizzaApplied && (
+            <div className="flex justify-between text-sm">
+              <span className="text-accent font-semibold flex items-center gap-1">
+                <Pizza className="w-4 h-4" /> Gratis-Pizza
+              </span>
+              <span className="text-accent font-semibold">- CHF {bestPizzaDiscount.toFixed(2)}</span>
+            </div>
+          )}
+
           <div className="flex justify-between text-foreground font-bold text-lg">
             <span>Total</span>
-            <span>CHF {totalPrice.toFixed(2)}</span>
+            <span>CHF {adjustedTotal.toFixed(2)}</span>
           </div>
         </div>
 
