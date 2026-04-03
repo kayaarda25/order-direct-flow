@@ -338,28 +338,28 @@ const CheckoutPage = () => {
           </div>
 
           {/* Free pizza redemption */}
-          {user && freePizzasAvailable > 0 && pizzaItems.length > 0 && !freePizzaApplied && (
+          {user && freePizzasAvailable > 0 && pizzaItems.length > 0 && freePizzasRedeemed < maxRedeemable && (
             <button
               type="button"
               onClick={() => {
-                setFreePizzaApplied(true);
+                setFreePizzasRedeemed(freePizzasRedeemed + 1);
                 toast.success("Gratis-Pizza wird beim Bestellen eingelöst!");
               }}
               className="w-full flex items-center justify-center gap-2 bg-accent/10 border border-accent/30 text-accent rounded-lg py-2.5 font-semibold text-sm hover:bg-accent/20 transition-colors"
             >
               <Pizza className="w-4 h-4" />
-              Gratis-Pizza einlösen ({freePizzasAvailable} verfügbar)
+              Gratis-Pizza einlösen ({freePizzasAvailable - freePizzasRedeemed} verfügbar)
             </button>
           )}
 
-          {freePizzaApplied && (
+          {freePizzasRedeemed > 0 && (
             <div className="flex justify-between items-center text-sm">
               <span className="text-accent font-semibold flex items-center gap-1">
-                <Pizza className="w-4 h-4" /> Gratis-Pizza
+                <Pizza className="w-4 h-4" /> {freePizzasRedeemed}x Gratis-Pizza
               </span>
               <div className="flex items-center gap-2">
-                <span className="text-accent font-semibold">- CHF {bestPizzaDiscount.toFixed(2)}</span>
-                <button type="button" onClick={() => setFreePizzaApplied(false)} className="text-muted-foreground text-xs underline hover:text-foreground">Entfernen</button>
+                <span className="text-accent font-semibold">- CHF {freePizzaDiscount.toFixed(2)}</span>
+                <button type="button" onClick={() => setFreePizzasRedeemed(0)} className="text-muted-foreground text-xs underline hover:text-foreground">Entfernen</button>
               </div>
             </div>
           )}
