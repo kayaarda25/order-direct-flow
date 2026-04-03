@@ -41,13 +41,17 @@ const CheckoutPage = () => {
       });
   }, [user]);
 
-  // Find the most expensive pizza in the cart for the discount
+  // Find the N most expensive pizzas for discount (one per free pizza redeemed)
   const pizzaItems = items.filter(item => item.menuItem.category?.toLowerCase().includes("pizza"));
-  const bestPizzaDiscount = pizzaItems.length > 0
-    ? Math.max(...pizzaItems.map(item => item.totalPrice))
-    : 0;
+  const pizzaPricesSorted = pizzaItems
+    .flatMap(item => Array(item.quantity).fill(item.totalPrice))
+    .sort((a, b) => b - a);
+  const freePizzaDiscount = pizzaPricesSorted
+    .slice(0, freePizzasRedeemed)
+    .reduce((sum, p) => sum + p, 0);
 
-  const adjustedTotal = freePizzaApplied ? totalPrice - bestPizzaDiscount : totalPrice;
+  const maxRedeemable = Math.min(freePizzasAvailable, pizzaPricesSorted.length);
+  const adjustedTotal = totalPrice - freePizzaDiscount;
 
   const [form, setForm] = useState({
     name: "",
