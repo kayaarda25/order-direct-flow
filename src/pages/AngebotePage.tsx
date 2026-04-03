@@ -64,7 +64,7 @@ const AngebotePage = () => {
       .from("pizza_pass")
       .select("*")
       .eq("user_id", user.id)
-      .single()
+      .maybeSingle()
       .then(({ data }) => {
         if (data) setPizzaPass(data as PizzaPass);
       });
