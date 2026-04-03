@@ -288,7 +288,7 @@ const AngebotePage = () => {
                         initial={{ width: 0 }}
                         animate={{ width: `${progress}%` }}
                         transition={{ duration: 0.8, delay: i * 0.1 }}
-                        className={cn("h-full rounded-full", canRedeem ? "bg-accent" : "bg-foreground/40")}
+                        className={cn("h-full rounded-full", canRedeem ? "bg-primary" : "bg-foreground/40")}
                       />
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
