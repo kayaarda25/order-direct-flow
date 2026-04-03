@@ -27,8 +27,6 @@ const CheckoutPage = () => {
   const scheduledSlots = useMemo(() => getScheduledTimeSlots(), []);
 
   const [freePizzasAvailable, setFreePizzasAvailable] = useState(0);
-  const [freePizzaApplied, setFreePizzaApplied] = useState(false);
-  const [redeemingPizza, setRedeemingPizza] = useState(false);
 
   // Check if user has free pizzas
   useEffect(() => {
