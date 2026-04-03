@@ -133,7 +133,7 @@ const AngebotePage = () => {
           <p className="text-muted-foreground mb-3">Melde dich an um Punkte zu sammeln und einzulösen</p>
           <button
             onClick={() => setAuthOpen(true)}
-            className="bg-accent text-accent-foreground px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity"
+            className="bg-primary text-primary-foreground px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity"
           >
             Jetzt anmelden & Punkte sammeln
           </button>
