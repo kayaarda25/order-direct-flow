@@ -34,7 +34,7 @@ serve(async (req) => {
       }) => ({
         name: item.name,
         quantity: item.quantity,
-        price: item.price,
+        price: typeof item.price === "number" ? item.price : 0,
         station: item.station,
         ...(item.modifiers ? { modifiers: item.modifiers } : {}),
         ...(item.notes ? { notes: item.notes } : {}),
