@@ -24,20 +24,20 @@ interface PizzaPass {
 
 const tierIcons = [Gift, Star, Sparkles, Trophy, Crown, Crown];
 const tierColors = [
-  "from-green-500/20 to-green-600/10 border-green-500/30",
-  "from-blue-500/20 to-blue-600/10 border-blue-500/30",
-  "from-purple-500/20 to-purple-600/10 border-purple-500/30",
-  "from-orange-500/20 to-orange-600/10 border-orange-500/30",
-  "from-yellow-500/20 to-yellow-600/10 border-yellow-500/30",
-  "from-red-500/20 to-red-600/10 border-red-500/30",
+  "from-muted/50 to-muted/20 border-border",
+  "from-muted/50 to-muted/20 border-border",
+  "from-muted/50 to-muted/20 border-border",
+  "from-muted/50 to-muted/20 border-border",
+  "from-muted/50 to-muted/20 border-border",
+  "from-muted/50 to-muted/20 border-border",
 ];
 const tierIconColors = [
-  "text-green-400",
-  "text-blue-400",
-  "text-purple-400",
-  "text-orange-400",
-  "text-yellow-400",
-  "text-red-400",
+  "text-primary",
+  "text-primary",
+  "text-primary",
+  "text-primary",
+  "text-primary",
+  "text-primary",
 ];
 
 const AngebotePage = () => {
