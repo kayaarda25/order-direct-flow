@@ -35,7 +35,7 @@ const CheckoutPage = () => {
       .from("pizza_pass")
       .select("free_pizzas_available")
       .eq("user_id", user.id)
-      .single()
+      .maybeSingle()
       .then(({ data }) => {
         if (data) setFreePizzasAvailable(data.free_pizzas_available);
       });
