@@ -93,7 +93,7 @@ const AngebotePage = () => {
   const freePizzas = pizzaPass?.free_pizzas_available ?? 0;
 
   return (
-    <div className="min-h-screen bg-white" style={{ '--background': '0 0% 100%', '--foreground': '0 0% 10%', '--card': '0 0% 97%', '--card-foreground': '0 0% 10%', '--muted-foreground': '0 0% 40%', '--border': '0 0% 88%', '--secondary': '0 0% 95%', '--secondary-foreground': '0 0% 10%' } as React.CSSProperties}>
+    <div className="min-h-screen bg-background">
     <div className="container py-8 md:py-12 max-w-4xl text-foreground">
       {/* Hero */}
       <motion.div
