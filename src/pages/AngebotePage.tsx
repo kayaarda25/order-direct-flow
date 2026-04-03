@@ -148,7 +148,7 @@ const AngebotePage = () => {
         className="mb-12"
       >
         <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-6 text-center flex items-center justify-center gap-3">
-          <Pizza className="w-7 h-7 text-accent" />
+          <Pizza className="w-7 h-7 text-primary" />
           Pizza Pass
         </h2>
         <div className="bg-gradient-to-br from-accent/15 to-warm/10 border border-accent/30 rounded-2xl p-6 md:p-8">
