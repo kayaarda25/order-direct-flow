@@ -203,7 +203,7 @@ const AngebotePage = () => {
             <div className="text-center">
               <p className="text-foreground font-semibold">
                 {freePizzas > 0
-                  ? `🎉 Du hast ${freePizzas} Gratis-Pizza${freePizzas > 1 ? "s" : ""} guthaben!`
+                  ? `Du hast ${freePizzas} Gratis-Pizza${freePizzas > 1 ? "s" : ""} guthaben!`
                   : `${pizzaCount}/10 Pizzen — noch ${10 - pizzaCount} bis zur Gratis-Pizza`}
               </p>
             </div>
