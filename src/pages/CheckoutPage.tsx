@@ -148,7 +148,7 @@ const CheckoutPage = () => {
           });
           if (pointsAwarded) {
             toast.success(`+${pointsAwarded} Punkte gesammelt!`);
-            refreshProfile();
+            await refreshProfile();
           }
 
           // Count pizzas in order for pizza pass

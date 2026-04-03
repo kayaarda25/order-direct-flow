@@ -29,17 +29,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchProfile = async (userId: string) => {
-    const { data } = await supabase
+  const syncProfile = async (authUser: User) => {
+    const profilePayload: { id: string; email?: string | null; display_name?: string | null } = {
+      id: authUser.id,
+    };
+
+    if (authUser.email) {
+      profilePayload.email = authUser.email;
+    }
+
+    const displayName =
+      typeof authUser.user_metadata?.display_name === "string"
+        ? authUser.user_metadata.display_name
+        : typeof authUser.user_metadata?.full_name === "string"
+          ? authUser.user_metadata.full_name
+          : null;
+
+    if (displayName?.trim()) {
+      profilePayload.display_name = displayName.trim();
+    }
+
+    const { error: upsertError } = await supabase
+      .from("profiles")
+      .upsert(profilePayload);
+
+    if (upsertError) {
+      console.error("Profile sync failed:", upsertError);
+      return;
+    }
+
+    const { data, error: profileError } = await supabase
       .from("profiles")
       .select("*")
-      .eq("id", userId)
-      .single();
-    if (data) setProfile(data as Profile);
+      .eq("id", authUser.id)
+      .maybeSingle();
+
+    if (profileError) {
+      console.error("Profile fetch failed:", profileError);
+      return;
+    }
+
+    setProfile((data ?? null) as Profile | null);
   };
 
   const refreshProfile = async () => {
-    if (user) await fetchProfile(user.id);
+    if (user) await syncProfile(user);
   };
 
   useEffect(() => {
@@ -47,17 +81,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        setTimeout(() => fetchProfile(session.user.id), 0);
+        setTimeout(() => {
+          void syncProfile(session.user);
+        }, 0);
       } else {
         setProfile(null);
       }
       setIsLoading(false);
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      if (session?.user) fetchProfile(session.user.id);
+      if (session?.user) {
+        await syncProfile(session.user);
+      }
       setIsLoading(false);
     });
 
