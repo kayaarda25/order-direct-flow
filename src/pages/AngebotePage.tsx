@@ -118,7 +118,7 @@ const AngebotePage = () => {
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-gradient-to-r from-accent/20 to-accent/5 border border-accent/30 rounded-2xl p-6 mb-10 text-center"
+          className="bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 rounded-2xl p-6 mb-10 text-center"
         >
           <p className="text-muted-foreground text-sm mb-1">Dein Punktestand</p>
           <p className="text-5xl font-bold text-foreground font-display">{pointsBalance}</p>
