@@ -306,10 +306,10 @@ const AngebotePage = () => {
                 className={cn(
                   "shrink-0 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center gap-1",
                   canRedeem
-                    ? "bg-accent text-accent-foreground hover:opacity-90"
+                    ? "bg-primary text-primary-foreground hover:opacity-90"
                     : user
-                    ? "bg-background/20 text-muted-foreground cursor-not-allowed"
-                    : "bg-accent/80 text-accent-foreground hover:opacity-90"
+                    ? "bg-muted text-muted-foreground cursor-not-allowed"
+                    : "bg-primary/80 text-primary-foreground hover:opacity-90"
                 )}
               >
                 {redeeming === reward.id ? "..." : user ? "Einlösen" : "Anmelden"}
