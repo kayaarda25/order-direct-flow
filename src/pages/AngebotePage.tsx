@@ -329,7 +329,7 @@ const AngebotePage = () => {
       >
         <h3 className="font-display text-lg font-bold text-foreground mb-2">Rechenbeispiel</h3>
         <p className="text-muted-foreground text-sm">
-          Eine Bestellung über <span className="text-foreground font-semibold">CHF 30.00</span> = <span className="text-accent font-bold">150 Punkte</span> = Gratis Getränk!
+          Eine Bestellung über <span className="text-foreground font-semibold">CHF 30.00</span> = <span className="text-primary font-bold">150 Punkte</span> = Gratis Getränk!
         </p>
       </motion.div>
 
