@@ -154,7 +154,7 @@ const AngebotePage = () => {
         <div className="bg-card border border-border rounded-2xl p-6 md:p-8">
           <div className="text-center mb-6">
             <p className="text-foreground font-semibold text-lg mb-1">
-              Bestelle 10 Pizzen — die 11. ist <span className="text-accent">GRATIS!</span>
+              Bestelle 10 Pizzen — die 11. ist <span className="text-primary font-bold">GRATIS!</span>
             </p>
             <p className="text-muted-foreground text-sm">
               Jede bestellte Pizza zählt, egal welche Grösse oder Sorte.
