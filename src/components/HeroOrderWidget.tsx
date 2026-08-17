@@ -19,15 +19,26 @@ const HeroOrderWidget = () => {
   const [selected, setSelected] = useState<"delivery" | "pickup" | null>(null);
   const [plz, setPlz] = useState("");
   const [zones, setZones] = useState<DeliveryZone[]>([]);
+  const [zonesState, setZonesState] = useState<"loading" | "ready" | "error">("loading");
 
-  useEffect(() => {
+  const loadZones = () => {
+    setZonesState("loading");
     supabase
       .from("delivery_zones")
       .select("*")
       .eq("active", true)
-      .then(({ data }) => {
-        if (data) setZones(data as DeliveryZone[]);
+      .then(({ data, error }) => {
+        if (error || !data) {
+          setZonesState("error");
+          return;
+        }
+        setZones(data as DeliveryZone[]);
+        setZonesState("ready");
       });
+  };
+
+  useEffect(() => {
+    loadZones();
   }, []);
 
   const matchedZone = useMemo(() => {
@@ -35,7 +46,7 @@ const HeroOrderWidget = () => {
     return zones.find((z) => z.plz === plz.trim());
   }, [plz, zones]);
 
-  const plzChecked = plz.length === 4;
+  const plzChecked = plz.length === 4 && zonesState === "ready";
   const canProceed = selected === "pickup" || (selected === "delivery" && matchedZone);
 
   const handleOrder = () => {
@@ -84,6 +95,19 @@ const HeroOrderWidget = () => {
           <p className="text-xs font-semibold text-red-800">
             Postleitzahl unbekannt?
           </p>
+        </div>
+      )}
+
+      {plz.length === 4 && zonesState === "loading" && (
+        <p className="text-xs text-neutral-500">Liefergebiete werden geprüft…</p>
+      )}
+
+      {zonesState === "error" && (
+        <div className="flex items-center justify-between gap-2 p-2.5 bg-amber-50 border border-amber-200 rounded-lg">
+          <p className="text-xs font-semibold text-amber-800">Liefergebiete nicht geladen.</p>
+          <button onClick={loadZones} className="text-xs font-bold text-amber-900 underline shrink-0">
+            Erneut
+          </button>
         </div>
       )}
 
