@@ -56,13 +56,25 @@ serve(async (req) => {
       items,
     };
 
+    // Split "Strasse 12, 8048 Zürich" into street / zip / city for POS 2
+    const rawAddress: string = orderData.customer_address ?? "";
+    const addressParts = rawAddress.split(",").map((p: string) => p.trim()).filter(Boolean);
+    const street = addressParts[0] ?? "";
+    const cityPart = addressParts.slice(1).join(" ").trim();
+    const zipMatch = cityPart.match(/\b(\d{4,5})\b/);
+    const zip = zipMatch?.[1] ?? "";
+    const city = cityPart.replace(zip, "").trim();
+
     // POS 2 (Felsen POS) expects a different schema
     const webhookBody2 = {
       type: orderData.order_type === "delivery" ? "delivery" : "takeaway",
       customer: {
         name: orderData.customer_name,
         phone: orderData.customer_phone,
-        address: orderData.customer_address ?? "",
+        address: rawAddress,
+        street,
+        zip,
+        city,
       },
       notes: orderData.special_notes ?? "",
       ...(orderData.scheduled_time ? { scheduled_time: orderData.scheduled_time } : {}),
