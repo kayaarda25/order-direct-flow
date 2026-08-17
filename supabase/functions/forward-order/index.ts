@@ -20,6 +20,10 @@ serve(async (req) => {
     const WEBHOOK_URL =
       "https://lxcfuvlhtfnprqwevopw.supabase.co/functions/v1/receive-order";
 
+    // Optional second POS target
+    const WEBHOOK_URL_2 = Deno.env.get("WEBHOOK_URL_2");
+    const WEBHOOK_SECRET_2 = Deno.env.get("WEBHOOK_SECRET_2");
+
     const orderData = await req.json();
 
     // Map cart items to the expected format
@@ -48,32 +52,53 @@ serve(async (req) => {
       order_type: orderData.order_type,
       payment_type: orderData.payment_type,
       special_notes: orderData.special_notes,
+      ...(orderData.scheduled_time ? { scheduled_time: orderData.scheduled_time } : {}),
       items,
     };
 
-    console.log("Sending order to webhook:", JSON.stringify(webhookBody));
+    console.log("Sending order to webhook(s):", JSON.stringify(webhookBody));
 
-    const response = await fetch(WEBHOOK_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-webhook-secret": WEBHOOK_SECRET,
-      },
-      body: JSON.stringify(webhookBody),
-    });
+    const send = async (url: string, secret: string, label: string) => {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-webhook-secret": secret,
+        },
+        body: JSON.stringify(webhookBody),
+      });
+      const text = await res.text();
+      if (!res.ok) {
+        console.error(`${label} failed [${res.status}]: ${text}`);
+        throw new Error(`${label} returned ${res.status}: ${text}`);
+      }
+      console.log(`${label} response:`, text);
+      return text;
+    };
 
-    const responseText = await response.text();
+    const targets: Promise<string>[] = [
+      send(WEBHOOK_URL, WEBHOOK_SECRET, "POS 1"),
+    ];
 
-    if (!response.ok) {
-      console.error(
-        `Webhook call failed [${response.status}]: ${responseText}`
+    if (WEBHOOK_URL_2) {
+      targets.push(
+        send(WEBHOOK_URL_2, WEBHOOK_SECRET_2 ?? WEBHOOK_SECRET, "POS 2")
       );
-      throw new Error(
-        `Webhook returned ${response.status}: ${responseText}`
-      );
+    } else {
+      console.log("WEBHOOK_URL_2 not configured - skipping second POS");
     }
 
-    console.log("Webhook response:", responseText);
+    // Both targets must succeed
+    const results = await Promise.allSettled(targets);
+    const failed = results.filter((r) => r.status === "rejected") as PromiseRejectedResult[];
+    if (failed.length > 0) {
+      throw new Error(
+        failed.map((f) => (f.reason instanceof Error ? f.reason.message : String(f.reason))).join(" | ")
+      );
+    }
+    const responseText = (results as PromiseFulfilledResult<string>[])
+      .map((r) => r.value)
+      .join(" | ");
 
     return new Response(
       JSON.stringify({ success: true, webhook_response: responseText }),
