@@ -65,11 +65,18 @@ serve(async (req) => {
     const zip = zipMatch?.[1] ?? "";
     const city = cityPart.replace(zip, "").trim();
 
+    const fullName: string = (orderData.customer_name ?? "").trim();
+    const nameParts = fullName.split(/\s+/).filter(Boolean);
+    const firstName = nameParts[0] ?? "Gast";
+    const lastName = nameParts.slice(1).join(" ") || "-";
+
     // POS 2 (Felsen POS) expects a different schema
     const webhookBody2 = {
       type: orderData.order_type === "delivery" ? "delivery" : "takeaway",
       customer: {
-        name: orderData.customer_name,
+        name: fullName,
+        first_name: firstName,
+        last_name: lastName,
         phone: orderData.customer_phone,
         address: rawAddress,
         street,
