@@ -71,7 +71,14 @@ serve(async (req) => {
         qty: i.quantity,
         unit_price: i.price,
         station: i.station,
-        ...(i.modifiers ? { modifiers: i.modifiers } : {}),
+        ...(i.modifiers
+          ? {
+              modifiers: i.modifiers
+                .split(",")
+                .map((m) => m.trim())
+                .filter(Boolean),
+            }
+          : {}),
         ...(i.notes ? { notes: i.notes } : {}),
       })),
     };
