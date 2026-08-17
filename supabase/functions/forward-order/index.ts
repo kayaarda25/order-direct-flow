@@ -69,12 +69,17 @@ serve(async (req) => {
       });
       const text = await res.text();
       if (!res.ok) {
-        console.error(`${label} failed [${res.status}]: ${text}`);
-        throw new Error(`${label} returned ${res.status}: ${text}`);
+        console.error(`${label} failed [${res.status}]: ${text.slice(0, 2000)}`);
+        const isHtml = text.trim().startsWith("<");
+        const detail = isHtml
+          ? "Antwort war eine Webseite (HTML), nicht eine API. Die Webhook-URL zeigt wahrscheinlich auf die POS-Webseite statt auf den Bestell-Endpunkt."
+          : text.slice(0, 300);
+        throw new Error(`${label} returned ${res.status}: ${detail}`);
       }
-      console.log(`${label} response:`, text);
-      return text;
+      console.log(`${label} response:`, text.slice(0, 1000));
+      return text.slice(0, 1000);
     };
+
 
     const targets: Promise<string>[] = [
       send(WEBHOOK_URL, WEBHOOK_SECRET, "POS 1"),
