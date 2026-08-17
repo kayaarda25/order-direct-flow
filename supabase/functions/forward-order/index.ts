@@ -56,17 +56,39 @@ serve(async (req) => {
       items,
     };
 
+    // POS 2 (Felsen POS) expects a different schema
+    const webhookBody2 = {
+      type: orderData.order_type === "delivery" ? "delivery" : "takeaway",
+      customer: {
+        name: orderData.customer_name,
+        phone: orderData.customer_phone,
+        address: orderData.customer_address ?? "",
+      },
+      notes: orderData.special_notes ?? "",
+      ...(orderData.scheduled_time ? { scheduled_time: orderData.scheduled_time } : {}),
+      items: items.map((i: { name: string; quantity: number; price: number; station: string; modifiers?: string; notes?: string }) => ({
+        product_name: i.name,
+        qty: i.quantity,
+        unit_price: i.price,
+        station: i.station,
+        ...(i.modifiers ? { modifiers: i.modifiers } : {}),
+        ...(i.notes ? { notes: i.notes } : {}),
+      })),
+    };
+
     console.log("Sending order to webhook(s):", JSON.stringify(webhookBody));
 
-    const send = async (url: string, secret: string, label: string) => {
+
+    const send = async (url: string, secret: string, label: string, payload: unknown) => {
       const res = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "x-webhook-secret": secret,
         },
-        body: JSON.stringify(webhookBody),
+        body: JSON.stringify(payload),
       });
+
       const text = await res.text();
       if (!res.ok) {
         console.error(`${label} failed [${res.status}]: ${text.slice(0, 2000)}`);
@@ -82,13 +104,14 @@ serve(async (req) => {
 
 
     const targets: Promise<string>[] = [
-      send(WEBHOOK_URL, WEBHOOK_SECRET, "POS 1"),
+      send(WEBHOOK_URL, WEBHOOK_SECRET, "POS 1", webhookBody),
     ];
 
     if (WEBHOOK_URL_2) {
       targets.push(
-        send(WEBHOOK_URL_2, WEBHOOK_SECRET_2 ?? WEBHOOK_SECRET, "POS 2")
+        send(WEBHOOK_URL_2, WEBHOOK_SECRET_2 ?? WEBHOOK_SECRET, "POS 2", webhookBody2)
       );
+
     } else {
       console.log("WEBHOOK_URL_2 not configured - skipping second POS");
     }
