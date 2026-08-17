@@ -79,15 +79,16 @@ serve(async (req) => {
     console.log("Sending order to webhook(s):", JSON.stringify(webhookBody));
 
 
-    const send = async (url: string, secret: string, label: string) => {
+    const send = async (url: string, secret: string, label: string, payload: unknown) => {
       const res = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "x-webhook-secret": secret,
         },
-        body: JSON.stringify(webhookBody),
+        body: JSON.stringify(payload),
       });
+
       const text = await res.text();
       if (!res.ok) {
         console.error(`${label} failed [${res.status}]: ${text.slice(0, 2000)}`);
