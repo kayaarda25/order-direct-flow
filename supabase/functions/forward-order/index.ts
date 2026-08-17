@@ -56,7 +56,28 @@ serve(async (req) => {
       items,
     };
 
+    // POS 2 (Felsen POS) expects a different schema
+    const webhookBody2 = {
+      type: orderData.order_type === "delivery" ? "delivery" : "takeaway",
+      customer: {
+        name: orderData.customer_name,
+        phone: orderData.customer_phone,
+        address: orderData.customer_address ?? "",
+      },
+      notes: orderData.special_notes ?? "",
+      ...(orderData.scheduled_time ? { scheduled_time: orderData.scheduled_time } : {}),
+      items: items.map((i: { name: string; quantity: number; price: number; station: string; modifiers?: string; notes?: string }) => ({
+        product_name: i.name,
+        qty: i.quantity,
+        unit_price: i.price,
+        station: i.station,
+        ...(i.modifiers ? { modifiers: i.modifiers } : {}),
+        ...(i.notes ? { notes: i.notes } : {}),
+      })),
+    };
+
     console.log("Sending order to webhook(s):", JSON.stringify(webhookBody));
+
 
     const send = async (url: string, secret: string, label: string) => {
       const res = await fetch(url, {
