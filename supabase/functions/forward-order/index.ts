@@ -104,13 +104,14 @@ serve(async (req) => {
 
 
     const targets: Promise<string>[] = [
-      send(WEBHOOK_URL, WEBHOOK_SECRET, "POS 1"),
+      send(WEBHOOK_URL, WEBHOOK_SECRET, "POS 1", webhookBody),
     ];
 
     if (WEBHOOK_URL_2) {
       targets.push(
-        send(WEBHOOK_URL_2, WEBHOOK_SECRET_2 ?? WEBHOOK_SECRET, "POS 2")
+        send(WEBHOOK_URL_2, WEBHOOK_SECRET_2 ?? WEBHOOK_SECRET, "POS 2", webhookBody2)
       );
+
     } else {
       console.log("WEBHOOK_URL_2 not configured - skipping second POS");
     }
