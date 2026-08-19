@@ -142,7 +142,7 @@ const Index = () => {
               viewport={{ once: true }}
               className="hidden md:block -ml-12 z-0"
             >
-              <img src={pizzaImg} alt="Pizza" className="w-64 md:w-80 lg:w-96 h-auto" />
+              <img src={pizzaImg} alt="Pizza" className="w-64 md:w-80 lg:w-96 h-auto" loading="eager" fetchPriority="high" decoding="async" />
             </motion.div>
           </div>
         </div>

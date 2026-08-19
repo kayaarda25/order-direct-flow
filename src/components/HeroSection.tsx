@@ -100,7 +100,7 @@ const HeroSection = () => {
               transformOrigin: "top left",
             }}
           >
-            <img src={mascotImg} alt="Piratino Maskottchen" className="w-48 md:w-64 lg:w-80 h-auto" />
+            <img src={mascotImg} alt="Piratino Maskottchen" className="w-48 md:w-64 lg:w-80 h-auto" loading="eager" fetchPriority="high" decoding="async" />
           </motion.div>
         </div>
       </section>
