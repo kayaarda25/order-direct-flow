@@ -104,6 +104,37 @@ serve(async (req) => {
 
     console.log("Sending order to webhook(s):", JSON.stringify(webhookBody));
 
+    // Queue the order for the local print agent (agent polls print-queue)
+    try {
+      const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+      const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+      if (SUPABASE_URL && SERVICE_KEY) {
+        const total = items.reduce(
+          (sum: number, i: { price: number; quantity: number }) => sum + i.price * i.quantity,
+          0
+        );
+        const queueRes = await fetch(`${SUPABASE_URL}/rest/v1/print_jobs`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: SERVICE_KEY,
+            Authorization: `Bearer ${SERVICE_KEY}`,
+            Prefer: "return=minimal",
+          },
+          body: JSON.stringify({ payload: { ...webhookBody, total } }),
+        });
+        if (!queueRes.ok) {
+          console.error("print_jobs insert failed:", queueRes.status, await queueRes.text());
+        } else {
+          console.log("Order queued for print agent");
+        }
+      }
+    } catch (e) {
+      console.error("print_jobs insert error:", e instanceof Error ? e.message : String(e));
+    }
+
+
+
 
     const send = async (url: string, secret: string, label: string, payload: unknown) => {
       const res = await fetch(url, {
