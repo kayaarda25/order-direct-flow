@@ -192,7 +192,7 @@ const Index = () => {
                 </div>
                 {/* Image */}
                 <div className="w-full sm:w-48 md:w-56 flex-shrink-0 flex items-center justify-center p-4">
-                  <img src={pkg.image} alt={pkg.name} className="w-full h-auto max-h-40 object-contain" />
+                  <img src={pkg.image} alt={pkg.name} className="w-full h-auto max-h-40 object-contain" loading="lazy" decoding="async" />
                 </div>
               </motion.div>
             ))}
@@ -234,6 +234,8 @@ const Index = () => {
                   src={img.src}
                   alt={img.alt}
                   className="w-full h-40 md:h-56 object-cover hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
+                  decoding="async"
                 />
               </motion.div>
             ))}
