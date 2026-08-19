@@ -142,7 +142,7 @@ const Index = () => {
               viewport={{ once: true }}
               className="hidden md:block -ml-12 z-0"
             >
-              <img src={pizzaImg} alt="Pizza" className="w-64 md:w-80 lg:w-96 h-auto" />
+              <img src={pizzaImg} alt="Pizza" className="w-64 md:w-80 lg:w-96 h-auto" loading="eager" fetchPriority="high" decoding="async" />
             </motion.div>
           </div>
         </div>
@@ -192,7 +192,7 @@ const Index = () => {
                 </div>
                 {/* Image */}
                 <div className="w-full sm:w-48 md:w-56 flex-shrink-0 flex items-center justify-center p-4">
-                  <img src={pkg.image} alt={pkg.name} className="w-full h-auto max-h-40 object-contain" />
+                  <img src={pkg.image} alt={pkg.name} className="w-full h-auto max-h-40 object-contain" loading="lazy" decoding="async" />
                 </div>
               </motion.div>
             ))}
@@ -234,6 +234,8 @@ const Index = () => {
                   src={img.src}
                   alt={img.alt}
                   className="w-full h-40 md:h-56 object-cover hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
+                  decoding="async"
                 />
               </motion.div>
             ))}
@@ -268,6 +270,8 @@ const Index = () => {
               src={content.about_image || teamPhoto}
               alt="Das Piratino Team"
               className="w-full rounded-lg shadow-lg"
+              loading="lazy"
+              decoding="async"
             />
           </motion.div>
         </div>
