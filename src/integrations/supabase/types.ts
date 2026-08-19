@@ -230,6 +230,30 @@ export type Database = {
         }
         Relationships: []
       }
+      print_jobs: {
+        Row: {
+          created_at: string
+          id: string
+          payload: Json
+          printed_at: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          payload: Json
+          printed_at?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          payload?: Json
+          printed_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
