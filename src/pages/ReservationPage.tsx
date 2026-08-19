@@ -37,7 +37,7 @@ const ReservationPage = () => {
       form.message ? `Nachricht: ${form.message}` : "",
     ].filter(Boolean).join("%0A");
 
-    window.location.href = `mailto:info@piratino.ch?subject=${encodeURIComponent(subject)}&body=${body}`;
+    window.location.href = `mailto:piratinoag@hotmail.com?subject=${encodeURIComponent(subject)}&body=${body}`;
 
     setTimeout(() => {
       toast.success("Ihr E-Mail-Programm wurde geöffnet. Bitte senden Sie die E-Mail ab.");
