@@ -122,12 +122,12 @@ const HeroSection = () => {
       }
     >
       <div className="container py-16 md:py-24 lg:py-32">
-        <div className="flex flex-col lg:flex-row items-center justify-start gap-16">
+        <div className="flex flex-col lg:flex-row items-center justify-center gap-16">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
-            className="max-w-2xl flex-1"
+            className="max-w-2xl flex-1 text-center"
           >
             <h1
               className="text-4xl font-bold text-foreground leading-tight mb-4 uppercase tracking-wide whitespace-pre-line"
