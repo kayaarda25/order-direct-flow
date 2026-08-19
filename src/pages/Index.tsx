@@ -250,12 +250,12 @@ const Index = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-8"
+            className="mb-8 text-center"
           >
             <h2 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground mb-3 uppercase tracking-wider">
               {content.about_title}
             </h2>
-            <p className="text-primary-foreground/60 text-sm max-w-2xl uppercase tracking-wide">
+            <p className="text-primary-foreground/60 text-sm max-w-2xl mx-auto uppercase tracking-wide">
               {content.about_text}
             </p>
           </motion.div>
@@ -264,7 +264,7 @@ const Index = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="max-w-2xl"
+            className="max-w-2xl mx-auto"
           >
             <img
               src={content.about_image || teamPhoto}
