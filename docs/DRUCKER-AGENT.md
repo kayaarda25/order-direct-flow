@@ -1,19 +1,19 @@
-# Agent-Dokument: Drucker-Agent «Piratino Print & Alarm» (IP-Version)
+# Agent-Dokument: Drucker-Agent «Piratino Print & Alarm v3»
 
-Dieser Agent ist **kein Browser-Tab**, sondern ein kleines Programm, das im Lokalnetz
-der Pizzeria läuft (Mini-PC, Laptop oder Raspberry Pi) und den Bondrucker **direkt über
-seine IP-Adresse** anspricht (Rohdruck ESC/POS, TCP Port 9100 – kein Druckdialog,
-kein Treiber, keine Bestätigung).
+Vorlage ist der bestehende **Piratino Print-Agent v2** (`agent.cjs` + `start.bat`,
+Node.js, Fastify, HTTP auf Port **9110**, Rohdruck über Windows-Druckername,
+ESC/POS inkl. Logo und nativem QR-Code).
 
-Er fängt jede Bestellung ab, druckt sie sofort und löst einen sehr lauten Dauer-Alarm
-aus, der erst stoppt, wenn die Meldung geschlossen wird.
+Dieses Dokument beschreibt die Erweiterung zu **v3**: gleicher Aufbau, gleicher Port,
+aber der Agent nimmt Bestellungen direkt entgegen, druckt sie automatisch und löst
+dabei eine Meldung mit **sehr lautem Dauer-Alarmton** aus, der erst stoppt, wenn die
+Meldung geschlossen wird.
 
-Das Dokument ist als Auftrag/Spezifikation gedacht und kann 1:1 als Entwicklungsvorgabe
-verwendet werden.
+Das Dokument kann 1:1 als Entwicklungsvorgabe für den Agenten verwendet werden.
 
 ---
 
-## 1. Aufbau (wie es über die IP läuft)
+## 1. Aufbau (läuft über die IP)
 
 ```text
  Webseite / Bestellung
@@ -21,54 +21,99 @@ verwendet werden.
           v
  forward-order (Cloud)  --->  POS 1   --->  POS 2
           |
-          |  HTTPS oder Polling
+          |  HTTP an http://<PC-IP>:9110/order
           v
- +------------------------------------------+
- |  DRUCKER-AGENT (Mini-PC in der Pizzeria) |
- |  - holt/empfängt Bestellungen            |
- |  - Alarmfenster + lauter Dauerton        |
- |  - TCP-Verbindung zu 192.168.1.50:9100   |
- +------------------------------------------+
+ +--------------------------------------------------+
+ |  PRINT-AGENT v3 (Windows-PC in der Pizzeria)     |
+ |  Node.js, Fastify, Port 9110                     |
+ |  - /order nimmt Bestellung an                    |
+ |  - druckt Bon (ESC/POS, Logo, QR)                |
+ |  - Alarmfenster + lauter Dauerton                |
+ +--------------------------------------------------+
                      |
+      Windows-Rohdruck bzw. TCP 9100
                      v
-        Bondrucker (feste IP im WLAN/LAN)
+              Bondrucker im Netz
 ```
 
-Wichtig: Der Agent läuft im **gleichen Netz** wie der Drucker. Nur er spricht mit der
-Drucker-IP; die Cloud selbst kann und muss den Drucker nicht erreichen.
+Der Agent ist über die **IP des Windows-PCs** erreichbar (`http://192.168.x.x:9110`),
+genau wie heute schon bei v2. Der Drucker wird entweder wie bisher über den
+Windows-Druckernamen angesprochen oder direkt über die Drucker-IP (TCP 9100),
+siehe Abschnitt 6.
 
-## 2. Zwei Betriebsarten
+## 2. Bestehende Endpunkte (unverändert aus v2 übernehmen)
 
-**A) Pull (empfohlen, keine Portfreigabe nötig)**
+| Methode | Pfad | Zweck |
+| --- | --- | --- |
+| GET | `/health` | Version + gefundene Drucker |
+| GET | `/printers` | Liste der Windows-Drucker |
+| POST | `/discover` | Netzwerk-Suche nach Druckern |
+| POST | `/test` | Testdruck inkl. QR-Code |
+| POST | `/print` | freier Bon-Druck (`{ printer, payload }`) |
 
-- Der Agent fragt alle 3 Sekunden die Cloud nach neuen Bestellungen
-  (Realtime-Abo bevorzugt, Polling als Fallback).
-- Funktioniert hinter jedem Router ohne Konfiguration, auch bei wechselnder
-  öffentlicher IP.
+CORS bleibt offen (`origin: true`), der Agent ist nur im Lokalnetz erreichbar.
 
-**B) Push (nur wenn der Standort eine feste öffentliche IP hat)**
+## 3. Neue Endpunkte in v3
 
-- Der Agent stellt lokal einen HTTP-Server bereit:
-  `POST http://<öffentliche-IP>:8787/api/print/inbound`
-- Router-Portweiterleitung 8787 → Mini-PC nötig, Absicherung über
-  `x-webhook-secret: <PRINT_AGENT_SECRET>` und IP-Whitelist.
-- `forward-order` erhält diese URL als drittes Ziel.
+```text
+POST /order            Bestellung annehmen -> speichern, drucken, Alarm starten
+Header: x-agent-secret: <PRINT_AGENT_SECRET>
 
-Beide Betriebsarten dürfen gleichzeitig aktiv sein; Doppelungen werden über die
-Bestellnummer (Idempotenz) verhindert.
+GET  /orders           offene, unbestätigte Bestellungen
+POST /orders/:id/ack   Bestellung bestätigen -> Alarm stoppt
+POST /orders/:id/reprint   Bon erneut drucken
+POST /alarm/test       Testalarm (Ton + Fenster)
+```
 
-## 3. Kernverhalten
+Nutzlast von `/order` (identisch zum POS-1-Format):
 
-1. Neue Bestellung erkennen (Push-Eingang oder Polling).
-2. Bestellung lokal speichern (SQLite-Datei), damit nichts verloren geht.
-3. Sofort auf der Drucker-IP drucken (Abschnitt 5 und 6).
-4. Alarmfenster anzeigen: Vollbild, rot blinkend, sehr lauter Dauerton.
-5. Alarm läuft weiter, bis das Personal «BESTELLUNG ANNEHMEN» drückt.
-6. Nach Bestätigung: Ton stoppt, Fenster schliesst, Status `acknowledged`.
-7. Ohne Bestätigung: Alarm bleibt aktiv, Nachdruck nach 60 Sekunden (max. 3 Versuche).
-8. Der Alarm wird auch dann ausgelöst, wenn der Druck fehlschlägt.
+```json
+{
+  "order_number": "WEB-1234",
+  "customer_name": "Max Muster",
+  "customer_phone": "+41 79 123 45 67",
+  "customer_address": "Musterstrasse 12, 8048 Zürich",
+  "order_type": "delivery",
+  "payment_type": "cash",
+  "scheduled_time": "18:45",
+  "special_notes": "Bitte klingeln",
+  "items": [
+    {
+      "name": "MARGHERITA",
+      "quantity": 2,
+      "price": 18.5,
+      "station": "pizza",
+      "modifiers": "Extra Käse, Ohne Basilikum",
+      "notes": "gut gebacken"
+    }
+  ]
+}
+```
 
-## 4. Alarm-Meldung (Kernanforderung)
+Regeln:
+
+- Antwort `200 { "ok": true, "order_number": "..." }` sobald die Bestellung
+  **gespeichert** ist; Druck und Alarm laufen danach asynchron weiter.
+- Fehlerhafte Nutzlast: `400 { "ok": false, "error": "..." }`, niemals still verwerfen.
+- Falsches oder fehlendes Secret: `401`.
+- Doppelte Zustellung wird über `order_number` (bzw. Hash aus Kunde + Zeit + Positionen)
+  erkannt und nicht doppelt gedruckt.
+- Der Alarm wird auch dann ausgelöst, wenn der Druck fehlschlägt.
+
+## 4. Betriebsarten
+
+**A) Push (wie v2, empfohlen im Lokalnetz)**
+`forward-order` bzw. das POS schickt die Bestellung an `http://<PC-IP>:9110/order`.
+Für Zugriff von aussen: Portweiterleitung 9110 auf den PC + `PRINT_AGENT_SECRET`
++ IP-Whitelist.
+
+**B) Pull (ohne Portfreigabe)**
+Der Agent fragt alle 3 Sekunden die Cloud nach neuen Bestellungen. Damit funktioniert
+er hinter jedem Router, auch bei wechselnder öffentlicher IP.
+
+Beide Arten dürfen gleichzeitig laufen; Doppelungen verhindert die Idempotenz-Regel.
+
+## 5. Alarm-Meldung (Kernanforderung)
 
 Anzeige:
 
@@ -83,37 +128,34 @@ Anzeige:
 Ton:
 
 - Datei `alarm.wav` (durchdringende Sirene, 2–3 Sekunden, Endlosschleife).
-- Wiedergabe über das Betriebssystem mit **maximaler Systemlautstärke**; der Agent
-  setzt die Lautstärke beim Alarmstart selbst auf 100 % (kein Autoplay-Problem,
-  da kein Browser).
-- Zusätzlich optional Signalton über angeschlossenen Summer/Lautsprecher.
-- Läuft der Alarm länger als 5 Minuten: zusätzlich System-Benachrichtigung,
-  Ton läuft weiter.
+- Wiedergabe über das Betriebssystem, Systemlautstärke wird beim Alarmstart
+  auf 100 % gesetzt. Kein Browser-Autoplay-Problem, da eigenständiges Programm.
+- Läuft der Alarm über 5 Minuten: zusätzlich Windows-Benachrichtigung, Ton läuft weiter.
 
-Der Alarm stoppt ausschliesslich über «BESTELLUNG ANNEHMEN». Kein Stummschalter,
-kein automatisches Timeout.
+Der Alarm stoppt ausschliesslich über «BESTELLUNG ANNEHMEN» bzw. `POST /orders/:id/ack`.
+Kein Stummschalter, kein automatisches Timeout. Ohne Bestätigung wird der Bon nach
+60 Sekunden erneut gedruckt (max. 3 Versuche).
 
-## 5. Druck über die IP (ESC/POS, Port 9100)
+Umsetzung des Fensters: Electron- oder Tauri-Hülle um den bestehenden Fastify-Agenten,
+alternativ ein lokales Vollbildfenster, das der Agent selbst öffnet. `start.bat` bleibt
+als Startweg erhalten.
 
-Ablauf pro Bon:
+## 6. Druck-Technik
 
-1. TCP-Socket zu `PRINTER_HOST:PRINTER_PORT` öffnen (Timeout 5 Sekunden).
-2. ESC/POS-Bytes senden: Initialisieren `ESC @`, Zentrierung `ESC a 1`,
-   Doppelgrösse `GS ! 0x11`, Text (Codepage CP437/CP1252, Umlaute beachten),
-   Papierschnitt `GS V 0x00`.
-3. Socket schliessen, Erfolg protokollieren.
-
-Beispiel (Node.js, ohne Zusatzbibliothek):
+1. **Wie v2 (Standard):** Windows-Rohdruck über den Druckernamen (PowerShell
+   `SendBytesToPrinter`), ESC/POS-Bytes inkl. Logo-Bitmap und nativem QR-Code.
+2. **Direkt über die Drucker-IP:** TCP-Socket zu `PRINTER_HOST:9100`, gleiche
+   ESC/POS-Bytes, Timeout 5 Sekunden – nötig, wenn der Drucker nicht als
+   Windows-Drucker installiert ist.
 
 ```js
 import net from "node:net";
-
 const ESC = "\x1b", GS = "\x1d";
-export function printRaw(host, port, text) {
+export function printRaw(host, port, bytes) {
   return new Promise((resolve, reject) => {
     const s = net.createConnection({ host, port, timeout: 5000 }, () => {
-      s.write(ESC + "@");                 // Reset
-      s.write(text, "binary");            // Bon-Inhalt
+      s.write(ESC + "@");
+      s.write(bytes);
       s.write("\n\n\n" + GS + "V" + "\x00"); // Vorschub + Schnitt
       s.end();
     });
@@ -124,22 +166,13 @@ export function printRaw(host, port, text) {
 }
 ```
 
-Drucker-Erkennung:
+- Alle 30 Sekunden Erreichbarkeitsprüfung, Statusanzeige «DRUCKER ONLINE / OFFLINE».
+- `POST /discover` scannt `192.168.x.1–254` auf Port 9100 und listet gefundene Drucker.
 
-- Der Drucker braucht eine **feste IP** (DHCP-Reservierung im Router).
-- Der Agent prüft alle 30 Sekunden per TCP-Verbindungstest, ob die IP erreichbar ist,
-  und zeigt im Terminal «DRUCKER ONLINE / OFFLINE».
-- Optionaler Netzwerk-Scan beim Setup: Bereich `192.168.x.1–254`, Port 9100,
-  zur Anzeige gefundener Drucker.
-
-Alternativen, falls der Drucker kein 9100 anbietet:
-
-1. Epson ePOS-Print: `POST http://<drucker-ip>/cgi-bin/epos/service.cgi`
-2. Star WebPRNT: `POST http://<drucker-ip>/StarWebPRNT/SendMessage`
-
-## 6. Bon-Layout (80 mm Thermodrucker)
+## 7. Bon-Layout (80 mm Thermodrucker)
 
 ```text
+        [PIRATINO-LOGO]
       PIZZA PIRATINO
    Badenerstrasse 696, 8048 Zürich
         +41 44 431 32 33
@@ -167,54 +200,26 @@ TOTAL CHF                46.50
 --------------------------------
 BEMERKUNG: Bitte klingeln
 --------------------------------
+        [QR-CODE Kurier]
+--------------------------------
 ```
 
 - Artikelnamen in GROSSBUCHSTABEN, Menge und Artikelname in Doppelgrösse.
 - Modifikatoren mit `+`, Artikel-Notizen mit `!` eingerückt darunter.
-- Bei Stationsbetrieb: je Station ein eigener Bon (`pizza`, `kitchen`, `drinks`),
-  plus Gesamtbon für die Theke. Stationen dürfen unterschiedliche Drucker-IPs haben.
+- QR-Code wie in v2 als nativer ESC/POS-QR (kein Bild), z. B. Kurier-Link.
+- Bei Stationsbetrieb: je Station ein eigener Bon (`pizza`, `kitchen`, `drinks`) plus
+  Gesamtbon für die Theke; Stationen dürfen unterschiedliche Drucker haben.
+- Am Schluss Papierschnitt (`GS V 0`).
 
-## 7. Nutzlast (identisch zum POS-1-Format)
+## 8. Technik-Vorgaben
 
-```json
-{
-  "customer_name": "Max Muster",
-  "customer_phone": "+41 79 123 45 67",
-  "customer_address": "Musterstrasse 12, 8048 Zürich",
-  "order_type": "delivery",
-  "payment_type": "cash",
-  "scheduled_time": "18:45",
-  "special_notes": "Bitte klingeln",
-  "items": [
-    {
-      "name": "MARGHERITA",
-      "quantity": 2,
-      "price": 18.5,
-      "station": "pizza",
-      "modifiers": "Extra Käse, Ohne Basilikum",
-      "notes": "gut gebacken"
-    }
-  ]
-}
-```
-
-Regeln:
-
-- Antwort `200 { "success": true, "order_number": "..." }` erst, wenn die Bestellung
-  lokal gespeichert ist; der Druck darf danach asynchron erfolgen.
-- Fehlerhafte Nutzlast: `400` mit klarer Meldung, niemals still verwerfen.
-- Doppelte Zustellung wird über Bestellnummer bzw. Hash aus Kunde + Zeit + Positionen
-  erkannt und nicht doppelt gedruckt.
-
-## 8. Technik-Vorgabe
-
-- Laufzeit: Node.js 20 als Desktop-Anwendung (Electron oder Tauri) für Fenster,
-  Ton und «always on top»; alternativ Kiosk-Betrieb mit lokalem Node-Dienst.
-- Autostart beim Einschalten des Geräts, Ruhezustand/Bildschirmschoner deaktiviert.
-- Lokale Datenbank: SQLite-Datei `orders.db` (Tabelle siehe Abschnitt 9).
-- Watchdog: stürzt der Agent ab, startet er automatisch neu und druckt alle
-  unbestätigten Bestellungen nach.
-- Protokoll: `agent.log` mit Zeitstempel je Bestellung, Druckversuch und Fehler.
+- Node.js 20, Fastify, ein gebündeltes `agent.cjs` wie bisher, Start über `start.bat`.
+- Autostart mit Windows (Verknüpfung in `shell:startup`), Energiesparmodus und
+  Bildschirmschoner deaktiviert.
+- Lokale Speicherung: `orders.json` bzw. SQLite `orders.db` (Felder siehe Abschnitt 9).
+- Watchdog/Neustart: nach Absturz oder PC-Neustart werden alle unbestätigten
+  Bestellungen nachgedruckt und der Alarm erneut ausgelöst.
+- Protokoll `agent.log`: Zeitstempel je Bestellung, Druckversuch und Fehler.
 
 ## 9. Datenhaltung (lokal)
 
@@ -231,47 +236,47 @@ Regeln:
 | `acknowledged_at` | Zeitpunkt der Bestätigung (Alarm gestoppt) |
 | `created_at` | Eingang |
 
-## 10. Konfiguration (`config.json` bzw. `.env`)
+## 10. Konfiguration (`config.json` bzw. Umgebungsvariablen)
 
 | Schlüssel | Beispiel | Zweck |
 | --- | --- | --- |
-| `PRINTER_HOST` | `192.168.1.50` | feste IP des Bondruckers |
+| `PORT` | `9110` | Port des Agenten (wie v2) |
+| `HOST` | `0.0.0.0` | im Lokalnetz erreichbar |
+| `PRINTER_NAME` | `EPSON TM-T20III` | Windows-Drucker (Standardweg) |
+| `PRINTER_HOST` | `192.168.1.50` | optional: Drucker direkt über IP |
 | `PRINTER_PORT` | `9100` | Rohdruck-Port |
-| `PRINTER_HOST_PIZZA` | `192.168.1.51` | optional zweiter Drucker (Station) |
-| `MODE` | `pull` / `push` / `both` | Betriebsart nach Abschnitt 2 |
-| `LISTEN_PORT` | `8787` | Port des lokalen Empfangs-Servers (Push) |
-| `PRINT_AGENT_SECRET` | – | Secret für den Empfangs-Endpunkt |
+| `PRINT_AGENT_SECRET` | – | Secret für `/order` |
+| `MODE` | `push` / `pull` / `both` | Betriebsart nach Abschnitt 4 |
 | `POLL_SECONDS` | `3` | Abfrageintervall (Pull) |
 | `ALARM_REPRINT_SECONDS` | `60` | Wiederholdruck-Intervall |
-| `STATION_SPLIT` | `true` | Bons pro Station drucken |
+| `STATION_SPLIT` | `true` | Bons pro Station |
 
-## 11. Terminal-Oberfläche
+## 11. Bedienoberfläche des Agenten
 
-- Kopfzeile: Verbindungsstatus Cloud, Drucker-IP mit Online/Offline, Uhrzeit.
+- Kopfzeile: Port und IP des Agenten, Drucker-Status, Uhrzeit.
 - Liste offener Bestellungen mit Zeitstempel, Typ, Total, Button «Nochmals drucken».
-- Buttons «Testalarm», «Testdruck» und «Drucker suchen» für die Inbetriebnahme.
+- Buttons «Testalarm», «Testdruck» (inkl. QR) und «Drucker suchen».
 - Archiv der letzten 7 Tage, Suche nach Bestellnummer oder Telefonnummer.
-- Optik: dunkles Küchen-Layout, sehr grosse Schrift, mit fettigen Fingern bedienbar,
-  keine Emojis.
+- Optik: dunkles Küchen-Layout, sehr grosse Schrift, keine Emojis.
 
 ## 12. Fehlerfälle
 
-- Drucker-IP nicht erreichbar: Bestellung bleibt in der Druck-Warteschlange, neuer
-  Versuch alle 30 Sekunden, Warnstreifen «DRUCKER OFFLINE» im Terminal, Alarm trotzdem.
-- Internet weg: Push-Bestellungen kommen nicht an, Pull holt beim Wiederaufbau alles
-  Verpasste nach; nichts wird übersprungen.
-- Papier leer: Druck schlägt fehl → Warteschlange bleibt, Meldung «PAPIER PRÜFEN».
-- Falsche IP konfiguriert: Sofortmeldung beim Start mit Hinweis auf «Drucker suchen».
+- Drucker offline: Bestellung bleibt in der Warteschlange, neuer Versuch alle
+  30 Sekunden, Warnstreifen «DRUCKER OFFLINE», Alarm läuft trotzdem.
+- Papier leer: Meldung «PAPIER PRÜFEN», Bon bleibt in der Warteschlange.
+- Netzwerk/Internet weg: Push-Bestellungen kommen nicht an, Pull holt beim
+  Wiederaufbau alles Verpasste nach.
+- Falscher Druckername oder falsche IP: Sofortmeldung beim Start mit Hinweis auf
+  «Drucker suchen».
 
 ## 13. Abnahmekriterien
 
-1. Testbestellung über die Webseite: Bon wird innerhalb von 5 Sekunden auf der
-   konfigurierten Drucker-IP gedruckt, ohne jeden Druckdialog.
-2. Gleichzeitig erscheint das Vollbild-Alarmfenster, der Ton läuft in Dauerschleife.
-3. Der Ton lässt sich weder durch Klick daneben, ESC, Alt+Tab noch Fenster-X stoppen.
-4. Nach Klick auf «BESTELLUNG ANNEHMEN» stoppt der Ton sofort, Fenster schliesst.
-5. Drei Bestellungen in Folge: alle drei gedruckt, einzeln bestätigt.
-6. Drucker-Netzkabel gezogen: Alarm läuft trotzdem, Bon wird nach Wiederanschluss
-   automatisch gedruckt.
-7. Agent-Neustart: unbestätigte Bestellungen lösen den Alarm erneut aus.
-8. Gerät neu eingeschaltet: Agent startet von selbst und ist ohne Bedienung bereit.
+1. `start.bat` gestartet: `GET http://<PC-IP>:9110/health` liefert Version und Drucker.
+2. Testbestellung über die Webseite: Bon inkl. Logo und QR wird innerhalb von
+   5 Sekunden gedruckt, ohne Druckdialog.
+3. Gleichzeitig erscheint das Vollbild-Alarmfenster, der Ton läuft in Dauerschleife.
+4. Der Ton lässt sich weder durch Klick daneben, ESC, Alt+Tab noch Fenster-X stoppen.
+5. Nach Klick auf «BESTELLUNG ANNEHMEN» stoppt der Ton sofort, das Fenster schliesst.
+6. Drei Bestellungen in Folge: alle drei gedruckt, einzeln bestätigt.
+7. Drucker ausgesteckt: Alarm läuft trotzdem, Bon wird nach Wiederanschluss gedruckt.
+8. PC neu gestartet: Agent startet von selbst, unbestätigte Bestellungen alarmieren erneut.
