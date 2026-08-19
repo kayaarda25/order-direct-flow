@@ -270,6 +270,8 @@ const Index = () => {
               src={content.about_image || teamPhoto}
               alt="Das Piratino Team"
               className="w-full rounded-lg shadow-lg"
+              loading="lazy"
+              decoding="async"
             />
           </motion.div>
         </div>
