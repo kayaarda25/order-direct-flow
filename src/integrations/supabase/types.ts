@@ -203,6 +203,42 @@ export type Database = {
         }
         Relationships: []
       }
+      order_dispatches: {
+        Row: {
+          created_at: string
+          fingerprint: string
+          id: string
+          order_ref: string
+          payload: Json
+          pos1_ok: boolean
+          pos2_ok: boolean
+          print_queued: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          fingerprint: string
+          id?: string
+          order_ref: string
+          payload?: Json
+          pos1_ok?: boolean
+          pos2_ok?: boolean
+          print_queued?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          fingerprint?: string
+          id?: string
+          order_ref?: string
+          payload?: Json
+          pos1_ok?: boolean
+          pos2_ok?: boolean
+          print_queued?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       pizza_pass: {
         Row: {
           free_pizzas_available: number
