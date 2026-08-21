@@ -1,10 +1,27 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+
+async function sha256(text: string): Promise<string> {
+  const data = new TextEncoder().encode(text);
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hash))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+interface DispatchRow {
+  order_ref: string;
+  fingerprint: string;
+  pos1_ok: boolean;
+  pos2_ok: boolean;
+  print_queued: boolean;
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -94,7 +111,7 @@ serve(async (req) => {
           ? {
               modifiers: i.modifiers
                 .split(",")
-                .map((m) => m.trim())
+                .map((m: string) => m.trim())
                 .filter(Boolean),
             }
           : {}),
@@ -104,37 +121,108 @@ serve(async (req) => {
 
     console.log("Sending order to webhook(s):", JSON.stringify(webhookBody));
 
-    // Queue the order for the local print agent (agent polls print-queue)
-    try {
-      const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
-      const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-      if (SUPABASE_URL && SERVICE_KEY) {
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+
+    // ---------- Duplicate protection ----------
+    // The client sends a stable order_ref per checkout attempt. A retry after a
+    // failure must only reach the systems that have NOT received the order yet.
+    const fingerprint = await sha256(
+      [orderData.customer_phone ?? "", fullName, JSON.stringify(items)].join("|")
+    );
+    let orderRef: string =
+      typeof orderData.order_ref === "string" && orderData.order_ref
+        ? orderData.order_ref
+        : `fp-${fingerprint.slice(0, 24)}`;
+
+    let dispatch: DispatchRow | null = null;
+    {
+      const { data } = await supabase
+        .from("order_dispatches")
+        .select("order_ref, fingerprint, pos1_ok, pos2_ok, print_queued")
+        .eq("order_ref", orderRef)
+        .maybeSingle();
+      dispatch = data;
+    }
+
+    // Fallback for clients without order_ref: same fingerprint within 10 minutes
+    if (!dispatch && !orderData.order_ref) {
+      const since = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+      const { data } = await supabase
+        .from("order_dispatches")
+        .select("order_ref, fingerprint, pos1_ok, pos2_ok, print_queued")
+        .eq("fingerprint", fingerprint)
+        .gte("created_at", since)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (data) {
+        dispatch = data;
+        orderRef = data.order_ref;
+      }
+    }
+
+    // Same ref but changed cart contents -> treat as a new order
+    if (dispatch && dispatch.fingerprint !== fingerprint) {
+      orderRef = `${orderRef}-${fingerprint.slice(0, 8)}`;
+      const { data } = await supabase
+        .from("order_dispatches")
+        .select("order_ref, fingerprint, pos1_ok, pos2_ok, print_queued")
+        .eq("order_ref", orderRef)
+        .maybeSingle();
+      dispatch = data;
+    }
+
+    if (!dispatch) {
+      const { data: inserted, error: insErr } = await supabase
+        .from("order_dispatches")
+        .insert({ order_ref: orderRef, fingerprint, payload: webhookBody })
+        .select("order_ref, fingerprint, pos1_ok, pos2_ok, print_queued")
+        .single();
+      if (insErr) {
+        // Lost an insert race -> re-read the existing row
+        const { data: again } = await supabase
+          .from("order_dispatches")
+          .select("order_ref, fingerprint, pos1_ok, pos2_ok, print_queued")
+          .eq("order_ref", orderRef)
+          .maybeSingle();
+        dispatch = again;
+      } else {
+        dispatch = inserted;
+      }
+    }
+
+    const pos1Done = dispatch?.pos1_ok === true;
+    const pos2Done = dispatch?.pos2_ok === true;
+    const printDone = dispatch?.print_queued === true;
+
+    // Queue the order for the local print agent exactly once
+    if (!printDone) {
+      try {
         const total = items.reduce(
           (sum: number, i: { price: number; quantity: number }) => sum + i.price * i.quantity,
           0
         );
-        const queueRes = await fetch(`${SUPABASE_URL}/rest/v1/print_jobs`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            apikey: SERVICE_KEY,
-            Authorization: `Bearer ${SERVICE_KEY}`,
-            Prefer: "return=minimal",
-          },
-          body: JSON.stringify({ payload: { ...webhookBody, total } }),
-        });
-        if (!queueRes.ok) {
-          console.error("print_jobs insert failed:", queueRes.status, await queueRes.text());
+        const { error: qErr } = await supabase
+          .from("print_jobs")
+          .insert({ payload: { ...webhookBody, total } });
+        if (qErr) {
+          console.error("print_jobs insert failed:", qErr.message);
         } else {
           console.log("Order queued for print agent");
+          await supabase
+            .from("order_dispatches")
+            .update({ print_queued: true, updated_at: new Date().toISOString() })
+            .eq("order_ref", orderRef);
         }
+      } catch (e) {
+        console.error("print_jobs insert error:", e instanceof Error ? e.message : String(e));
       }
-    } catch (e) {
-      console.error("print_jobs insert error:", e instanceof Error ? e.message : String(e));
+    } else {
+      console.log("Print job already queued for this order - skipping duplicate");
     }
-
-
-
 
     const send = async (url: string, secret: string, label: string, payload: unknown) => {
       const res = await fetch(url, {
@@ -159,34 +247,54 @@ serve(async (req) => {
       return text.slice(0, 1000);
     };
 
-
-    const targets: Promise<string>[] = [
-      send(WEBHOOK_URL, WEBHOOK_SECRET, "POS 1", webhookBody),
-    ];
-
+    // Only contact the systems that have not confirmed this order yet
+    const tasks: { key: "pos1_ok" | "pos2_ok"; p: Promise<string> }[] = [];
+    if (!pos1Done) {
+      tasks.push({ key: "pos1_ok", p: send(WEBHOOK_URL, WEBHOOK_SECRET, "POS 1", webhookBody) });
+    } else {
+      console.log("POS 1 already confirmed this order - skipping duplicate");
+    }
     if (WEBHOOK_URL_2) {
-      targets.push(
-        send(WEBHOOK_URL_2, WEBHOOK_SECRET_2 ?? WEBHOOK_SECRET, "POS 2", webhookBody2)
-      );
-
+      if (!pos2Done) {
+        tasks.push({
+          key: "pos2_ok",
+          p: send(WEBHOOK_URL_2, WEBHOOK_SECRET_2 ?? WEBHOOK_SECRET, "POS 2", webhookBody2),
+        });
+      } else {
+        console.log("POS 2 already confirmed this order - skipping duplicate");
+      }
     } else {
       console.log("WEBHOOK_URL_2 not configured - skipping second POS");
     }
 
-    // Both targets must succeed
-    const results = await Promise.allSettled(targets);
-    const failed = results.filter((r) => r.status === "rejected") as PromiseRejectedResult[];
-    if (failed.length > 0) {
-      throw new Error(
-        failed.map((f) => (f.reason instanceof Error ? f.reason.message : String(f.reason))).join(" | ")
-      );
+    const settled = await Promise.allSettled(tasks.map((t) => t.p));
+    const failed: string[] = [];
+    const responses: string[] = [];
+    for (let i = 0; i < tasks.length; i++) {
+      const r = settled[i];
+      if (r.status === "fulfilled") {
+        responses.push(r.value);
+        await supabase
+          .from("order_dispatches")
+          .update({ [tasks[i].key]: true, updated_at: new Date().toISOString() })
+          .eq("order_ref", orderRef);
+      } else {
+        failed.push(r.reason instanceof Error ? r.reason.message : String(r.reason));
+      }
     }
-    const responseText = (results as PromiseFulfilledResult<string>[])
-      .map((r) => r.value)
-      .join(" | ");
+
+    if (failed.length > 0) {
+      throw new Error(failed.join(" | "));
+    }
+
+    const nothingSent = tasks.length === 0 && (pos1Done || pos2Done || printDone);
 
     return new Response(
-      JSON.stringify({ success: true, webhook_response: responseText }),
+      JSON.stringify({
+        success: true,
+        deduplicated: nothingSent,
+        webhook_response: responses.join(" | "),
+      }),
       {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

@@ -89,6 +89,13 @@ const CheckoutPage = () => {
 
   const [submitting, setSubmitting] = useState(false);
 
+  // Stable reference per checkout attempt: if submission fails and the customer
+  // retries, the backend recognizes the same order and does not duplicate it.
+  const [orderRef, setOrderRef] = useState(() => crypto.randomUUID());
+  useEffect(() => {
+    setOrderRef(crypto.randomUUID());
+  }, [items]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate() || submitting) return;
@@ -98,6 +105,7 @@ const CheckoutPage = () => {
     try {
       // Forward order to admin webhook via edge function
       const webhookPayload = {
+        order_ref: orderRef,
         customer_name: form.name,
         customer_phone: form.phone,
         customer_address: orderType === "delivery" ? `${form.address}, ${form.plz} ${deliveryZone?.city || ""}`.trim() : "",
