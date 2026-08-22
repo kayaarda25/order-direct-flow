@@ -4,7 +4,7 @@ import { useCart } from "@/context/CartContext";
 import { useOrder } from "@/context/OrderContext";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { getDeliveryZone } from "@/data/deliveryZones";
+import { deliveryZones as fallbackZones } from "@/data/deliveryZones";
 import { isRestaurantOpen, getScheduledTimeSlots } from "@/utils/openingHours";
 import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, AlertCircle, Clock, Pizza } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -27,6 +27,27 @@ const CheckoutPage = () => {
   const scheduledSlots = useMemo(() => getScheduledTimeSlots(), []);
 
   const [freePizzasAvailable, setFreePizzasAvailable] = useState(0);
+  const [dbZones, setDbZones] = useState<typeof fallbackZones | null>(null);
+
+  // Load delivery zones from the database so admin changes (e.g. minimum order)
+  // are reflected at checkout; fall back to static data if loading fails.
+  useEffect(() => {
+    supabase
+      .from("delivery_zones")
+      .select("plz, city, minimum_order, active")
+      .eq("active", true)
+      .then(({ data, error }) => {
+        if (error || !data) return;
+        setDbZones(
+          data.map((z) => ({
+            plz: z.plz,
+            city: z.city,
+            minimumOrder: z.minimum_order,
+            active: z.active,
+          }))
+        );
+      });
+  }, []);
 
   // Check if user has free pizzas
   useEffect(() => {
@@ -64,10 +85,11 @@ const CheckoutPage = () => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const deliveryZone = useMemo(
-    () => (orderType === "delivery" && form.plz.length >= 4 ? getDeliveryZone(form.plz.trim()) : undefined),
-    [orderType, form.plz]
-  );
+  const deliveryZone = useMemo(() => {
+    if (orderType !== "delivery" || form.plz.length < 4) return undefined;
+    const zones = dbZones ?? fallbackZones;
+    return zones.find((z) => z.plz === form.plz.trim() && z.active);
+  }, [orderType, form.plz, dbZones]);
 
   const subtotalWithoutDelivery = items.reduce((sum, item) => sum + item.totalPrice * item.quantity, 0);
   const belowMinimum = orderType === "delivery" && deliveryZone && subtotalWithoutDelivery < deliveryZone.minimumOrder;
