@@ -7,6 +7,7 @@ import AdminHours from "@/pages/admin/AdminHours";
 import AdminZones from "@/pages/admin/AdminZones";
 import AdminContent from "@/pages/admin/AdminContent";
 import AdminUsers from "@/pages/admin/AdminUsers";
+import AdminOrders from "@/pages/admin/AdminOrders";
 
 const AdminDashboard = () => {
   return (
@@ -22,6 +23,7 @@ const AdminDashboard = () => {
             <main className="flex-1 p-6 overflow-y-auto bg-background">
               <Routes>
                 <Route index element={<AdminOverview />} />
+                <Route path="orders" element={<AdminOrders />} />
                 <Route path="menu" element={<AdminMenu />} />
                 <Route path="hours" element={<AdminHours />} />
                 <Route path="zones" element={<AdminZones />} />
