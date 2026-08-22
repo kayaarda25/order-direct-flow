@@ -260,6 +260,33 @@ const AdminOrders = () => {
           </Table>
         </CardContent>
       </Card>
+
+      <AlertDialog open={!!orderToDelete} onOpenChange={(open) => !open && setOrderToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Bestellung löschen?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {orderToDelete && (
+                <>
+                  Bestellung von <strong>{orderToDelete.payload.customer_name || "Gast"}</strong> um{" "}
+                  <strong>{orderToDelete.time}</strong> ({money(orderToDelete.total)}) wird unwiderruflich aus dem
+                  System gelöscht. Bereits an POS und Drucker gesendete Aufträge bleiben dort bestehen.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Abbrechen</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={deleteOrder}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? "Lösche..." : "Endgültig löschen"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
