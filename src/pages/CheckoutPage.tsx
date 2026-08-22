@@ -85,10 +85,11 @@ const CheckoutPage = () => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const deliveryZone = useMemo(
-    () => (orderType === "delivery" && form.plz.length >= 4 ? getDeliveryZone(form.plz.trim()) : undefined),
-    [orderType, form.plz]
-  );
+  const deliveryZone = useMemo(() => {
+    if (orderType !== "delivery" || form.plz.length < 4) return undefined;
+    const zones = dbZones ?? fallbackZones;
+    return zones.find((z) => z.plz === form.plz.trim() && z.active);
+  }, [orderType, form.plz, dbZones]);
 
   const subtotalWithoutDelivery = items.reduce((sum, item) => sum + item.totalPrice * item.quantity, 0);
   const belowMinimum = orderType === "delivery" && deliveryZone && subtotalWithoutDelivery < deliveryZone.minimumOrder;
