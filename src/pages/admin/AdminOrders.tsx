@@ -103,6 +103,22 @@ const AdminOrders = () => {
     toast({ title: "Bestellung erneut an Drucker gesendet" });
   };
 
+  const deleteOrder = async () => {
+    if (!orderToDelete) return;
+    setDeleting(true);
+    const { data, error } = await supabase.functions.invoke("admin-orders", {
+      body: { action: "delete", order_ref: orderToDelete.order_ref },
+    });
+    setDeleting(false);
+    setOrderToDelete(null);
+    if (error || !data?.ok) {
+      toast({ title: "Löschen fehlgeschlagen", description: data?.error || error?.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Bestellung gelöscht" });
+    fetchOrders();
+  };
+
   const totalRevenue = orders.reduce((s, o) => s + o.total, 0);
   const deliveryCount = orders.filter((o) => o.payload.order_type === "delivery").length;
   const pickupCount = orders.length - deliveryCount;
@@ -216,15 +232,26 @@ const AdminOrders = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        title="Bon erneut drucken"
-                        disabled={reprinting === o.order_ref}
-                        onClick={() => reprintOrder(o.order_ref)}
-                      >
-                        <Printer className="h-4 w-4" />
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title="Bon erneut drucken"
+                          disabled={reprinting === o.order_ref}
+                          onClick={() => reprintOrder(o.order_ref)}
+                        >
+                          <Printer className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title="Bestellung löschen"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => setOrderToDelete(o)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
