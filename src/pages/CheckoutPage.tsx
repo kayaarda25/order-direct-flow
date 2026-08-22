@@ -27,6 +27,27 @@ const CheckoutPage = () => {
   const scheduledSlots = useMemo(() => getScheduledTimeSlots(), []);
 
   const [freePizzasAvailable, setFreePizzasAvailable] = useState(0);
+  const [dbZones, setDbZones] = useState<typeof fallbackZones | null>(null);
+
+  // Load delivery zones from the database so admin changes (e.g. minimum order)
+  // are reflected at checkout; fall back to static data if loading fails.
+  useEffect(() => {
+    supabase
+      .from("delivery_zones")
+      .select("plz, city, minimum_order, active")
+      .eq("active", true)
+      .then(({ data, error }) => {
+        if (error || !data) return;
+        setDbZones(
+          data.map((z) => ({
+            plz: z.plz,
+            city: z.city,
+            minimumOrder: z.minimum_order,
+            active: z.active,
+          }))
+        );
+      });
+  }, []);
 
   // Check if user has free pizzas
   useEffect(() => {
