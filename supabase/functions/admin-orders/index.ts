@@ -257,6 +257,21 @@ serve(async (req) => {
       return json(200, { ok: true, message: "Bestellung erneut an Drucker gesendet" });
     }
 
+    if (action === "delete") {
+      const orderRef: string = body.order_ref || "";
+      if (!orderRef) return json(400, { ok: false, error: "order_ref fehlt" });
+      const { data: deleted, error: dErr } = await admin
+        .from("order_dispatches")
+        .delete()
+        .eq("order_ref", orderRef)
+        .select("order_ref");
+      if (dErr) throw dErr;
+      if (!deleted || deleted.length === 0) {
+        return json(404, { ok: false, error: "Bestellung nicht gefunden" });
+      }
+      return json(200, { ok: true, deleted: deleted.length, message: "Bestellung gelöscht" });
+    }
+
     return json(400, { ok: false, error: "Unbekannte Aktion: " + action });
   } catch (e: unknown) {
     console.error("admin-orders error:", e);

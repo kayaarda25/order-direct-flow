@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Printer, RefreshCw, FileBarChart, Bike, ShoppingBag } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Printer, RefreshCw, FileBarChart, Bike, ShoppingBag, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface OrderItem {
@@ -47,6 +48,8 @@ const AdminOrders = () => {
   const [loading, setLoading] = useState(true);
   const [printing, setPrinting] = useState(false);
   const [reprinting, setReprinting] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState<AdminOrder | null>(null);
   const { toast } = useToast();
 
   const fetchOrders = useCallback(async () => {
@@ -98,6 +101,22 @@ const AdminOrders = () => {
       return;
     }
     toast({ title: "Bestellung erneut an Drucker gesendet" });
+  };
+
+  const deleteOrder = async () => {
+    if (!orderToDelete) return;
+    setDeleting(true);
+    const { data, error } = await supabase.functions.invoke("admin-orders", {
+      body: { action: "delete", order_ref: orderToDelete.order_ref },
+    });
+    setDeleting(false);
+    setOrderToDelete(null);
+    if (error || !data?.ok) {
+      toast({ title: "Löschen fehlgeschlagen", description: data?.error || error?.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Bestellung gelöscht" });
+    fetchOrders();
   };
 
   const totalRevenue = orders.reduce((s, o) => s + o.total, 0);
@@ -213,15 +232,26 @@ const AdminOrders = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        title="Bon erneut drucken"
-                        disabled={reprinting === o.order_ref}
-                        onClick={() => reprintOrder(o.order_ref)}
-                      >
-                        <Printer className="h-4 w-4" />
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title="Bon erneut drucken"
+                          disabled={reprinting === o.order_ref}
+                          onClick={() => reprintOrder(o.order_ref)}
+                        >
+                          <Printer className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title="Bestellung löschen"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => setOrderToDelete(o)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -230,6 +260,33 @@ const AdminOrders = () => {
           </Table>
         </CardContent>
       </Card>
+
+      <AlertDialog open={!!orderToDelete} onOpenChange={(open) => !open && setOrderToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Bestellung löschen?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {orderToDelete && (
+                <>
+                  Bestellung von <strong>{orderToDelete.payload.customer_name || "Gast"}</strong> um{" "}
+                  <strong>{orderToDelete.time}</strong> ({money(orderToDelete.total)}) wird unwiderruflich aus dem
+                  System gelöscht. Bereits an POS und Drucker gesendete Aufträge bleiben dort bestehen.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Abbrechen</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={deleteOrder}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? "Lösche..." : "Endgültig löschen"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
