@@ -227,7 +227,14 @@ serve(async (req) => {
     if (action === "print_report") {
       const lines = buildReportLines(date, orders as { created_at: string; payload: OrderPayload }[]);
       const { error: insErr } = await admin.from("print_jobs").insert({
-        payload: { report_type: "daily_report", date, lines },
+        payload: {
+          job_type: "report",
+          report_type: "daily_report",
+          silent: true,
+          copies: 1,
+          date,
+          lines,
+        },
       });
       if (insErr) throw insErr;
       return json(200, { ok: true, date, order_count: orders.length, message: "Tagesbericht an Drucker gesendet" });
