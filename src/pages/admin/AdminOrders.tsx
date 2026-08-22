@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Printer, RefreshCw, FileBarChart, Bike, ShoppingBag } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Printer, RefreshCw, FileBarChart, Bike, ShoppingBag, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface OrderItem {
@@ -47,6 +48,8 @@ const AdminOrders = () => {
   const [loading, setLoading] = useState(true);
   const [printing, setPrinting] = useState(false);
   const [reprinting, setReprinting] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState<AdminOrder | null>(null);
   const { toast } = useToast();
 
   const fetchOrders = useCallback(async () => {
