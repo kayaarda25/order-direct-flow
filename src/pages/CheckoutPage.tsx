@@ -4,7 +4,7 @@ import { useCart } from "@/context/CartContext";
 import { useOrder } from "@/context/OrderContext";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { getDeliveryZone } from "@/data/deliveryZones";
+import { deliveryZones as fallbackZones } from "@/data/deliveryZones";
 import { isRestaurantOpen, getScheduledTimeSlots } from "@/utils/openingHours";
 import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, AlertCircle, Clock, Pizza } from "lucide-react";
 import { Link } from "react-router-dom";
