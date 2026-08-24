@@ -20,6 +20,7 @@ import gallery7 from "@/assets/gallery-7.jpg";
 import gallery8 from "@/assets/gallery-8.jpg";
 import Seo from "@/components/Seo";
 import OpeningHoursTable from "@/components/OpeningHoursTable";
+import { optimizedImage } from "@/lib/imageUrl";
 
 const galleryImages = [
   { src: gallery1, alt: "Restaurant Innenbereich" },
