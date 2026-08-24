@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import OrderTypeModal from "@/components/OrderTypeModal";
+import Seo from "@/components/Seo";
 
 const CartPage = () => {
   const { items, removeItem, updateQuantity, totalPrice, deliveryFee, orderType, setOrderType } = useCart();
@@ -13,6 +14,7 @@ const CartPage = () => {
   if (items.length === 0) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center container">
+        <Seo title="Warenkorb | Pizza Piratino Zürich" description="Dein Warenkorb bei Pizza Piratino Zürich." path="/cart" noindex />
         <ShoppingBag className="w-16 h-16 text-muted-foreground mb-4" />
         <h2 className="font-display text-2xl font-bold text-foreground mb-2">Dein Warenkorb ist leer</h2>
         <p className="text-muted-foreground mb-6">Füge leckere Gerichte aus unserem Menü hinzu!</p>

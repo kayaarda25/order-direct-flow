@@ -1,12 +1,15 @@
 import { motion } from "framer-motion";
 import teamPhoto from "@/assets/team-photo.jpg";
 import { useSiteContent } from "@/hooks/useSiteContent";
+import Seo from "@/components/Seo";
 
 const AboutPage = () => {
   const { content } = useSiteContent();
 
   return (
+
     <div className="bg-white min-h-screen py-16 md:py-24">
+      <Seo title="Über uns | Pizza Piratino Zürich" description="Die Geschichte von Pizza Piratino in Zürich Altstetten – Familienbetrieb, frische Zutaten und Pizza aus dem Steinofen." path="/ueber-uns" />
       <div className="container">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
