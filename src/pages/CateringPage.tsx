@@ -10,6 +10,7 @@ import cateringCarneImg from "@/assets/catering-carne.png";
 import cateringMareImg from "@/assets/catering-mare.png";
 import cateringVerdeImg from "@/assets/catering-verde.png";
 import Seo from "@/components/Seo";
+import { supabase } from "@/integrations/supabase/client";
 
 const cateringPackages = [
   {
@@ -101,17 +102,38 @@ const CateringPage = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSending(true);
 
-    // Simulate sending - in production this would go to an API
-    setTimeout(() => {
-      setSending(false);
-      setSubmitted(true);
-      setStep(3);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }, 1500);
+    const { error } = await supabase.from("catering_inquiries").insert({
+      package_id: selectedPackageId,
+      package_name: selectedPackage?.name ?? null,
+      persons,
+      total_price: totalPrice,
+      name: form.name,
+      email: form.email,
+      phone: form.phone || null,
+      company: form.company || null,
+      street: form.street || null,
+      plz: form.plz || null,
+      city: form.city || null,
+      event_date: form.date || null,
+      event_time: form.time || null,
+      message: form.message || null,
+    });
+
+    setSending(false);
+
+    if (error) {
+      console.error("Catering-Anfrage konnte nicht gespeichert werden:", error);
+      toast.error("Anfrage konnte nicht gesendet werden. Bitte rufen Sie uns an: 044 431 32 33");
+      return;
+    }
+
+    setSubmitted(true);
+    setStep(3);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
