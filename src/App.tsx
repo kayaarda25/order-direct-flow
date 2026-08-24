@@ -23,6 +23,8 @@ import AboutPage from "./pages/AboutPage";
 import CateringPage from "./pages/CateringPage";
 import ReservationPage from "./pages/ReservationPage";
 import AngebotePage from "./pages/AngebotePage";
+import DeliveryPage from "./pages/DeliveryPage";
+import PickupPage from "./pages/PickupPage";
 import NotFound from "./pages/NotFound";
 import AdminLogin from "./components/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
