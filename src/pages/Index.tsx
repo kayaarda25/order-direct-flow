@@ -19,6 +19,7 @@ import gallery6 from "@/assets/gallery-6.jpg";
 import gallery7 from "@/assets/gallery-7.jpg";
 import gallery8 from "@/assets/gallery-8.jpg";
 import Seo from "@/components/Seo";
+import OpeningHoursTable from "@/components/OpeningHoursTable";
 
 const galleryImages = [
   { src: gallery1, alt: "Restaurant Innenbereich" },
@@ -277,6 +278,53 @@ const Index = () => {
               decoding="async"
             />
           </motion.div>
+        </div>
+      </section>
+      {/* LIEFERUNG & ABHOLUNG / LOKALE INFOS */}
+      <section className="bg-white py-16 md:py-24">
+        <div className="container">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-8 text-center"
+          >
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground mb-3 uppercase tracking-wider">
+              Pizzeria in Zürich Altstetten
+            </h2>
+            <p className="text-primary-foreground/70 text-sm md:text-base max-w-2xl mx-auto">
+              Pizza Piratino liegt an der Badenerstrasse 696 in Zürich Altstetten. Wir backen Pizza im
+              Steinofen, kochen frische Pasta und liefern in Zürich Altstetten, Albisrieden, Zürich
+              Aussersihl und Schlieren. Bestellungen kommen direkt bei uns an – ohne Lieferdienst-App
+              und ohne zusätzliche Vermittlungsgebühren. Bezahlen kannst du bar, mit Karte oder TWINT.
+            </p>
+          </motion.div>
+
+          <div className="grid gap-6 md:grid-cols-2 max-w-3xl mx-auto">
+            <div className="bg-card border border-border rounded-xl p-6">
+              <h3 className="font-display font-bold text-foreground text-lg mb-3 uppercase tracking-wide">
+                Öffnungszeiten
+              </h3>
+              <OpeningHoursTable />
+            </div>
+            <div className="bg-card border border-border rounded-xl p-6 flex flex-col gap-3">
+              <h3 className="font-display font-bold text-foreground text-lg mb-1 uppercase tracking-wide">
+                Bestellen
+              </h3>
+              <Link to="/menu" className="text-foreground underline">
+                Menü und Preise ansehen
+              </Link>
+              <Link to="/pizza-lieferung-zuerich" className="text-foreground underline">
+                Pizza Lieferung Zürich: Gebiete und Mindestbestellwerte
+              </Link>
+              <Link to="/pizza-abholung-zuerich" className="text-foreground underline">
+                Pizza Abholung Zürich: Abholpreise und Anfahrt
+              </Link>
+              <Link to="/reservieren" className="text-foreground underline">
+                Tisch reservieren
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
     </div>
