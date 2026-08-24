@@ -59,6 +59,8 @@ const GalleryPage = () => {
               <img
                 src={optimizedImage(img.src, 600)}
                 alt={img.alt}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-48 md:h-64 object-cover hover:scale-105 transition-transform duration-300"
               />
             </motion.div>
