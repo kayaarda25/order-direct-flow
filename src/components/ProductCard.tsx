@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { MenuItem, Modifier } from "@/hooks/useMenuItems";
 import { useCart, type CartItemType } from "@/context/CartContext";
 import { cn } from "@/lib/utils";
+import { optimizedImage } from "@/lib/imageUrl";
 
 interface ProductCardProps {
   item: MenuItem;
@@ -91,7 +92,9 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
         onClick={() => onAdd(item)}
       >
         <img
-          src={(selectedSize?.image_url) || item.image}
+          src={optimizedImage(selectedSize?.image_url || item.image, 320, 55)}
+          srcSet={`${optimizedImage(selectedSize?.image_url || item.image, 320, 55)} 320w, ${optimizedImage(selectedSize?.image_url || item.image, 560, 55)} 560w`}
+          sizes="(max-width: 640px) 50vw, 300px"
           alt={item.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"

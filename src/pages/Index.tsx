@@ -20,6 +20,7 @@ import gallery7 from "@/assets/gallery-7.jpg";
 import gallery8 from "@/assets/gallery-8.jpg";
 import Seo from "@/components/Seo";
 import OpeningHoursTable from "@/components/OpeningHoursTable";
+import { optimizedImage } from "@/lib/imageUrl";
 
 const galleryImages = [
   { src: gallery1, alt: "Restaurant Innenbereich" },
@@ -235,7 +236,7 @@ const Index = () => {
                 className="overflow-hidden rounded-lg"
               >
                 <img
-                  src={img.src}
+                  src={optimizedImage(img.src, 500)}
                   alt={img.alt}
                   className="w-full h-40 md:h-56 object-cover hover:scale-105 transition-transform duration-300"
                   loading="lazy"
