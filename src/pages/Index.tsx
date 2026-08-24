@@ -235,7 +235,7 @@ const Index = () => {
                 className="overflow-hidden rounded-lg"
               >
                 <img
-                  src={img.src}
+                  src={optimizedImage(img.src, 500)}
                   alt={img.alt}
                   className="w-full h-40 md:h-56 object-cover hover:scale-105 transition-transform duration-300"
                   loading="lazy"

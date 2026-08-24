@@ -5,6 +5,7 @@ import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import OrderTypeModal from "@/components/OrderTypeModal";
 import Seo from "@/components/Seo";
+import { optimizedImage } from "@/lib/imageUrl";
 
 const CartPage = () => {
   const { items, removeItem, updateQuantity, totalPrice, deliveryFee, orderType, setOrderType } = useCart();
@@ -44,8 +45,10 @@ const CartPage = () => {
             className="bg-card border border-border rounded-xl p-4 flex gap-4"
           >
             <img
-              src={item.menuItem.image}
+              src={optimizedImage(item.menuItem.image, 200)}
               alt={item.menuItem.name}
+              loading="lazy"
+              decoding="async"
               className="w-20 h-20 rounded-lg object-cover flex-shrink-0"
             />
             <div className="flex-1 min-w-0">
