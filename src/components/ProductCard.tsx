@@ -91,7 +91,9 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
         onClick={() => onAdd(item)}
       >
         <img
-          src={(selectedSize?.image_url) || item.image}
+          src={optimizedImage(selectedSize?.image_url || item.image, 400)}
+          srcSet={`${optimizedImage(selectedSize?.image_url || item.image, 400)} 400w, ${optimizedImage(selectedSize?.image_url || item.image, 800)} 800w`}
+          sizes="(max-width: 640px) 100vw, 33vw"
           alt={item.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
