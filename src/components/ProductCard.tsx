@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { MenuItem, Modifier } from "@/hooks/useMenuItems";
 import { useCart, type CartItemType } from "@/context/CartContext";
 import { cn } from "@/lib/utils";
+import { optimizedImage } from "@/lib/imageUrl";
 
 interface ProductCardProps {
   item: MenuItem;

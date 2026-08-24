@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { MenuItem, Modifier } from "@/hooks/useMenuItems";
 import { useCart, type CartItemType } from "@/context/CartContext";
 import { cn } from "@/lib/utils";
+import { optimizedImage } from "@/lib/imageUrl";
 
 interface ProductModalProps {
   item: MenuItem | null;
@@ -113,7 +114,7 @@ const ProductModal = ({ item, onClose, onAdded }: ProductModalProps) => {
           onClick={(e) => e.stopPropagation()}
         >
           <div className="relative">
-            <img src={item.image} alt={item.name} className="w-full aspect-video object-cover" />
+            <img src={optimizedImage(item.image, 700)} alt={item.name} className="w-full aspect-video object-cover" decoding="async" />
             <button
               onClick={onClose}
               className="absolute top-3 right-3 w-9 h-9 bg-white/90 backdrop-blur rounded-full flex items-center justify-center"
