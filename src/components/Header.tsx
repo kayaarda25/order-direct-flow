@@ -96,6 +96,8 @@ const Header = () => {
             </Link>
 
             <button
+              aria-label={mobileMenuOpen ? "Menü schliessen" : "Menü öffnen"}
+              aria-expanded={mobileMenuOpen}
               className="md:hidden flex items-center justify-center w-11 h-11 rounded-full border border-foreground/40 text-foreground"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
