@@ -162,6 +162,7 @@ const ProductCard = ({ item, onAdd, onQuickAdded }: ProductCardProps) => {
           </span>
           <button
             onClick={handleQuickAdd}
+            aria-label={`${item.name} in den Warenkorb legen`}
             className="w-10 h-10 bg-neutral-900 text-white rounded-full flex items-center justify-center shadow-md hover:scale-110 active:scale-95 transition-transform"
           >
             <AnimatePresence mode="wait">
