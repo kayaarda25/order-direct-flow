@@ -83,6 +83,8 @@ const App = () => {
                             <Route path="/" element={<Index />} />
                             <Route path="/menu" element={<MenuPage />} />
                             <Route path="/angebote" element={<AngebotePage />} />
+                            <Route path="/pizza-lieferung-zuerich" element={<DeliveryPage />} />
+                            <Route path="/pizza-abholung-zuerich" element={<PickupPage />} />
                             <Route path="/galerie" element={<GalleryPage />} />
                             <Route path="/ueber-uns" element={<AboutPage />} />
                             <Route path="/catering" element={<CateringPage />} />
