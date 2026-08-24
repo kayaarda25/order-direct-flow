@@ -29,6 +29,63 @@ export type Database = {
         }
         Relationships: []
       }
+      catering_inquiries: {
+        Row: {
+          city: string | null
+          company: string | null
+          created_at: string
+          email: string
+          event_date: string | null
+          event_time: string | null
+          id: string
+          message: string | null
+          name: string
+          package_id: string | null
+          package_name: string | null
+          persons: number
+          phone: string | null
+          plz: string | null
+          street: string | null
+          total_price: number | null
+        }
+        Insert: {
+          city?: string | null
+          company?: string | null
+          created_at?: string
+          email: string
+          event_date?: string | null
+          event_time?: string | null
+          id?: string
+          message?: string | null
+          name: string
+          package_id?: string | null
+          package_name?: string | null
+          persons?: number
+          phone?: string | null
+          plz?: string | null
+          street?: string | null
+          total_price?: number | null
+        }
+        Update: {
+          city?: string | null
+          company?: string | null
+          created_at?: string
+          email?: string
+          event_date?: string | null
+          event_time?: string | null
+          id?: string
+          message?: string | null
+          name?: string
+          package_id?: string | null
+          package_name?: string | null
+          persons?: number
+          phone?: string | null
+          plz?: string | null
+          street?: string | null
+          total_price?: number | null
+        }
+        Relationships: []
+      }
       delivery_zones: {
         Row: {
           active: boolean
