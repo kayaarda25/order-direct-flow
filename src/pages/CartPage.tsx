@@ -63,6 +63,7 @@ const CartPage = () => {
               <div className="flex items-center justify-between mt-2">
                 <div className="flex items-center gap-2">
                   <button
+                    aria-label="Menge verringern"
                     onClick={() => updateQuantity(item.id, item.quantity - 1)}
                     className="w-8 h-8 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center"
                   >
@@ -70,6 +71,7 @@ const CartPage = () => {
                   </button>
                   <span className="text-sm font-bold text-card-foreground w-6 text-center">{item.quantity}</span>
                   <button
+                    aria-label="Menge erhöhen"
                     onClick={() => updateQuantity(item.id, item.quantity + 1)}
                     className="w-8 h-8 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center"
                   >
@@ -77,6 +79,7 @@ const CartPage = () => {
                   </button>
                 </div>
                 <button
+                  aria-label="Artikel entfernen"
                   onClick={() => removeItem(item.id)}
                   className="text-destructive hover:text-destructive/80 transition-colors"
                 >

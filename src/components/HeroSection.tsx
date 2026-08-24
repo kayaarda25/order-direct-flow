@@ -52,6 +52,7 @@ const HeroSection = () => {
               style={{ fontFamily: "'League Spartan', sans-serif" }}
             >
               {content.hero_title}
+              <span className="sr-only"> – Pizza Piratino, Pizzeria &amp; Catering in Zürich</span>
             </h1>
           </motion.div>
 
@@ -134,6 +135,7 @@ const HeroSection = () => {
               style={{ fontFamily: "'League Spartan', sans-serif" }}
             >
               {content.hero_title}
+              <span className="sr-only"> – Pizza Piratino, Pizzeria &amp; Catering in Zürich</span>
             </h1>
             <p className="text-lg text-muted-foreground mb-10 font-body">
               {content.hero_subtitle}
