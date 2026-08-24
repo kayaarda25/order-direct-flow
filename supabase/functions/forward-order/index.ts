@@ -201,13 +201,18 @@ serve(async (req) => {
     // Queue the order for the local print agent exactly once
     if (!printDone) {
       try {
-        const total = items.reduce(
+        const itemsTotal = items.reduce(
           (sum: number, i: { price: number; quantity: number }) => sum + i.price * i.quantity,
           0
         );
+        const deliveryFee = Number(webhookBody.delivery_fee) || 0;
+        const discount = Number(webhookBody.discount) || 0;
+        const total = Number.isFinite(Number(webhookBody.total_amount)) && webhookBody.total_amount != null
+          ? Number(webhookBody.total_amount)
+          : itemsTotal + deliveryFee - discount;
         const { error: qErr } = await supabase
           .from("print_jobs")
-          .insert({ payload: { ...webhookBody, total } });
+          .insert({ payload: { ...webhookBody, total, delivery_fee: deliveryFee, discount } });
         if (qErr) {
           console.error("print_jobs insert failed:", qErr.message);
         } else {

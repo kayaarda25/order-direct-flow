@@ -18,7 +18,7 @@ const paymentMethods = [
 ];
 
 const CheckoutPage = () => {
-  const { items, totalPrice, orderType, clearCart, freePizzasRedeemed, setFreePizzasRedeemed } = useCart();
+  const { items, totalPrice, deliveryFee, orderType, clearCart, freePizzasRedeemed, setFreePizzasRedeemed } = useCart();
   const { placeOrder } = useOrder();
   const { user, refreshProfile } = useAuth();
   const navigate = useNavigate();
@@ -134,6 +134,9 @@ const CheckoutPage = () => {
         order_type: orderType,
         payment_type: form.payment,
         scheduled_time: form.scheduledTime || null,
+        delivery_fee: orderType === "delivery" ? deliveryFee : 0,
+        discount: freePizzaDiscount,
+        total_amount: adjustedTotal,
         special_notes: form.notes + (freePizzasRedeemed > 0 ? ` [${freePizzasRedeemed}x GRATIS-PIZZA EINGELÖST]` : ""),
         items: items.map((item) => ({
           name: item.menuItem.name,

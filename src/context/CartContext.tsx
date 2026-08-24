@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useMemo } from "react";
 import type { MenuItem, Modifier } from "@/hooks/useMenuItems";
+import { computeItemPrice } from "@/lib/pricing";
 
 export interface CartItemType {
   id: string;
@@ -30,10 +31,20 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [items, setItems] = useState<CartItemType[]>([]);
+  const [rawItems, setItems] = useState<CartItemType[]>([]);
   const [orderType, setOrderType] = useState<"delivery" | "pickup">("delivery");
   const [orderTypeChosen, setOrderTypeChosen] = useState(false);
   const [freePizzasRedeemed, setFreePizzasRedeemed] = useState(0);
+
+  // Prices always follow the currently selected order type (pickup vs delivery)
+  const items = useMemo(
+    () =>
+      rawItems.map((item) => ({
+        ...item,
+        totalPrice: computeItemPrice(item.menuItem, item.selectedModifiers, orderType),
+      })),
+    [rawItems, orderType]
+  );
 
   const deliveryFee = orderType === "delivery" ? 5 : 0;
 
