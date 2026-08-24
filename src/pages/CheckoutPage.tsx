@@ -18,7 +18,7 @@ const paymentMethods = [
 ];
 
 const CheckoutPage = () => {
-  const { items, totalPrice, orderType, clearCart, freePizzasRedeemed, setFreePizzasRedeemed } = useCart();
+  const { items, totalPrice, deliveryFee, orderType, clearCart, freePizzasRedeemed, setFreePizzasRedeemed } = useCart();
   const { placeOrder } = useOrder();
   const { user, refreshProfile } = useAuth();
   const navigate = useNavigate();
