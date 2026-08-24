@@ -88,6 +88,8 @@ const MenuPage = () => {
       )}
 
       <div className="container py-4">
+        <h1 className="sr-only">Menü und Preise – Pizza Piratino Zürich</h1>
+
         {loading ? (
           <div className="text-center py-20 text-neutral-400">Menü wird geladen...</div>
         ) : (
