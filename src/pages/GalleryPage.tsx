@@ -8,6 +8,7 @@ import gallery6 from "@/assets/gallery-6.jpg";
 import gallery7 from "@/assets/gallery-7.jpg";
 import gallery8 from "@/assets/gallery-8.jpg";
 import { useSiteContent } from "@/hooks/useSiteContent";
+import Seo from "@/components/Seo";
 
 const defaultGalleryImages = [
   { src: gallery1, alt: "Restaurant Innenbereich" },
@@ -28,6 +29,10 @@ const GalleryPage = () => {
     : defaultGalleryImages;
 
   return (
+
+    <>
+
+      <Seo title="Galerie | Pizza Piratino Zürich" description="Bilder aus dem Restaurant Pizza Piratino in Zürich Altstetten: Pizzaofen, Küche und Sitzbereich." path="/galerie" />
     <div className="bg-white min-h-screen py-16 md:py-24">
       <div className="container">
         <motion.div

@@ -10,6 +10,7 @@ import CartSidebar from "@/components/CartSidebar";
 import FloatingCartBar from "@/components/FloatingCartBar";
 import OrderTypeModal from "@/components/OrderTypeModal";
 import { useCart } from "@/context/CartContext";
+import Seo from "@/components/Seo";
 
 const MenuPage = () => {
   const [searchParams] = useSearchParams();
@@ -73,6 +74,10 @@ const MenuPage = () => {
   };
 
   return (
+
+    <>
+
+      <Seo title="Menü & Preise | Pizza Piratino Zürich" description="Ganze Speisekarte von Pizza Piratino Zürich: Pizza in 24, 32 und 45 cm, Pasta, Antipasti, Salate und Getränke – mit Preisen für Lieferung und Abholung." path="/menu" />
     <div className="min-h-screen bg-white">
       <CategoryBar activeCategory={activeCategory} onCategoryChange={handleCategoryChange} />
 

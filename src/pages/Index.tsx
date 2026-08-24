@@ -18,6 +18,7 @@ import gallery5 from "@/assets/gallery-5.jpg";
 import gallery6 from "@/assets/gallery-6.jpg";
 import gallery7 from "@/assets/gallery-7.jpg";
 import gallery8 from "@/assets/gallery-8.jpg";
+import Seo from "@/components/Seo";
 
 const galleryImages = [
   { src: gallery1, alt: "Restaurant Innenbereich" },
@@ -88,6 +89,10 @@ const Index = () => {
   const { content } = useSiteContent();
 
   return (
+
+    <>
+
+      <Seo title="Pizza Piratino Zürich | Pizza & Pasta direkt bestellen" description="Pizza Piratino an der Badenerstrasse 696 in Zürich Altstetten: Pizza, Pasta und Antipasti direkt bestellen – Lieferung oder Abholung, ohne Lieferdienst-Apps." path="/" />
     <div className="min-h-screen">
       <HeroSection />
 

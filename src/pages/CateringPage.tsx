@@ -9,6 +9,7 @@ import cateringAperitivoImg from "@/assets/catering-aperitivo.png";
 import cateringCarneImg from "@/assets/catering-carne.png";
 import cateringMareImg from "@/assets/catering-mare.png";
 import cateringVerdeImg from "@/assets/catering-verde.png";
+import Seo from "@/components/Seo";
 
 const cateringPackages = [
   {
@@ -114,6 +115,10 @@ const CateringPage = () => {
   };
 
   return (
+
+    <>
+
+      <Seo title="Catering & Firmenevents | Pizza Piratino Zürich" description="Catering von Pizza Piratino Zürich für Firmenevents, Geburtstage und Apéros: Pizza-Party, Pasta, Antipasti-Platten – Preis pro Person." path="/catering" />
     <div className="bg-white min-h-screen py-16 md:py-24">
       <div className="container max-w-3xl">
         {/* Progress Steps */}

@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import AuthModal from "@/components/AuthModal";
+import Seo from "@/components/Seo";
 
 interface Reward {
   id: string;
@@ -93,6 +94,10 @@ const AngebotePage = () => {
   const freePizzas = pizzaPass?.free_pizzas_available ?? 0;
 
   return (
+
+    <>
+
+      <Seo title="Angebote & Treueprogramm | Pizza Piratino Zürich" description="Aktuelle Angebote, Treuepunkte und Pizza-Pass von Pizza Piratino Zürich: jede 11. Pizza gratis." path="/angebote" />
     <div className="min-h-screen bg-background">
     <div className="container py-8 md:py-12 max-w-4xl text-foreground">
       {/* Hero */}
