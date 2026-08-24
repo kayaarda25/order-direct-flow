@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import mascotImg from "@/assets/pirate-mascot.png";
 import { useSiteContent, type ElementPosition } from "@/hooks/useSiteContent";
 import HeroOrderWidget from "@/components/HeroOrderWidget";
-import { optimizedImage } from "@/lib/imageUrl";
 
 const HeroSection = () => {
   const { content } = useSiteContent();
@@ -27,7 +26,7 @@ const HeroSection = () => {
         style={
           content.hero_image
             ? {
-                backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${optimizedImage(content.hero_image, 1400, 70)})`,
+                backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${content.hero_image})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }
@@ -116,7 +115,7 @@ const HeroSection = () => {
       style={
         content.hero_image
           ? {
-              backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${optimizedImage(content.hero_image, 1400, 70)})`,
+              backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${content.hero_image})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
             }

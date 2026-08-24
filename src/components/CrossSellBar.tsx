@@ -5,7 +5,6 @@ import type { MenuItem } from "@/hooks/useMenuItems";
 import { crossSellMap } from "@/hooks/useMenuItems";
 import { useCart, type CartItemType } from "@/context/CartContext";
 import { useMenuItems } from "@/hooks/useMenuItems";
-import { optimizedImage } from "@/lib/imageUrl";
 
 interface CrossSellBarProps {
   triggerCategory: string;
@@ -70,10 +69,8 @@ const CrossSellBar = ({ triggerCategory, onDismiss }: CrossSellBarProps) => {
                 className="flex items-center gap-2.5 bg-white border border-neutral-200 rounded-lg px-3 py-2 shrink-0 hover:border-neutral-400 transition-colors"
               >
                 <img
-                  src={optimizedImage(item.image, 120)}
+                  src={item.image}
                   alt={item.name}
-                  loading="lazy"
-                  decoding="async"
                   className="w-10 h-10 rounded-md object-cover"
                 />
                 <div className="text-left">

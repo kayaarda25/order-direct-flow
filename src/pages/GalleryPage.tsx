@@ -9,7 +9,6 @@ import gallery7 from "@/assets/gallery-7.jpg";
 import gallery8 from "@/assets/gallery-8.jpg";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import Seo from "@/components/Seo";
-import { optimizedImage } from "@/lib/imageUrl";
 
 const defaultGalleryImages = [
   { src: gallery1, alt: "Restaurant Innenbereich" },
@@ -57,10 +56,8 @@ const GalleryPage = () => {
               className="overflow-hidden rounded-lg"
             >
               <img
-                src={optimizedImage(img.src, 600)}
+                src={img.src}
                 alt={img.alt}
-                loading="lazy"
-                decoding="async"
                 className="w-full h-48 md:h-64 object-cover hover:scale-105 transition-transform duration-300"
               />
             </motion.div>
