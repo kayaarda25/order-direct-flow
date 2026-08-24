@@ -90,10 +90,8 @@ const Index = () => {
 
   return (
 
-    <>
-
-      <Seo title="Pizza Piratino Zürich | Pizza & Pasta direkt bestellen" description="Pizza Piratino an der Badenerstrasse 696 in Zürich Altstetten: Pizza, Pasta und Antipasti direkt bestellen – Lieferung oder Abholung, ohne Lieferdienst-Apps." path="/" />
     <div className="min-h-screen">
+      <Seo title="Pizza Piratino Zürich | Pizza & Pasta direkt bestellen" description="Pizza Piratino an der Badenerstrasse 696 in Zürich Altstetten: Pizza, Pasta und Antipasti direkt bestellen – Lieferung oder Abholung, ohne Lieferdienst-Apps." path="/" />
       <HeroSection />
 
 

@@ -95,10 +95,8 @@ const AngebotePage = () => {
 
   return (
 
-    <>
-
-      <Seo title="Angebote & Treueprogramm | Pizza Piratino Zürich" description="Aktuelle Angebote, Treuepunkte und Pizza-Pass von Pizza Piratino Zürich: jede 11. Pizza gratis." path="/angebote" />
     <div className="min-h-screen bg-background">
+      <Seo title="Angebote & Treueprogramm | Pizza Piratino Zürich" description="Aktuelle Angebote, Treuepunkte und Pizza-Pass von Pizza Piratino Zürich: jede 11. Pizza gratis." path="/angebote" />
     <div className="container py-8 md:py-12 max-w-4xl text-foreground">
       {/* Hero */}
       <motion.div

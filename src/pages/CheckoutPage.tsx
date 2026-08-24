@@ -221,10 +221,8 @@ const CheckoutPage = () => {
 
   return (
 
-    <>
-
-      <Seo title="Kasse | Pizza Piratino Zürich" description="Bestellung abschliessen bei Pizza Piratino Zürich." path="/checkout" noindex />
     <div className="container py-6 max-w-lg">
+      <Seo title="Kasse | Pizza Piratino Zürich" description="Bestellung abschliessen bei Pizza Piratino Zürich." path="/checkout" noindex />
       <Link to="/cart" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors">
         <ArrowLeft className="w-4 h-4" /> Zurück zum Warenkorb
       </Link>

@@ -116,10 +116,8 @@ const CateringPage = () => {
 
   return (
 
-    <>
-
-      <Seo title="Catering & Firmenevents | Pizza Piratino Zürich" description="Catering von Pizza Piratino Zürich für Firmenevents, Geburtstage und Apéros: Pizza-Party, Pasta, Antipasti-Platten – Preis pro Person." path="/catering" />
     <div className="bg-white min-h-screen py-16 md:py-24">
+      <Seo title="Catering & Firmenevents | Pizza Piratino Zürich" description="Catering von Pizza Piratino Zürich für Firmenevents, Geburtstage und Apéros: Pizza-Party, Pasta, Antipasti-Platten – Preis pro Person." path="/catering" />
       <div className="container max-w-3xl">
         {/* Progress Steps */}
         <div className="flex items-center justify-center gap-2 mb-12">

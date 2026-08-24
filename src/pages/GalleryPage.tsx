@@ -30,10 +30,8 @@ const GalleryPage = () => {
 
   return (
 
-    <>
-
-      <Seo title="Galerie | Pizza Piratino Zürich" description="Bilder aus dem Restaurant Pizza Piratino in Zürich Altstetten: Pizzaofen, Küche und Sitzbereich." path="/galerie" />
     <div className="bg-white min-h-screen py-16 md:py-24">
+      <Seo title="Galerie | Pizza Piratino Zürich" description="Bilder aus dem Restaurant Pizza Piratino in Zürich Altstetten: Pizzaofen, Küche und Sitzbereich." path="/galerie" />
       <div className="container">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

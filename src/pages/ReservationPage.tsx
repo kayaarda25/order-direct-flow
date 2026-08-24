@@ -50,10 +50,8 @@ const ReservationPage = () => {
 
   return (
 
-    <>
-
-      <Seo title="Tisch reservieren | Pizza Piratino Zürich" description="Reserviere online einen Tisch im Pizza Piratino an der Badenerstrasse 696 in Zürich Altstetten." path="/reservieren" />
     <div className="bg-white min-h-screen py-16 md:py-24">
+      <Seo title="Tisch reservieren | Pizza Piratino Zürich" description="Reserviere online einen Tisch im Pizza Piratino an der Badenerstrasse 696 in Zürich Altstetten." path="/reservieren" />
       <div className="container max-w-xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
