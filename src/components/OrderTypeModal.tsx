@@ -3,6 +3,15 @@ import { X, Truck, Store, AlertCircle, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { LS_DELIVERY_PLZ } from "@/context/CartContext";
+
+const readStoredPlz = (): string => {
+  try {
+    return localStorage.getItem(LS_DELIVERY_PLZ) || "";
+  } catch {
+    return "";
+  }
+};
 
 interface DeliveryZone {
   plz: string;
@@ -19,7 +28,7 @@ interface OrderTypeModalProps {
 
 const OrderTypeModal = ({ open, onClose, onConfirm }: OrderTypeModalProps) => {
   const [selected, setSelected] = useState<"delivery" | "pickup" | null>(null);
-  const [plz, setPlz] = useState("");
+  const [plz, setPlz] = useState(readStoredPlz);
   const [zones, setZones] = useState<DeliveryZone[]>([]);
   const [zonesState, setZonesState] = useState<"loading" | "ready" | "error">("loading");
 
