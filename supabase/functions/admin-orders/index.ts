@@ -89,6 +89,9 @@ function periodLabel(from: string, to: string): string {
   return from === to ? niceDay(from) : shortDay(from) + " - " + shortDay(to);
 }
 
+const MWST_RATE = 0.026; // reduzierter Satz Take-away CH
+const mwstOf = (gross: number) => gross - gross / (1 + MWST_RATE);
+
 function buildReportLines(title: string, from: string, to: string, orders: { created_at: string; payload: OrderPayload }[]): Line[] {
   const L: Line[] = [];
   const add = (k: string, s: string) => L.push({ k, s });
