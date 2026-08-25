@@ -279,9 +279,21 @@ const AdminOrders = () => {
                 ))}
               </select>
             </div>
+          ) : reportType === "monthly_report" ? (
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-muted-foreground">Auflistung</label>
+              <select
+                value={monthlyBreakdown}
+                onChange={(e) => setMonthlyBreakdown(e.target.value as "day" | "week")}
+                className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="day">Umsatz pro Tag</option>
+                <option value="week">Umsatz pro Woche</option>
+              </select>
+            </div>
           ) : (
             <p className="text-xs text-muted-foreground pb-2">
-              Basis: oben gewähltes Datum ({date})
+              Basis: Von-Datum oben ({date})
             </p>
           )}
           <Button onClick={printReport} disabled={printing || loading}>
