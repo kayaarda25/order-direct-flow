@@ -12,6 +12,7 @@ import { AdminProvider, useAdmin } from "@/context/AdminContext";
 import { SiteContentProvider } from "@/hooks/useSiteContent";
 import Header from "@/components/Header";
 import ClosedBanner from "@/components/ClosedBanner";
+import ConsentBanner from "@/components/ConsentBanner";
 import { isRestaurantOpen } from "@/utils/openingHours";
 import Footer from "@/components/Footer";
 import Index from "./pages/Index";
@@ -107,6 +108,7 @@ const App = () => {
                             <Route path="*" element={<NotFound />} />
                           </Routes>
                         </main>
+                        <ConsentBanner />
                         <Footer />
                       </div>
                     } />
