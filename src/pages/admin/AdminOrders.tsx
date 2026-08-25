@@ -88,6 +88,7 @@ function reportRange(type: string, date: string, rangeFrom: string, rangeTo: str
 const AdminOrders = () => {
   const today = toZurich(new Date());
   const [date, setDate] = useState(today);
+  const [dateTo, setDateTo] = useState(today);
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [printing, setPrinting] = useState(false);
@@ -96,6 +97,7 @@ const AdminOrders = () => {
   const [rangeTo, setRangeTo] = useState(today);
   const [quarter, setQuarter] = useState(Math.floor(new Date().getMonth() / 3) + 1);
   const [year, setYear] = useState(CURRENT_YEAR);
+  const [monthlyBreakdown, setMonthlyBreakdown] = useState<"day" | "week">("day");
   const [reprinting, setReprinting] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState<AdminOrder | null>(null);
@@ -104,7 +106,7 @@ const AdminOrders = () => {
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase.functions.invoke("admin-orders", {
-      body: { action: "list", date },
+      body: { action: "list", from: date, to: dateTo || date },
     });
     if (error || !data?.ok) {
       toast({
@@ -117,7 +119,7 @@ const AdminOrders = () => {
       setOrders(data.orders || []);
     }
     setLoading(false);
-  }, [date, toast]);
+  }, [date, dateTo, toast]);
 
   useEffect(() => {
     fetchOrders();
@@ -130,7 +132,13 @@ const AdminOrders = () => {
     const { data, error } = await supabase.functions.invoke("admin-orders", {
       body: isItems
         ? { action: "print_items", from, to }
-        : { action: "print_report", report_type: reportType, from, to },
+        : {
+            action: "print_report",
+            report_type: reportType,
+            from,
+            to,
+            ...(reportType === "monthly_report" ? { breakdown: monthlyBreakdown } : {}),
+          },
     });
     setPrinting(false);
     if (error || !data?.ok) {
@@ -181,13 +189,25 @@ const AdminOrders = () => {
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <h1 className="text-2xl font-bold">Bestellungen</h1>
         <div className="flex flex-wrap items-center gap-3">
-          <Input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-auto"
-          />
-          <Button variant="outline" onClick={fetchOrders} disabled={loading}>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-muted-foreground">Von</label>
+            <Input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="w-auto"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-muted-foreground">Bis</label>
+            <Input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="w-auto"
+            />
+          </div>
+          <Button variant="outline" onClick={fetchOrders} disabled={loading} className="self-end">
             <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             Aktualisieren
           </Button>
@@ -259,9 +279,21 @@ const AdminOrders = () => {
                 ))}
               </select>
             </div>
+          ) : reportType === "monthly_report" ? (
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-muted-foreground">Auflistung</label>
+              <select
+                value={monthlyBreakdown}
+                onChange={(e) => setMonthlyBreakdown(e.target.value as "day" | "week")}
+                className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="day">Umsatz pro Tag</option>
+                <option value="week">Umsatz pro Woche</option>
+              </select>
+            </div>
           ) : (
             <p className="text-xs text-muted-foreground pb-2">
-              Basis: oben gewähltes Datum ({date})
+              Basis: Von-Datum oben ({date})
             </p>
           )}
           <Button onClick={printReport} disabled={printing || loading}>

@@ -94,7 +94,14 @@ const mwstOf = (gross: number) => gross - gross / (1 + MWST_RATE);
 
 const MONTH_NAMES = ["Januar","Februar","Maerz","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
 
-function buildReportLines(title: string, from: string, to: string, orders: { created_at: string; payload: OrderPayload }[], breakdown: "day" | "month" = "day"): Line[] {
+function mondayOf(d: string): string {
+  const base = new Date(`${d}T12:00:00Z`);
+  const day = base.getUTCDay() || 7;
+  base.setUTCDate(base.getUTCDate() - day + 1);
+  return base.toISOString().slice(0, 10);
+}
+
+function buildReportLines(title: string, from: string, to: string, orders: { created_at: string; payload: OrderPayload }[], breakdown: "day" | "week" | "month" = "day"): Line[] {
   const L: Line[] = [];
   const add = (k: string, s: string) => L.push({ k, s });
   const sep = "-".repeat(W);
@@ -124,20 +131,24 @@ function buildReportLines(title: string, from: string, to: string, orders: { cre
     payTotals.set(pay, (payTotals.get(pay) || 0) + total);
 
     const day = zurichDateString(o.created_at);
-    const key = breakdown === "month" ? day.slice(0, 7) : day; // "YYYY-MM" oder "YYYY-MM-DD"
+    const key =
+      breakdown === "month" ? day.slice(0, 7) :      // "YYYY-MM"
+      breakdown === "week" ? mondayOf(day) :          // Montag der Woche
+      day;                                            // "YYYY-MM-DD"
     const d = groupTotals.get(key) || { count: 0, total: 0 };
     d.count++;
     d.total += total;
     groupTotals.set(key, d);
   }
 
-  // Uebersicht pro Tag oder pro Monat
-  add("B", breakdown === "month" ? "Umsatz pro Monat:" : "Umsatz pro Tag:");
+  // Uebersicht pro Tag, Woche oder Monat
+  add("B", breakdown === "month" ? "Umsatz pro Monat:" : breakdown === "week" ? "Umsatz pro Woche:" : "Umsatz pro Tag:");
   add("N", sep);
   for (const [key, d] of [...groupTotals.entries()].sort()) {
-    const label = breakdown === "month"
-      ? MONTH_NAMES[Number(key.slice(5, 7)) - 1] + " " + key.slice(0, 4)
-      : niceDay(key);
+    const label =
+      breakdown === "month" ? MONTH_NAMES[Number(key.slice(5, 7)) - 1] + " " + key.slice(0, 4) :
+      breakdown === "week" ? "Woche " + shortDay(key) + " - " + shortDay(new Date(new Date(`${key}T12:00:00Z`).getTime() + 6 * 86400e3).toISOString().slice(0, 10)) :
+      niceDay(key);
     add("B", label);
     add("S", rw("  Bestellungen: " + d.count, ""));
     add("S", rw("  Umsatz:", "CHF " + money(d.total)));
@@ -311,8 +322,11 @@ serve(async (req) => {
         range_report: "BERICHT ZEITRAUM",
       };
       const title = titles[reportType] || "BERICHT";
-      const breakdown: "day" | "month" =
-        reportType === "quarterly_report" || reportType === "yearly_report" ? "month" : "day";
+      const validBreakdowns = ["day", "week", "month"] as const;
+      const reqBreakdown = validBreakdowns.find((b) => b === body.breakdown);
+      const breakdown: "day" | "week" | "month" =
+        reqBreakdown ??
+        (reportType === "quarterly_report" || reportType === "yearly_report" ? "month" : "day");
       const lines = buildReportLines(title, fromDate, toDate, orders as { created_at: string; payload: OrderPayload }[], breakdown);
       const { error: insErr } = await admin.from("print_jobs").insert({
         payload: {
