@@ -48,9 +48,13 @@ const REPORT_TYPES = [
   { value: "weekly_report", label: "Wochenbericht" },
   { value: "monthly_report", label: "Monatsbericht" },
   { value: "quarterly_report", label: "Quartalsbericht" },
+  { value: "yearly_report", label: "Jahresbericht" },
   { value: "range_report", label: "Zeitraum wählen" },
   { value: "item_report", label: "Artikelbericht" },
 ] as const;
+
+const CURRENT_YEAR = new Date().getFullYear();
+const YEARS = Array.from({ length: 5 }, (_, i) => CURRENT_YEAR - i);
 
 // Gibt {from, to} für den gewählten Berichtstyp zurück (Basis: ausgewähltes Datum)
 function reportRange(type: string, date: string, rangeFrom: string, rangeTo: string): { from: string; to: string } {
