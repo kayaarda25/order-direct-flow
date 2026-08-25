@@ -125,7 +125,7 @@ const AdminOrders = () => {
 
   const printReport = async () => {
     setPrinting(true);
-    const { from, to } = reportRange(reportType, date, rangeFrom, rangeTo);
+    const { from, to } = reportRange(reportType, date, rangeFrom, rangeTo, quarter, year);
     const isItems = reportType === "item_report";
     const { data, error } = await supabase.functions.invoke("admin-orders", {
       body: isItems
