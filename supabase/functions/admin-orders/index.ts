@@ -322,8 +322,11 @@ serve(async (req) => {
         range_report: "BERICHT ZEITRAUM",
       };
       const title = titles[reportType] || "BERICHT";
-      const breakdown: "day" | "month" =
-        reportType === "quarterly_report" || reportType === "yearly_report" ? "month" : "day";
+      const validBreakdowns = ["day", "week", "month"] as const;
+      const reqBreakdown = validBreakdowns.find((b) => b === body.breakdown);
+      const breakdown: "day" | "week" | "month" =
+        reqBreakdown ??
+        (reportType === "quarterly_report" || reportType === "yearly_report" ? "month" : "day");
       const lines = buildReportLines(title, fromDate, toDate, orders as { created_at: string; payload: OrderPayload }[], breakdown);
       const { error: insErr } = await admin.from("print_jobs").insert({
         payload: {
