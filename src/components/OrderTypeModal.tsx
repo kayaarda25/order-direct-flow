@@ -51,7 +51,7 @@ const OrderTypeModal = ({ open, onClose, onConfirm }: OrderTypeModalProps) => {
   useEffect(() => {
     if (open) {
       setSelected(null);
-      setPlz("");
+      setPlz(readStoredPlz());
       loadZones();
     }
   }, [open]);
@@ -193,6 +193,11 @@ const OrderTypeModal = ({ open, onClose, onConfirm }: OrderTypeModalProps) => {
           <div className="p-5 pt-0">
             <button
               onClick={() => {
+                try {
+                  if (selected === "delivery" && matchedZone) {
+                    localStorage.setItem(LS_DELIVERY_PLZ, plz.trim());
+                  }
+                } catch { /* ignore */ }
                 if (selected === "pickup") onConfirm("pickup");
                 if (selected === "delivery" && matchedZone) onConfirm("delivery");
               }}
