@@ -78,7 +78,7 @@ const CheckoutPage = () => {
   const [form, setForm] = useState({
     name: "",
     phone: "",
-    plz: "",
+    plz: (() => { try { return localStorage.getItem(LS_DELIVERY_PLZ) || ""; } catch { return ""; } })(),
     address: "",
     payment: "cash",
     notes: "",
