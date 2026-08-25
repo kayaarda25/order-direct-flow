@@ -34,9 +34,35 @@ Deno.serve(async (req) => {
     const name = clip(body.name, 100);
     if (!name) return json(400, { ok: false, error: "name fehlt" });
 
-    const details: string[] = Array.isArray(body.details)
-      ? body.details.map((d: unknown) => clip(d, 200)).filter(Boolean).slice(0, 20)
-      : [];
+    const details: string[] = [];
+    const addDetail = (line: unknown) => {
+      const clean = clip(line, 200);
+      const label = clean.includes(":") ? clean.split(":")[0].trim().toUpperCase() : "";
+      const hasSameLabel = label ? details.some((detail) => detail.split(":")[0].trim().toUpperCase() === label) : false;
+      if (clean && !details.includes(clean) && !hasSameLabel && details.length < 30) details.push(clean);
+    };
+
+    if (kind === "reservation") {
+      addDetail("ART: TISCHRESERVATION");
+      addDetail(body.date || body.event_date ? `DATUM: ${clip(body.date || body.event_date, 40)}` : "");
+      addDetail(body.time || body.event_time ? `UHRZEIT: ${clip(body.time || body.event_time, 40)}` : "");
+      addDetail(body.persons ? `PERSONEN: ${clip(String(body.persons), 20)}` : "");
+      addDetail("ORT: Pizza Piratino, Badenerstrasse 696, 8048 Zuerich");
+    }
+
+    if (kind === "catering") {
+      addDetail("ART: CATERING ANFRAGE");
+      addDetail(body.package_name ? `PAKET: ${clip(body.package_name, 80)}` : "");
+      addDetail(body.persons ? `PERSONEN: ${clip(String(body.persons), 20)}` : "");
+      addDetail(body.company ? `FIRMA: ${clip(body.company, 100)}` : "");
+      addDetail(body.date || body.event_date ? `DATUM: ${clip(body.date || body.event_date, 40)}` : "");
+      addDetail(body.time || body.event_time ? `UHRZEIT: ${clip(body.time || body.event_time, 40)}` : "");
+      addDetail(body.total_price ? `RICHTPREIS: CHF ${clip(String(body.total_price), 30)}` : "");
+    }
+
+    if (Array.isArray(body.details)) {
+      body.details.forEach(addDetail);
+    }
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -62,7 +88,14 @@ Deno.serve(async (req) => {
       customer_email: clip(body.email, 120),
       customer_address: clip(body.address, 200),
       scheduled_time: clip(body.scheduled_time, 60),
-      special_notes: clip(body.message, 500),
+      special_notes: clip(body.message || body.special_notes || body.notes, 500),
+      event_date: clip(body.date || body.event_date, 40),
+      event_time: clip(body.time || body.event_time, 40),
+      persons: typeof body.persons === "number" ? body.persons : clip(body.persons, 20),
+      company: clip(body.company, 100),
+      package_name: clip(body.package_name, 100),
+      package_id: clip(body.package_id, 60),
+      total_price: typeof body.total_price === "number" ? body.total_price : clip(body.total_price, 30),
       details,
       items: [],
       skip_totals: true,
