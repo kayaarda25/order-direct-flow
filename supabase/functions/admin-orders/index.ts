@@ -94,7 +94,14 @@ const mwstOf = (gross: number) => gross - gross / (1 + MWST_RATE);
 
 const MONTH_NAMES = ["Januar","Februar","Maerz","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
 
-function buildReportLines(title: string, from: string, to: string, orders: { created_at: string; payload: OrderPayload }[], breakdown: "day" | "month" = "day"): Line[] {
+function mondayOf(d: string): string {
+  const base = new Date(`${d}T12:00:00Z`);
+  const day = base.getUTCDay() || 7;
+  base.setUTCDate(base.getUTCDate() - day + 1);
+  return base.toISOString().slice(0, 10);
+}
+
+function buildReportLines(title: string, from: string, to: string, orders: { created_at: string; payload: OrderPayload }[], breakdown: "day" | "week" | "month" = "day"): Line[] {
   const L: Line[] = [];
   const add = (k: string, s: string) => L.push({ k, s });
   const sep = "-".repeat(W);
