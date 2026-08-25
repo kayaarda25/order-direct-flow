@@ -43,11 +43,6 @@ const money = (n: number) => `CHF ${(Number(n) || 0).toFixed(2)}`;
 
 const toZurich = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: "Europe/Zurich" });
 
-const zurichNow = () => {
-  const s = new Date().toLocaleString("en-US", { timeZone: "Europe/Zurich" });
-  return new Date(s);
-};
-
 const REPORT_TYPES = [
   { value: "daily_report", label: "Tagesbericht" },
   { value: "weekly_report", label: "Wochenbericht" },
