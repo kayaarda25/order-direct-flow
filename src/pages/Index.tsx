@@ -293,8 +293,8 @@ const Index = () => {
               Pizzeria in Zürich Altstetten
             </h2>
             <p className="text-primary-foreground/70 text-sm md:text-base max-w-2xl mx-auto">
-              Pizza Piratino liegt an der Badenerstrasse 696 in Zürich Altstetten. Wir backen Pizza im
-              Steinofen, kochen frische Pasta und liefern in Zürich Altstetten, Albisrieden, Zürich
+              Pizza Piratino liegt an der Badenerstrasse 696 in Zürich Altstetten. Wir backen frische
+              Pizza, kochen frische Pasta und liefern in Zürich Altstetten, Albisrieden, Zürich
               Aussersihl und Schlieren. Bei uns bestellst du direkt – frisch zubereitet und ohne Umwege.
               Bezahlen kannst du bar, mit Karte oder TWINT.
             </p>

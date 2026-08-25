@@ -9,7 +9,7 @@ const AboutPage = () => {
   return (
 
     <div className="bg-white min-h-screen py-16 md:py-24">
-      <Seo title="Über uns | Pizza Piratino Zürich" description="Die Geschichte von Pizza Piratino in Zürich Altstetten – Familienbetrieb, frische Zutaten und Pizza aus dem Steinofen." path="/ueber-uns" />
+      <Seo title="Über uns | Pizza Piratino Zürich" description="Die Geschichte von Pizza Piratino in Zürich Altstetten – Familienbetrieb mit frischen Zutaten und hausgemachter Pizza." path="/ueber-uns" />
       <div className="container">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
