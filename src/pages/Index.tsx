@@ -92,7 +92,7 @@ const Index = () => {
   return (
 
     <div className="min-h-screen">
-      <Seo title="Pizza Piratino Zürich | Pizza & Pasta direkt bestellen" description="Pizza Piratino an der Badenerstrasse 696 in Zürich Altstetten: Pizza, Pasta und Antipasti direkt bestellen – Lieferung oder Abholung, ohne Lieferdienst-Apps." path="/" />
+      <Seo title="Pizza Piratino Zürich | Pizza & Pasta direkt bestellen" description="Pizza Piratino an der Badenerstrasse 696 in Zürich Altstetten: Pizza, Pasta und Antipasti direkt bestellen – Lieferung oder Abholung." path="/" />
       <HeroSection />
 
 
@@ -295,8 +295,8 @@ const Index = () => {
             <p className="text-primary-foreground/70 text-sm md:text-base max-w-2xl mx-auto">
               Pizza Piratino liegt an der Badenerstrasse 696 in Zürich Altstetten. Wir backen Pizza im
               Steinofen, kochen frische Pasta und liefern in Zürich Altstetten, Albisrieden, Zürich
-              Aussersihl und Schlieren. Bestellungen kommen direkt bei uns an – ohne Lieferdienst-App
-              und ohne zusätzliche Vermittlungsgebühren. Bezahlen kannst du bar, mit Karte oder TWINT.
+              Aussersihl und Schlieren. Bei uns bestellst du direkt – frisch zubereitet und ohne Umwege.
+              Bezahlen kannst du bar, mit Karte oder TWINT.
             </p>
           </motion.div>
 

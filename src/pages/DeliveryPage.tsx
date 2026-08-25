@@ -32,7 +32,7 @@ const DeliveryPage = () => {
     <div className="bg-white min-h-screen py-16 md:py-24">
       <Seo
         title="Pizza Lieferung Zürich Altstetten | Pizza Piratino"
-        description="Pizza Lieferung in Zürich Altstetten, Albisrieden und Schlieren – direkt bei Pizza Piratino bestellen, ohne Lieferdienst-App. Zahlung mit Bar, Karte oder TWINT."
+        description="Pizza Lieferung in Zürich Altstetten, Albisrieden und Schlieren – direkt bei Pizza Piratino bestellen. Zahlung mit Bar, Karte oder TWINT."
         path="/pizza-lieferung-zuerich"
       />
       <div className="container max-w-3xl">
@@ -41,8 +41,8 @@ const DeliveryPage = () => {
         </h1>
         <p className="text-primary-foreground/70 mb-10">
           Wir liefern frische Pizza, Pasta und Antipasti aus unserer Pizzeria an der Badenerstrasse 696
-          in Zürich Altstetten. Bestellungen laufen direkt bei uns in der Küche ein – ohne Umweg über
-          eine Lieferdienst-App.
+          in Zürich Altstetten. Bestellungen laufen direkt bei uns in der Küche ein – so bleiben sie heiss
+          und pünktlich.
         </p>
 
         <section className="mb-12">
