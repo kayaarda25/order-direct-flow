@@ -120,10 +120,30 @@ const AngebotePage = () => {
     });
     if (error || data === false) {
       toast.error("Einlösen fehlgeschlagen");
-    } else {
-      toast.success(`${reward.reward_name} eingelöst! Zeige dies bei deiner nächsten Bestellung.`);
-      window.location.reload();
+      setRedeeming(null);
+      return;
     }
+
+    const code = generateCode();
+    const { data: redemption, error: insertError } = await supabase
+      .from("reward_redemptions")
+      .insert({
+        user_id: user.id,
+        reward_id: reward.id,
+        reward_name: reward.reward_name,
+        points_spent: reward.points_required,
+        code,
+      })
+      .select("id, reward_name, points_spent, code, status, created_at")
+      .single();
+
+    if (insertError || !redemption) {
+      toast.error("Gutschein konnte nicht erstellt werden — bitte im Restaurant melden.");
+    } else {
+      setVoucher(redemption as Redemption);
+      fetchRedemptions();
+    }
+    await refreshProfile();
     setRedeeming(null);
   };
 
