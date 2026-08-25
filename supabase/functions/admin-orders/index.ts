@@ -274,7 +274,9 @@ serve(async (req) => {
     if (action === "list") {
       return json(200, {
         ok: true,
-        date,
+        date: fromDate,
+        from: fromDate,
+        to: toDate,
         orders: orders.map((r) => ({
           order_ref: r.order_ref,
           created_at: r.created_at,
@@ -289,19 +291,48 @@ serve(async (req) => {
     }
 
     if (action === "print_report") {
-      const lines = buildReportLines(date, orders as { created_at: string; payload: OrderPayload }[]);
+      const reportType: string = body.report_type || "daily_report";
+      const titles: Record<string, string> = {
+        daily_report: "TAGESBERICHT",
+        weekly_report: "WOCHENBERICHT",
+        monthly_report: "MONATSBERICHT",
+        quarterly_report: "QUARTALSBERICHT",
+        range_report: "BERICHT ZEITRAUM",
+      };
+      const title = titles[reportType] || "BERICHT";
+      const lines = buildReportLines(title, fromDate, toDate, orders as { created_at: string; payload: OrderPayload }[]);
       const { error: insErr } = await admin.from("print_jobs").insert({
         payload: {
           job_type: "report",
-          report_type: "daily_report",
+          report_type: reportType,
           silent: true,
           copies: 1,
-          date,
+          date: fromDate,
+          from: fromDate,
+          to: toDate,
           lines,
         },
       });
       if (insErr) throw insErr;
-      return json(200, { ok: true, date, order_count: orders.length, message: "Tagesbericht an Drucker gesendet" });
+      return json(200, { ok: true, from: fromDate, to: toDate, order_count: orders.length, message: title + " an Drucker gesendet" });
+    }
+
+    if (action === "print_items") {
+      const lines = buildItemReportLines(fromDate, toDate, orders as { created_at: string; payload: OrderPayload }[]);
+      const { error: insErr } = await admin.from("print_jobs").insert({
+        payload: {
+          job_type: "report",
+          report_type: "item_report",
+          silent: true,
+          copies: 1,
+          date: fromDate,
+          from: fromDate,
+          to: toDate,
+          lines,
+        },
+      });
+      if (insErr) throw insErr;
+      return json(200, { ok: true, from: fromDate, to: toDate, order_count: orders.length, message: "Artikelbericht an Drucker gesendet" });
     }
 
     if (action === "reprint") {
