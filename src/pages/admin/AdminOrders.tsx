@@ -189,13 +189,25 @@ const AdminOrders = () => {
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <h1 className="text-2xl font-bold">Bestellungen</h1>
         <div className="flex flex-wrap items-center gap-3">
-          <Input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-auto"
-          />
-          <Button variant="outline" onClick={fetchOrders} disabled={loading}>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-muted-foreground">Von</label>
+            <Input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="w-auto"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-muted-foreground">Bis</label>
+            <Input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="w-auto"
+            />
+          </div>
+          <Button variant="outline" onClick={fetchOrders} disabled={loading} className="self-end">
             <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             Aktualisieren
           </Button>
