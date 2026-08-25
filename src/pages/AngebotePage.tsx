@@ -27,6 +27,22 @@ interface PizzaPass {
   passes_completed: number;
 }
 
+interface Redemption {
+  id: string;
+  reward_name: string;
+  points_spent: number;
+  code: string;
+  status: string;
+  created_at: string;
+}
+
+const generateCode = () => {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let c = "";
+  for (let i = 0; i < 6; i++) c += chars[Math.floor(Math.random() * chars.length)];
+  return `PIR-${c}`;
+};
+
 const tierIcons = [Gift, Star, Sparkles, Trophy, Crown, Crown];
 const tierColors = [
   "from-muted/50 to-muted/20 border-border",
