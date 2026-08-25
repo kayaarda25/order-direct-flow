@@ -79,12 +79,6 @@ function reportRange(type: string, date: string, rangeFrom: string, rangeTo: str
     const p = (n: number) => String(n).padStart(2, "0");
     return { from: `${y}-${p(m + 1)}-01`, to: `${y}-${p(m + 1)}-${p(last)}` };
   }
-  if (type === "quarterly_report") {
-    const y = base.getUTCFullYear(), q = Math.floor(base.getUTCMonth() / 3);
-    const p = (n: number) => String(n).padStart(2, "0");
-    const lastDay = new Date(Date.UTC(y, q * 3 + 3, 0)).getUTCDate();
-    return { from: `${y}-${p(q * 3 + 1)}-01`, to: `${y}-${p(q * 3 + 3)}-${p(lastDay)}` };
-  }
   if (type === "range_report") {
     return { from: rangeFrom, to: rangeTo || rangeFrom };
   }
@@ -100,6 +94,8 @@ const AdminOrders = () => {
   const [reportType, setReportType] = useState<string>("daily_report");
   const [rangeFrom, setRangeFrom] = useState(today);
   const [rangeTo, setRangeTo] = useState(today);
+  const [quarter, setQuarter] = useState(Math.floor(new Date().getMonth() / 3) + 1);
+  const [year, setYear] = useState(CURRENT_YEAR);
   const [reprinting, setReprinting] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState<AdminOrder | null>(null);
