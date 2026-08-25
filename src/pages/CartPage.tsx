@@ -96,7 +96,7 @@ const CartPage = () => {
           <span>Zwischensumme</span>
           <span>CHF {(totalPrice - deliveryFee).toFixed(2)}</span>
         </div>
-        {orderType === "delivery" && (
+        {orderType === "delivery" && deliveryFee > 0 && (
           <div className="flex justify-between text-muted-foreground">
             <span>Liefergebühr</span>
             <span>CHF {deliveryFee.toFixed(2)}</span>

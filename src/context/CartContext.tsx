@@ -46,7 +46,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [rawItems, orderType]
   );
 
-  const deliveryFee = orderType === "delivery" ? 5 : 0;
+  const deliveryFee = 0;
 
   const addItem = useCallback((item: CartItemType) => {
     setItems((prev) => [...prev, { ...item, id: `${item.menuItem.id}-${Date.now()}` }]);
