@@ -7,6 +7,10 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import AuthModal from "@/components/AuthModal";
 import Seo from "@/components/Seo";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+} from "@/components/ui/dialog";
+import { Ticket, Copy } from "lucide-react";
 
 interface Reward {
   id: string;
@@ -22,6 +26,22 @@ interface PizzaPass {
   free_pizzas_available: number;
   passes_completed: number;
 }
+
+interface Redemption {
+  id: string;
+  reward_name: string;
+  points_spent: number;
+  code: string;
+  status: string;
+  created_at: string;
+}
+
+const generateCode = () => {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let c = "";
+  for (let i = 0; i < 6; i++) c += chars[Math.floor(Math.random() * chars.length)];
+  return `PIR-${c}`;
+};
 
 const tierIcons = [Gift, Star, Sparkles, Trophy, Crown, Crown];
 const tierColors = [
@@ -42,11 +62,29 @@ const tierIconColors = [
 ];
 
 const AngebotePage = () => {
-  const { user, profile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [pizzaPass, setPizzaPass] = useState<PizzaPass | null>(null);
   const [authOpen, setAuthOpen] = useState(false);
   const [redeeming, setRedeeming] = useState<string | null>(null);
+  const [redemptions, setRedemptions] = useState<Redemption[]>([]);
+  const [voucher, setVoucher] = useState<Redemption | null>(null);
+
+  const fetchRedemptions = () => {
+    if (!user) return;
+    supabase
+      .from("reward_redemptions")
+      .select("id, reward_name, points_spent, code, status, created_at")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        if (data) setRedemptions(data as Redemption[]);
+      });
+  };
+
+  useEffect(() => {
+    fetchRedemptions();
+  }, [user]);
 
   useEffect(() => {
     supabase
@@ -82,10 +120,30 @@ const AngebotePage = () => {
     });
     if (error || data === false) {
       toast.error("Einlösen fehlgeschlagen");
-    } else {
-      toast.success(`${reward.reward_name} eingelöst! Zeige dies bei deiner nächsten Bestellung.`);
-      window.location.reload();
+      setRedeeming(null);
+      return;
     }
+
+    const code = generateCode();
+    const { data: redemption, error: insertError } = await supabase
+      .from("reward_redemptions")
+      .insert({
+        user_id: user.id,
+        reward_id: reward.id,
+        reward_name: reward.reward_name,
+        points_spent: reward.points_required,
+        code,
+      })
+      .select("id, reward_name, points_spent, code, status, created_at")
+      .single();
+
+    if (insertError || !redemption) {
+      toast.error("Gutschein konnte nicht erstellt werden — bitte im Restaurant melden.");
+    } else {
+      setVoucher(redemption as Redemption);
+      fetchRedemptions();
+    }
+    await refreshProfile();
     setRedeeming(null);
   };
 
@@ -246,6 +304,48 @@ const AngebotePage = () => {
         ))}
       </div>
 
+      {/* My vouchers */}
+      {user && redemptions.filter((r) => r.status === "active").length > 0 && (
+        <div className="mb-12">
+          <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-6 text-center flex items-center justify-center gap-3">
+            <Ticket className="w-7 h-7 text-primary" />
+            Deine Gutscheine
+          </h2>
+          <div className="space-y-3">
+            {redemptions
+              .filter((r) => r.status === "active")
+              .map((r) => (
+                <div
+                  key={r.id}
+                  className="bg-card border border-primary/30 rounded-xl p-4 flex items-center justify-between gap-4"
+                >
+                  <div>
+                    <p className="font-semibold text-foreground">{r.reward_name}</p>
+                    <p className="text-muted-foreground text-xs">
+                      Eingelöst am {new Date(r.created_at).toLocaleDateString("de-CH")} · {r.points_spent} Punkte
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono font-bold text-primary bg-primary/10 border border-primary/30 rounded-lg px-3 py-1.5 text-sm">
+                      {r.code}
+                    </span>
+                    <button
+                      onClick={() => { navigator.clipboard?.writeText(r.code); toast.success("Code kopiert"); }}
+                      className="text-muted-foreground hover:text-foreground transition-colors"
+                      aria-label="Code kopieren"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+          </div>
+          <p className="text-muted-foreground text-xs text-center mt-3">
+            Zeige den Code bei deiner nächsten Bestellung oder im Restaurant.
+          </p>
+        </div>
+      )}
+
       {/* Reward tiers */}
       <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-6 text-center">
         Belohnungsstufen
@@ -335,6 +435,28 @@ const AngebotePage = () => {
           Eine Bestellung über <span className="text-foreground font-semibold">CHF 30.00</span> = <span className="text-primary font-bold">150 Punkte</span> = Gratis Getränk!
         </p>
       </motion.div>
+
+      <Dialog open={!!voucher} onOpenChange={(open) => { if (!open) setVoucher(null); }}>
+        <DialogContent className="text-center">
+          <DialogHeader>
+            <DialogTitle className="text-center text-2xl">Gutschein eingelöst!</DialogTitle>
+            <DialogDescription className="text-center">
+              {voucher?.reward_name} — zeige diesen Code bei deiner nächsten Bestellung oder im Restaurant.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="my-4">
+            <div className="inline-block font-mono text-3xl font-bold text-primary bg-primary/10 border-2 border-dashed border-primary/40 rounded-xl px-8 py-4 tracking-widest">
+              {voucher?.code}
+            </div>
+          </div>
+          <button
+            onClick={() => { if (voucher) { navigator.clipboard?.writeText(voucher.code); toast.success("Code kopiert"); } }}
+            className="mx-auto flex items-center gap-2 bg-primary text-primary-foreground px-6 py-2.5 rounded-xl font-semibold hover:opacity-90 transition-opacity"
+          >
+            <Copy className="w-4 h-4" /> Code kopieren
+          </button>
+        </DialogContent>
+      </Dialog>
 
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </div>
