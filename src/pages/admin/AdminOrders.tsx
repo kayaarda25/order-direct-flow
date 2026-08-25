@@ -183,12 +183,45 @@ const AdminOrders = () => {
             <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             Aktualisieren
           </Button>
-          <Button onClick={printReport} disabled={printing || loading}>
-            <FileBarChart className="mr-2 h-4 w-4" />
-            {printing ? "Sende..." : "Tagesbericht drucken"}
-          </Button>
         </div>
       </div>
+
+      <Card className="mb-6">
+        <CardContent className="flex flex-wrap items-end gap-3 pt-4">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-muted-foreground">Bericht</label>
+            <select
+              value={reportType}
+              onChange={(e) => setReportType(e.target.value)}
+              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+            >
+              {REPORT_TYPES.map((t) => (
+                <option key={t.value} value={t.value}>{t.label}</option>
+              ))}
+            </select>
+          </div>
+          {reportType === "range_report" || reportType === "item_report" ? (
+            <>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Von</label>
+                <Input type="date" value={rangeFrom} onChange={(e) => setRangeFrom(e.target.value)} className="w-auto" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Bis</label>
+                <Input type="date" value={rangeTo} onChange={(e) => setRangeTo(e.target.value)} className="w-auto" />
+              </div>
+            </>
+          ) : (
+            <p className="text-xs text-muted-foreground pb-2">
+              Basis: oben gewähltes Datum ({date})
+            </p>
+          )}
+          <Button onClick={printReport} disabled={printing || loading}>
+            <FileBarChart className="mr-2 h-4 w-4" />
+            {printing ? "Sende..." : "Bericht drucken"}
+          </Button>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <Card>
