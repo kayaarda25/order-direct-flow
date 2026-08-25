@@ -51,6 +51,16 @@ const AdminRoutes = () => {
   return <AdminDashboard />;
 };
 
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [pathname]);
+
+  return null;
+};
+
 const App = () => {
   const [isOpen, setIsOpen] = useState(() => isRestaurantOpen());
 
