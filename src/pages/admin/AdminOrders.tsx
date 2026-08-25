@@ -88,6 +88,7 @@ function reportRange(type: string, date: string, rangeFrom: string, rangeTo: str
 const AdminOrders = () => {
   const today = toZurich(new Date());
   const [date, setDate] = useState(today);
+  const [dateTo, setDateTo] = useState(today);
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [printing, setPrinting] = useState(false);
@@ -96,6 +97,7 @@ const AdminOrders = () => {
   const [rangeTo, setRangeTo] = useState(today);
   const [quarter, setQuarter] = useState(Math.floor(new Date().getMonth() / 3) + 1);
   const [year, setYear] = useState(CURRENT_YEAR);
+  const [monthlyBreakdown, setMonthlyBreakdown] = useState<"day" | "week">("day");
   const [reprinting, setReprinting] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState<AdminOrder | null>(null);
@@ -104,7 +106,7 @@ const AdminOrders = () => {
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase.functions.invoke("admin-orders", {
-      body: { action: "list", date },
+      body: { action: "list", from: date, to: dateTo || date },
     });
     if (error || !data?.ok) {
       toast({
@@ -117,7 +119,7 @@ const AdminOrders = () => {
       setOrders(data.orders || []);
     }
     setLoading(false);
-  }, [date, toast]);
+  }, [date, dateTo, toast]);
 
   useEffect(() => {
     fetchOrders();
@@ -130,7 +132,13 @@ const AdminOrders = () => {
     const { data, error } = await supabase.functions.invoke("admin-orders", {
       body: isItems
         ? { action: "print_items", from, to }
-        : { action: "print_report", report_type: reportType, from, to },
+        : {
+            action: "print_report",
+            report_type: reportType,
+            from,
+            to,
+            ...(reportType === "monthly_report" ? { breakdown: monthlyBreakdown } : {}),
+          },
     });
     setPrinting(false);
     if (error || !data?.ok) {
