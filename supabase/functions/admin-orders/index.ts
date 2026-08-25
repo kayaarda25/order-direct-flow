@@ -131,7 +131,10 @@ function buildReportLines(title: string, from: string, to: string, orders: { cre
     payTotals.set(pay, (payTotals.get(pay) || 0) + total);
 
     const day = zurichDateString(o.created_at);
-    const key = breakdown === "month" ? day.slice(0, 7) : day; // "YYYY-MM" oder "YYYY-MM-DD"
+    const key =
+      breakdown === "month" ? day.slice(0, 7) :      // "YYYY-MM"
+      breakdown === "week" ? mondayOf(day) :          // Montag der Woche
+      day;                                            // "YYYY-MM-DD"
     const d = groupTotals.get(key) || { count: 0, total: 0 };
     d.count++;
     d.total += total;
