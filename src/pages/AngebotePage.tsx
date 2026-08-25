@@ -304,6 +304,48 @@ const AngebotePage = () => {
         ))}
       </div>
 
+      {/* My vouchers */}
+      {user && redemptions.filter((r) => r.status === "active").length > 0 && (
+        <div className="mb-12">
+          <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-6 text-center flex items-center justify-center gap-3">
+            <Ticket className="w-7 h-7 text-primary" />
+            Deine Gutscheine
+          </h2>
+          <div className="space-y-3">
+            {redemptions
+              .filter((r) => r.status === "active")
+              .map((r) => (
+                <div
+                  key={r.id}
+                  className="bg-card border border-primary/30 rounded-xl p-4 flex items-center justify-between gap-4"
+                >
+                  <div>
+                    <p className="font-semibold text-foreground">{r.reward_name}</p>
+                    <p className="text-muted-foreground text-xs">
+                      Eingelöst am {new Date(r.created_at).toLocaleDateString("de-CH")} · {r.points_spent} Punkte
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono font-bold text-primary bg-primary/10 border border-primary/30 rounded-lg px-3 py-1.5 text-sm">
+                      {r.code}
+                    </span>
+                    <button
+                      onClick={() => { navigator.clipboard?.writeText(r.code); toast.success("Code kopiert"); }}
+                      className="text-muted-foreground hover:text-foreground transition-colors"
+                      aria-label="Code kopieren"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+          </div>
+          <p className="text-muted-foreground text-xs text-center mt-3">
+            Zeige den Code bei deiner nächsten Bestellung oder im Restaurant.
+          </p>
+        </div>
+      )}
+
       {/* Reward tiers */}
       <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-6 text-center">
         Belohnungsstufen
