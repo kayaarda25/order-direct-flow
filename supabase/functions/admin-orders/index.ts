@@ -66,26 +66,41 @@ function orderTotal(p: OrderPayload): number {
 
 type Line = { k: string; s: string };
 
-function buildReportLines(date: string, orders: { created_at: string; payload: OrderPayload }[]): Line[] {
-  const L: Line[] = [];
-  const add = (k: string, s: string) => L.push({ k, s });
-  const sep = "-".repeat(W);
-
-  const niceDate = new Intl.DateTimeFormat("de-CH", {
+function niceDay(d: string): string {
+  return new Intl.DateTimeFormat("de-CH", {
     timeZone: TZ,
     weekday: "long",
     day: "numeric",
     month: "long",
     year: "numeric",
-  }).format(new Date(`${date}T12:00:00Z`));
+  }).format(new Date(`${d}T12:00:00Z`));
+}
+
+function shortDay(d: string): string {
+  return new Intl.DateTimeFormat("de-CH", {
+    timeZone: TZ,
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(new Date(`${d}T12:00:00Z`));
+}
+
+function periodLabel(from: string, to: string): string {
+  return from === to ? niceDay(from) : shortDay(from) + " - " + shortDay(to);
+}
+
+function buildReportLines(title: string, from: string, to: string, orders: { created_at: string; payload: OrderPayload }[]): Line[] {
+  const L: Line[] = [];
+  const add = (k: string, s: string) => L.push({ k, s });
+  const sep = "-".repeat(W);
 
   add("L", "Piratino");
   add("A", "Badenerstrasse 696");
   add("A", "8048 Zuerich");
   add("A", "Tel: 044 431 32 33");
   add("N", "");
-  add("C", niceDate);
-  add("T", "TAGESBERICHT");
+  add("C", periodLabel(from, to));
+  add("T", title);
   add("N", "");
 
   let grand = 0;
