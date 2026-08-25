@@ -89,6 +89,9 @@ function periodLabel(from: string, to: string): string {
   return from === to ? niceDay(from) : shortDay(from) + " - " + shortDay(to);
 }
 
+const MWST_RATE = 0.026; // reduzierter Satz Take-away CH
+const mwstOf = (gross: number) => gross - gross / (1 + MWST_RATE);
+
 function buildReportLines(title: string, from: string, to: string, orders: { created_at: string; payload: OrderPayload }[]): Line[] {
   const L: Line[] = [];
   const add = (k: string, s: string) => L.push({ k, s });
@@ -107,7 +110,7 @@ function buildReportLines(title: string, from: string, to: string, orders: { cre
   let nDelivery = 0;
   let nPickup = 0;
   const payTotals = new Map<string, number>();
-  const itemCount = new Map<string, { qty: number; total: number }>();
+  const dayTotals = new Map<string, { count: number; total: number }>();
 
   for (const o of orders) {
     const p = o.payload || {};
@@ -118,24 +121,29 @@ function buildReportLines(title: string, from: string, to: string, orders: { cre
     const pay = (p.payment_type || "unbekannt").toUpperCase();
     payTotals.set(pay, (payTotals.get(pay) || 0) + total);
 
-    add("B", rw(zurichTime(o.created_at) + "  " + (p.customer_name || "Gast"), "CHF " + money(total)));
-    add("S", isDelivery ? "  Lieferung" : "  Abholung");
-    for (const it of p.items ?? []) {
-      const name = String(it.name || "Artikel").toUpperCase();
-      const qty = it.quantity ?? 1;
-      const lineTotal = Number(it.price ?? 0) * qty;
-      add("S", rw(" " + qty + "X  " + name, money(lineTotal)));
-      const entry = itemCount.get(name) || { qty: 0, total: 0 };
-      entry.qty += qty;
-      entry.total += lineTotal;
-      itemCount.set(name, entry);
-      if (it.modifiers) add("S", "     + " + it.modifiers);
-    }
-    if (p.special_notes) add("S", "     ! " + p.special_notes);
+    const day = zurichDateString(o.created_at);
+    const d = dayTotals.get(day) || { count: 0, total: 0 };
+    d.count++;
+    d.total += total;
+    dayTotals.set(day, d);
+  }
+
+  // Tagesuebersicht
+  add("B", "Umsatz pro Tag:");
+  add("N", sep);
+  for (const [day, d] of [...dayTotals.entries()].sort()) {
+    add("B", niceDay(day));
+    add("S", rw("  Bestellungen: " + d.count, ""));
+    add("S", rw("  Umsatz:", "CHF " + money(d.total)));
+    add("S", rw("  davon MWST 2.6%:", "CHF " + money(mwstOf(d.total))));
+    add("N", sep);
+  }
+  if (dayTotals.size === 0) {
+    add("S", "  Keine Bestellungen");
     add("N", sep);
   }
 
-  add("B", rw("Bestellungen:", String(orders.length)));
+  add("B", rw("Bestellungen total:", String(orders.length)));
   add("S", rw("  Lieferung:", String(nDelivery)));
   add("S", rw("  Abholung:", String(nPickup)));
   add("N", "");
@@ -143,14 +151,10 @@ function buildReportLines(title: string, from: string, to: string, orders: { cre
   for (const [pay, sum] of [...payTotals.entries()].sort()) {
     add("S", rw("  " + pay + ":", "CHF " + money(sum)));
   }
-  add("N", "");
-  add("B", "Top-Artikel:");
-  const top = [...itemCount.entries()].sort((a, b) => b[1].qty - a[1].qty).slice(0, 10);
-  for (const [name, c] of top) {
-    add("S", rw(" " + c.qty + "X  " + name, money(c.total)));
-  }
   add("N", sep);
   add("T", "TOTAL  CHF " + money(grand));
+  add("B", rw("davon MWST 2.6%:", "CHF " + money(mwstOf(grand))));
+  add("B", rw("Netto ohne MWST:", "CHF " + money(grand - mwstOf(grand))));
   add("N", sep);
   add("N", "");
   add("F", "CHE-412.694.003 MWST");
