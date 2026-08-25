@@ -79,7 +79,7 @@ function reportRange(type: string, date: string, rangeFrom: string, rangeTo: str
     const p = (n: number) => String(n).padStart(2, "0");
     return { from: `${y}-${p(m + 1)}-01`, to: `${y}-${p(m + 1)}-${p(last)}` };
   }
-  if (type === "range_report") {
+  if (type === "range_report" || type === "item_report") {
     return { from: rangeFrom, to: rangeTo || rangeFrom };
   }
   return { from: date, to: date };
