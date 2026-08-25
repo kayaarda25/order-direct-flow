@@ -30,11 +30,42 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+const LS_ORDER_TYPE = "piratino-order-type";
+const LS_ORDER_CHOSEN = "piratino-order-chosen";
+export const LS_DELIVERY_PLZ = "piratino-delivery-plz";
+
+const readStoredOrderType = (): "delivery" | "pickup" => {
+  try {
+    const v = localStorage.getItem(LS_ORDER_TYPE);
+    return v === "pickup" || v === "delivery" ? v : "delivery";
+  } catch {
+    return "delivery";
+  }
+};
+
+const readStoredChosen = (): boolean => {
+  try {
+    return localStorage.getItem(LS_ORDER_CHOSEN) === "1";
+  } catch {
+    return false;
+  }
+};
+
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [rawItems, setItems] = useState<CartItemType[]>([]);
-  const [orderType, setOrderType] = useState<"delivery" | "pickup">("delivery");
-  const [orderTypeChosen, setOrderTypeChosen] = useState(false);
+  const [orderType, setOrderTypeState] = useState<"delivery" | "pickup">(readStoredOrderType);
+  const [orderTypeChosen, setOrderTypeChosenState] = useState(readStoredChosen);
   const [freePizzasRedeemed, setFreePizzasRedeemed] = useState(0);
+
+  const setOrderType = useCallback((type: "delivery" | "pickup") => {
+    setOrderTypeState(type);
+    try { localStorage.setItem(LS_ORDER_TYPE, type); } catch { /* ignore */ }
+  }, []);
+
+  const setOrderTypeChosen = useCallback((chosen: boolean) => {
+    setOrderTypeChosenState(chosen);
+    try { localStorage.setItem(LS_ORDER_CHOSEN, chosen ? "1" : "0"); } catch { /* ignore */ }
+  }, []);
 
   // Prices always follow the currently selected order type (pickup vs delivery)
   const items = useMemo(

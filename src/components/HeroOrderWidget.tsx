@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Check, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { useCart } from "@/context/CartContext";
+import { useCart, LS_DELIVERY_PLZ } from "@/context/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 
 interface DeliveryZone {
@@ -17,7 +17,9 @@ const HeroOrderWidget = () => {
   const navigate = useNavigate();
   const { setOrderType, setOrderTypeChosen } = useCart();
   const [selected, setSelected] = useState<"delivery" | "pickup" | null>(null);
-  const [plz, setPlz] = useState("");
+  const [plz, setPlz] = useState(() => {
+    try { return localStorage.getItem(LS_DELIVERY_PLZ) || ""; } catch { return ""; }
+  });
   const [zones, setZones] = useState<DeliveryZone[]>([]);
   const [zonesState, setZonesState] = useState<"loading" | "ready" | "error">("loading");
 
@@ -51,6 +53,9 @@ const HeroOrderWidget = () => {
 
   const handleOrder = () => {
     if (!canProceed || !selected) return;
+    try {
+      if (selected === "delivery") localStorage.setItem(LS_DELIVERY_PLZ, plz.trim());
+    } catch { /* ignore */ }
     setOrderType(selected);
     setOrderTypeChosen(true);
     navigate("/menu");

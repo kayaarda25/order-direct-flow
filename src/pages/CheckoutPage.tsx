@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCart } from "@/context/CartContext";
+import { useCart, LS_DELIVERY_PLZ } from "@/context/CartContext";
 import { useOrder } from "@/context/OrderContext";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -78,7 +78,7 @@ const CheckoutPage = () => {
   const [form, setForm] = useState({
     name: "",
     phone: "",
-    plz: "",
+    plz: (() => { try { return localStorage.getItem(LS_DELIVERY_PLZ) || ""; } catch { return ""; } })(),
     address: "",
     payment: "cash",
     notes: "",
