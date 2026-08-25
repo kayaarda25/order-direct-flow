@@ -141,13 +141,14 @@ function buildReportLines(title: string, from: string, to: string, orders: { cre
     groupTotals.set(key, d);
   }
 
-  // Uebersicht pro Tag oder pro Monat
-  add("B", breakdown === "month" ? "Umsatz pro Monat:" : "Umsatz pro Tag:");
+  // Uebersicht pro Tag, Woche oder Monat
+  add("B", breakdown === "month" ? "Umsatz pro Monat:" : breakdown === "week" ? "Umsatz pro Woche:" : "Umsatz pro Tag:");
   add("N", sep);
   for (const [key, d] of [...groupTotals.entries()].sort()) {
-    const label = breakdown === "month"
-      ? MONTH_NAMES[Number(key.slice(5, 7)) - 1] + " " + key.slice(0, 4)
-      : niceDay(key);
+    const label =
+      breakdown === "month" ? MONTH_NAMES[Number(key.slice(5, 7)) - 1] + " " + key.slice(0, 4) :
+      breakdown === "week" ? "Woche " + shortDay(key) + " - " + shortDay(new Date(new Date(`${key}T12:00:00Z`).getTime() + 6 * 86400e3).toISOString().slice(0, 10)) :
+      niceDay(key);
     add("B", label);
     add("S", rw("  Bestellungen: " + d.count, ""));
     add("S", rw("  Umsatz:", "CHF " + money(d.total)));
