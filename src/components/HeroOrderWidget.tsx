@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Check, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { useCart } from "@/context/CartContext";
+import { useCart, LS_DELIVERY_PLZ } from "@/context/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 
 interface DeliveryZone {
