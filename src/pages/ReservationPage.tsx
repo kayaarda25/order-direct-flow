@@ -46,9 +46,18 @@ const ReservationPage = () => {
         name: form.name,
         email: form.email,
         phone: form.phone,
+        date: form.date,
+        time: form.time,
+        persons: Number(form.persons),
         scheduled_time: `${form.date} ${form.time} Uhr`,
         message: form.message,
-        details: [`Personen: ${form.persons}`],
+        details: [
+          "ART: TISCHRESERVATION",
+          `DATUM: ${form.date}`,
+          `UHRZEIT: ${form.time} Uhr`,
+          `PERSONEN: ${form.persons}`,
+          "ORT: Pizza Piratino, Badenerstrasse 696, 8048 Zuerich",
+        ],
       },
     }).catch((e) => console.error("Reservations-Druck fehlgeschlagen:", e));
 
