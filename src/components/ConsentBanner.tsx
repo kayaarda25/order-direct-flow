@@ -49,7 +49,7 @@ const ConsentBanner = () => {
     >
       <div className="container flex max-w-5xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <p className="text-sm leading-relaxed text-foreground">
-          Wir verwenden Cookies, um Bestellungen aus Google Ads zu messen. Du kannst zustimmen oder ablehnen.
+          Wir verwenden Cookies, um dir die bestmögliche Website-Erfahrung zu bieten. Du kannst zustimmen oder ablehnen.
         </p>
         <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
           <Button type="button" variant="outline" onClick={() => decide("denied")}>
