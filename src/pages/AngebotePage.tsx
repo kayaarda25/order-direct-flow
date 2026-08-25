@@ -62,11 +62,29 @@ const tierIconColors = [
 ];
 
 const AngebotePage = () => {
-  const { user, profile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [pizzaPass, setPizzaPass] = useState<PizzaPass | null>(null);
   const [authOpen, setAuthOpen] = useState(false);
   const [redeeming, setRedeeming] = useState<string | null>(null);
+  const [redemptions, setRedemptions] = useState<Redemption[]>([]);
+  const [voucher, setVoucher] = useState<Redemption | null>(null);
+
+  const fetchRedemptions = () => {
+    if (!user) return;
+    supabase
+      .from("reward_redemptions")
+      .select("id, reward_name, points_spent, code, status, created_at")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        if (data) setRedemptions(data as Redemption[]);
+      });
+  };
+
+  useEffect(() => {
+    fetchRedemptions();
+  }, [user]);
 
   useEffect(() => {
     supabase
