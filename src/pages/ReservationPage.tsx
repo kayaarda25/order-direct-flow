@@ -38,6 +38,19 @@ const ReservationPage = () => {
       form.message ? `Nachricht: ${form.message}` : "",
     ].filter(Boolean).join("%0A");
 
+    // Bon auf dem Bondrucker ausloesen (im Hintergrund)
+    supabase.functions.invoke("print-request", {
+      body: {
+        kind: "reservation",
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        scheduled_time: `${form.date} ${form.time} Uhr`,
+        message: form.message,
+        details: [`Personen: ${form.persons}`],
+      },
+    }).catch((e) => console.error("Reservations-Druck fehlgeschlagen:", e));
+
     window.location.href = `mailto:piratinoag@hotmail.com?subject=${encodeURIComponent(subject)}&body=${body}`;
 
     setTimeout(() => {
