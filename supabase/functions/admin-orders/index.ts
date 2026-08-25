@@ -247,12 +247,15 @@ serve(async (req) => {
     const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
     const url = new URL(req.url);
     const action: string = body.action || url.searchParams.get("action") || "list";
-    const date: string = body.date || url.searchParams.get("date") || zurichDateString(new Date());
+    const today = zurichDateString(new Date());
+    const fromDate: string = body.from || url.searchParams.get("from") || body.date || today;
+    const toDate: string = body.to || url.searchParams.get("to") || body.date || fromDate;
 
-    // Alle Dispatches im Zeitfenster um den gewuenschten Tag (Zuercher Zeit)
-    const dayStartUtc = new Date(`${date}T00:00:00Z`).getTime();
-    const from = new Date(dayStartUtc - 6 * 3600e3).toISOString();
-    const to = new Date(dayStartUtc + 30 * 3600e3).toISOString();
+    // Alle Dispatches im Zeitfenster (Zuercher Zeit, grob gefasst, dann genau gefiltert)
+    const fromUtc = new Date(`${fromDate}T00:00:00Z`).getTime();
+    const toUtc = new Date(`${toDate}T00:00:00Z`).getTime();
+    const from = new Date(fromUtc - 6 * 3600e3).toISOString();
+    const to = new Date(toUtc + 30 * 3600e3).toISOString();
 
     const { data: rows, error } = await admin
       .from("order_dispatches")
@@ -262,7 +265,10 @@ serve(async (req) => {
       .order("created_at", { ascending: true });
     if (error) throw error;
 
-    const orders = (rows ?? []).filter((r) => zurichDateString(r.created_at) === date);
+    const orders = (rows ?? []).filter((r) => {
+      const d = zurichDateString(r.created_at);
+      return d >= fromDate && d <= toDate;
+    });
 
     // ---------- Aktionen ----------
     if (action === "list") {
