@@ -117,8 +117,12 @@ const AdminOrders = () => {
 
   const printReport = async () => {
     setPrinting(true);
+    const { from, to } = reportRange(reportType, date, rangeFrom, rangeTo);
+    const isItems = reportType === "item_report";
     const { data, error } = await supabase.functions.invoke("admin-orders", {
-      body: { action: "print_report", date },
+      body: isItems
+        ? { action: "print_items", from, to }
+        : { action: "print_report", report_type: reportType, from, to },
     });
     setPrinting(false);
     if (error || !data?.ok) {
@@ -126,7 +130,7 @@ const AdminOrders = () => {
       return;
     }
     toast({
-      title: "Tagesbericht gesendet",
+      title: "Bericht gesendet",
       description: "Der Bericht wird in wenigen Sekunden am Drucker ausgedruckt.",
     });
   };
