@@ -112,7 +112,7 @@ function buildReportLines(title: string, from: string, to: string, orders: { cre
   let nDelivery = 0;
   let nPickup = 0;
   const payTotals = new Map<string, number>();
-  const dayTotals = new Map<string, { count: number; total: number }>();
+  const groupTotals = new Map<string, { count: number; total: number }>();
 
   for (const o of orders) {
     const p = o.payload || {};
@@ -124,23 +124,27 @@ function buildReportLines(title: string, from: string, to: string, orders: { cre
     payTotals.set(pay, (payTotals.get(pay) || 0) + total);
 
     const day = zurichDateString(o.created_at);
-    const d = dayTotals.get(day) || { count: 0, total: 0 };
+    const key = breakdown === "month" ? day.slice(0, 7) : day; // "YYYY-MM" oder "YYYY-MM-DD"
+    const d = groupTotals.get(key) || { count: 0, total: 0 };
     d.count++;
     d.total += total;
-    dayTotals.set(day, d);
+    groupTotals.set(key, d);
   }
 
-  // Tagesuebersicht
-  add("B", "Umsatz pro Tag:");
+  // Uebersicht pro Tag oder pro Monat
+  add("B", breakdown === "month" ? "Umsatz pro Monat:" : "Umsatz pro Tag:");
   add("N", sep);
-  for (const [day, d] of [...dayTotals.entries()].sort()) {
-    add("B", niceDay(day));
+  for (const [key, d] of [...groupTotals.entries()].sort()) {
+    const label = breakdown === "month"
+      ? MONTH_NAMES[Number(key.slice(5, 7)) - 1] + " " + key.slice(0, 4)
+      : niceDay(key);
+    add("B", label);
     add("S", rw("  Bestellungen: " + d.count, ""));
     add("S", rw("  Umsatz:", "CHF " + money(d.total)));
     add("S", rw("  davon MWST 2.6%:", "CHF " + money(mwstOf(d.total))));
     add("N", sep);
   }
-  if (dayTotals.size === 0) {
+  if (groupTotals.size === 0) {
     add("S", "  Keine Bestellungen");
     add("N", sep);
   }
