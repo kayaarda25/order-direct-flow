@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { CalendarDays, Clock, Users, Phone, Mail, User } from "lucide-react";
 import { useSiteContent } from "@/hooks/useSiteContent";
+import { supabase } from "@/integrations/supabase/client";
 import Seo from "@/components/Seo";
 
 const ReservationPage = () => {
