@@ -7,6 +7,10 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import AuthModal from "@/components/AuthModal";
 import Seo from "@/components/Seo";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+} from "@/components/ui/dialog";
+import { Ticket, Copy } from "lucide-react";
 
 interface Reward {
   id: string;
