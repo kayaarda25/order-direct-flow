@@ -57,8 +57,16 @@ const CURRENT_YEAR = new Date().getFullYear();
 const YEARS = Array.from({ length: 5 }, (_, i) => CURRENT_YEAR - i);
 
 // Gibt {from, to} für den gewählten Berichtstyp zurück (Basis: ausgewähltes Datum)
-function reportRange(type: string, date: string, rangeFrom: string, rangeTo: string): { from: string; to: string } {
+function reportRange(type: string, date: string, rangeFrom: string, rangeTo: string, quarter: number, year: number): { from: string; to: string } {
   const base = new Date(`${date}T12:00:00Z`);
+  if (type === "quarterly_report") {
+    const p = (n: number) => String(n).padStart(2, "0");
+    const lastDay = new Date(Date.UTC(year, quarter * 3, 0)).getUTCDate();
+    return { from: `${year}-${p((quarter - 1) * 3 + 1)}-01`, to: `${year}-${p(quarter * 3)}-${p(lastDay)}` };
+  }
+  if (type === "yearly_report") {
+    return { from: `${year}-01-01`, to: `${year}-12-31` };
+  }
   if (type === "weekly_report") {
     const day = base.getUTCDay() || 7; // Montag = 1
     const monday = new Date(base); monday.setUTCDate(base.getUTCDate() - day + 1);
