@@ -158,6 +158,49 @@ function buildReportLines(title: string, from: string, to: string, orders: { cre
   return L;
 }
 
+function buildItemReportLines(from: string, to: string, orders: { created_at: string; payload: OrderPayload }[]): Line[] {
+  const L: Line[] = [];
+  const add = (k: string, s: string) => L.push({ k, s });
+  const sep = "-".repeat(W);
+
+  add("L", "Piratino");
+  add("A", "Badenerstrasse 696");
+  add("A", "8048 Zuerich");
+  add("N", "");
+  add("C", periodLabel(from, to));
+  add("T", "ARTIKELBERICHT");
+  add("N", "");
+
+  const itemCount = new Map<string, { qty: number; total: number }>();
+  let grand = 0;
+  for (const o of orders) {
+    for (const it of (o.payload?.items ?? [])) {
+      const name = String(it.name || "Artikel").toUpperCase();
+      const qty = it.quantity ?? 1;
+      const lineTotal = Number(it.price ?? 0) * qty;
+      grand += lineTotal;
+      const entry = itemCount.get(name) || { qty: 0, total: 0 };
+      entry.qty += qty;
+      entry.total += lineTotal;
+      itemCount.set(name, entry);
+    }
+  }
+
+  add("B", rw("Artikel (" + orders.length + " Bestellungen)", ""));
+  add("N", sep);
+  const sorted = [...itemCount.entries()].sort((a, b) => b[1].qty - a[1].qty);
+  for (const [name, c] of sorted) {
+    add("S", rw(" " + c.qty + "X  " + name, money(c.total)));
+  }
+  if (sorted.length === 0) add("S", "  Keine Verkaeufe");
+  add("N", sep);
+  add("B", rw("Artikel gesamt:", String(sorted.reduce((s, [, c]) => s + c.qty, 0))));
+  add("T", "TOTAL  CHF " + money(grand));
+  add("N", sep);
+  add("N", "");
+  return L;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
