@@ -41,12 +41,58 @@ interface AdminOrder {
 
 const money = (n: number) => `CHF ${(Number(n) || 0).toFixed(2)}`;
 
+const toZurich = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: "Europe/Zurich" });
+
+const zurichNow = () => {
+  const s = new Date().toLocaleString("en-US", { timeZone: "Europe/Zurich" });
+  return new Date(s);
+};
+
+const REPORT_TYPES = [
+  { value: "daily_report", label: "Tagesbericht" },
+  { value: "weekly_report", label: "Wochenbericht" },
+  { value: "monthly_report", label: "Monatsbericht" },
+  { value: "quarterly_report", label: "Quartalsbericht" },
+  { value: "range_report", label: "Zeitraum wählen" },
+  { value: "item_report", label: "Artikelbericht" },
+] as const;
+
+// Gibt {from, to} für den gewählten Berichtstyp zurück (Basis: ausgewähltes Datum)
+function reportRange(type: string, date: string, rangeFrom: string, rangeTo: string): { from: string; to: string } {
+  const base = new Date(`${date}T12:00:00Z`);
+  if (type === "weekly_report") {
+    const day = base.getUTCDay() || 7; // Montag = 1
+    const monday = new Date(base); monday.setUTCDate(base.getUTCDate() - day + 1);
+    const sunday = new Date(monday); sunday.setUTCDate(monday.getUTCDate() + 6);
+    return { from: monday.toISOString().slice(0, 10), to: sunday.toISOString().slice(0, 10) };
+  }
+  if (type === "monthly_report") {
+    const y = base.getUTCFullYear(), m = base.getUTCMonth();
+    const last = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+    const p = (n: number) => String(n).padStart(2, "0");
+    return { from: `${y}-${p(m + 1)}-01`, to: `${y}-${p(m + 1)}-${p(last)}` };
+  }
+  if (type === "quarterly_report") {
+    const y = base.getUTCFullYear(), q = Math.floor(base.getUTCMonth() / 3);
+    const p = (n: number) => String(n).padStart(2, "0");
+    const lastDay = new Date(Date.UTC(y, q * 3 + 3, 0)).getUTCDate();
+    return { from: `${y}-${p(q * 3 + 1)}-01`, to: `${y}-${p(q * 3 + 3)}-${p(lastDay)}` };
+  }
+  if (type === "range_report") {
+    return { from: rangeFrom, to: rangeTo || rangeFrom };
+  }
+  return { from: date, to: date };
+}
+
 const AdminOrders = () => {
-  const today = new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Zurich" });
+  const today = toZurich(new Date());
   const [date, setDate] = useState(today);
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [printing, setPrinting] = useState(false);
+  const [reportType, setReportType] = useState<string>("daily_report");
+  const [rangeFrom, setRangeFrom] = useState(today);
+  const [rangeTo, setRangeTo] = useState(today);
   const [reprinting, setReprinting] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState<AdminOrder | null>(null);
