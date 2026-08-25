@@ -48,13 +48,25 @@ const REPORT_TYPES = [
   { value: "weekly_report", label: "Wochenbericht" },
   { value: "monthly_report", label: "Monatsbericht" },
   { value: "quarterly_report", label: "Quartalsbericht" },
+  { value: "yearly_report", label: "Jahresbericht" },
   { value: "range_report", label: "Zeitraum wählen" },
   { value: "item_report", label: "Artikelbericht" },
 ] as const;
 
+const CURRENT_YEAR = new Date().getFullYear();
+const YEARS = Array.from({ length: 5 }, (_, i) => CURRENT_YEAR - i);
+
 // Gibt {from, to} für den gewählten Berichtstyp zurück (Basis: ausgewähltes Datum)
-function reportRange(type: string, date: string, rangeFrom: string, rangeTo: string): { from: string; to: string } {
+function reportRange(type: string, date: string, rangeFrom: string, rangeTo: string, quarter: number, year: number): { from: string; to: string } {
   const base = new Date(`${date}T12:00:00Z`);
+  if (type === "quarterly_report") {
+    const p = (n: number) => String(n).padStart(2, "0");
+    const lastDay = new Date(Date.UTC(year, quarter * 3, 0)).getUTCDate();
+    return { from: `${year}-${p((quarter - 1) * 3 + 1)}-01`, to: `${year}-${p(quarter * 3)}-${p(lastDay)}` };
+  }
+  if (type === "yearly_report") {
+    return { from: `${year}-01-01`, to: `${year}-12-31` };
+  }
   if (type === "weekly_report") {
     const day = base.getUTCDay() || 7; // Montag = 1
     const monday = new Date(base); monday.setUTCDate(base.getUTCDate() - day + 1);
@@ -66,12 +78,6 @@ function reportRange(type: string, date: string, rangeFrom: string, rangeTo: str
     const last = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
     const p = (n: number) => String(n).padStart(2, "0");
     return { from: `${y}-${p(m + 1)}-01`, to: `${y}-${p(m + 1)}-${p(last)}` };
-  }
-  if (type === "quarterly_report") {
-    const y = base.getUTCFullYear(), q = Math.floor(base.getUTCMonth() / 3);
-    const p = (n: number) => String(n).padStart(2, "0");
-    const lastDay = new Date(Date.UTC(y, q * 3 + 3, 0)).getUTCDate();
-    return { from: `${y}-${p(q * 3 + 1)}-01`, to: `${y}-${p(q * 3 + 3)}-${p(lastDay)}` };
   }
   if (type === "range_report") {
     return { from: rangeFrom, to: rangeTo || rangeFrom };
@@ -88,6 +94,8 @@ const AdminOrders = () => {
   const [reportType, setReportType] = useState<string>("daily_report");
   const [rangeFrom, setRangeFrom] = useState(today);
   const [rangeTo, setRangeTo] = useState(today);
+  const [quarter, setQuarter] = useState(Math.floor(new Date().getMonth() / 3) + 1);
+  const [year, setYear] = useState(CURRENT_YEAR);
   const [reprinting, setReprinting] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState<AdminOrder | null>(null);
@@ -117,7 +125,7 @@ const AdminOrders = () => {
 
   const printReport = async () => {
     setPrinting(true);
-    const { from, to } = reportRange(reportType, date, rangeFrom, rangeTo);
+    const { from, to } = reportRange(reportType, date, rangeFrom, rangeTo, quarter, year);
     const isItems = reportType === "item_report";
     const { data, error } = await supabase.functions.invoke("admin-orders", {
       body: isItems
@@ -211,6 +219,46 @@ const AdminOrders = () => {
                 <Input type="date" value={rangeTo} onChange={(e) => setRangeTo(e.target.value)} className="w-auto" />
               </div>
             </>
+          ) : reportType === "quarterly_report" ? (
+            <>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Quartal</label>
+                <select
+                  value={quarter}
+                  onChange={(e) => setQuarter(Number(e.target.value))}
+                  className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  {[1, 2, 3, 4].map((q) => (
+                    <option key={q} value={q}>Q{q}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Jahr</label>
+                <select
+                  value={year}
+                  onChange={(e) => setYear(Number(e.target.value))}
+                  className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  {YEARS.map((y) => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
+              </div>
+            </>
+          ) : reportType === "yearly_report" ? (
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-muted-foreground">Jahr</label>
+              <select
+                value={year}
+                onChange={(e) => setYear(Number(e.target.value))}
+                className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                {YEARS.map((y) => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+            </div>
           ) : (
             <p className="text-xs text-muted-foreground pb-2">
               Basis: oben gewähltes Datum ({date})
