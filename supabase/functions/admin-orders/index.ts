@@ -92,7 +92,9 @@ function periodLabel(from: string, to: string): string {
 const MWST_RATE = 0.026; // reduzierter Satz Take-away CH
 const mwstOf = (gross: number) => gross - gross / (1 + MWST_RATE);
 
-function buildReportLines(title: string, from: string, to: string, orders: { created_at: string; payload: OrderPayload }[]): Line[] {
+const MONTH_NAMES = ["Januar","Februar","Maerz","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+
+function buildReportLines(title: string, from: string, to: string, orders: { created_at: string; payload: OrderPayload }[], breakdown: "day" | "month" = "day"): Line[] {
   const L: Line[] = [];
   const add = (k: string, s: string) => L.push({ k, s });
   const sep = "-".repeat(W);
