@@ -41,12 +41,53 @@ interface AdminOrder {
 
 const money = (n: number) => `CHF ${(Number(n) || 0).toFixed(2)}`;
 
+const toZurich = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: "Europe/Zurich" });
+
+const REPORT_TYPES = [
+  { value: "daily_report", label: "Tagesbericht" },
+  { value: "weekly_report", label: "Wochenbericht" },
+  { value: "monthly_report", label: "Monatsbericht" },
+  { value: "quarterly_report", label: "Quartalsbericht" },
+  { value: "range_report", label: "Zeitraum wählen" },
+  { value: "item_report", label: "Artikelbericht" },
+] as const;
+
+// Gibt {from, to} für den gewählten Berichtstyp zurück (Basis: ausgewähltes Datum)
+function reportRange(type: string, date: string, rangeFrom: string, rangeTo: string): { from: string; to: string } {
+  const base = new Date(`${date}T12:00:00Z`);
+  if (type === "weekly_report") {
+    const day = base.getUTCDay() || 7; // Montag = 1
+    const monday = new Date(base); monday.setUTCDate(base.getUTCDate() - day + 1);
+    const sunday = new Date(monday); sunday.setUTCDate(monday.getUTCDate() + 6);
+    return { from: monday.toISOString().slice(0, 10), to: sunday.toISOString().slice(0, 10) };
+  }
+  if (type === "monthly_report") {
+    const y = base.getUTCFullYear(), m = base.getUTCMonth();
+    const last = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+    const p = (n: number) => String(n).padStart(2, "0");
+    return { from: `${y}-${p(m + 1)}-01`, to: `${y}-${p(m + 1)}-${p(last)}` };
+  }
+  if (type === "quarterly_report") {
+    const y = base.getUTCFullYear(), q = Math.floor(base.getUTCMonth() / 3);
+    const p = (n: number) => String(n).padStart(2, "0");
+    const lastDay = new Date(Date.UTC(y, q * 3 + 3, 0)).getUTCDate();
+    return { from: `${y}-${p(q * 3 + 1)}-01`, to: `${y}-${p(q * 3 + 3)}-${p(lastDay)}` };
+  }
+  if (type === "range_report") {
+    return { from: rangeFrom, to: rangeTo || rangeFrom };
+  }
+  return { from: date, to: date };
+}
+
 const AdminOrders = () => {
-  const today = new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Zurich" });
+  const today = toZurich(new Date());
   const [date, setDate] = useState(today);
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [printing, setPrinting] = useState(false);
+  const [reportType, setReportType] = useState<string>("daily_report");
+  const [rangeFrom, setRangeFrom] = useState(today);
+  const [rangeTo, setRangeTo] = useState(today);
   const [reprinting, setReprinting] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState<AdminOrder | null>(null);
@@ -76,8 +117,12 @@ const AdminOrders = () => {
 
   const printReport = async () => {
     setPrinting(true);
+    const { from, to } = reportRange(reportType, date, rangeFrom, rangeTo);
+    const isItems = reportType === "item_report";
     const { data, error } = await supabase.functions.invoke("admin-orders", {
-      body: { action: "print_report", date },
+      body: isItems
+        ? { action: "print_items", from, to }
+        : { action: "print_report", report_type: reportType, from, to },
     });
     setPrinting(false);
     if (error || !data?.ok) {
@@ -85,7 +130,7 @@ const AdminOrders = () => {
       return;
     }
     toast({
-      title: "Tagesbericht gesendet",
+      title: "Bericht gesendet",
       description: "Der Bericht wird in wenigen Sekunden am Drucker ausgedruckt.",
     });
   };
@@ -138,12 +183,45 @@ const AdminOrders = () => {
             <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             Aktualisieren
           </Button>
-          <Button onClick={printReport} disabled={printing || loading}>
-            <FileBarChart className="mr-2 h-4 w-4" />
-            {printing ? "Sende..." : "Tagesbericht drucken"}
-          </Button>
         </div>
       </div>
+
+      <Card className="mb-6">
+        <CardContent className="flex flex-wrap items-end gap-3 pt-4">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-muted-foreground">Bericht</label>
+            <select
+              value={reportType}
+              onChange={(e) => setReportType(e.target.value)}
+              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+            >
+              {REPORT_TYPES.map((t) => (
+                <option key={t.value} value={t.value}>{t.label}</option>
+              ))}
+            </select>
+          </div>
+          {reportType === "range_report" || reportType === "item_report" ? (
+            <>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Von</label>
+                <Input type="date" value={rangeFrom} onChange={(e) => setRangeFrom(e.target.value)} className="w-auto" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Bis</label>
+                <Input type="date" value={rangeTo} onChange={(e) => setRangeTo(e.target.value)} className="w-auto" />
+              </div>
+            </>
+          ) : (
+            <p className="text-xs text-muted-foreground pb-2">
+              Basis: oben gewähltes Datum ({date})
+            </p>
+          )}
+          <Button onClick={printReport} disabled={printing || loading}>
+            <FileBarChart className="mr-2 h-4 w-4" />
+            {printing ? "Sende..." : "Bericht drucken"}
+          </Button>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <Card>

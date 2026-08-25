@@ -66,26 +66,41 @@ function orderTotal(p: OrderPayload): number {
 
 type Line = { k: string; s: string };
 
-function buildReportLines(date: string, orders: { created_at: string; payload: OrderPayload }[]): Line[] {
-  const L: Line[] = [];
-  const add = (k: string, s: string) => L.push({ k, s });
-  const sep = "-".repeat(W);
-
-  const niceDate = new Intl.DateTimeFormat("de-CH", {
+function niceDay(d: string): string {
+  return new Intl.DateTimeFormat("de-CH", {
     timeZone: TZ,
     weekday: "long",
     day: "numeric",
     month: "long",
     year: "numeric",
-  }).format(new Date(`${date}T12:00:00Z`));
+  }).format(new Date(`${d}T12:00:00Z`));
+}
+
+function shortDay(d: string): string {
+  return new Intl.DateTimeFormat("de-CH", {
+    timeZone: TZ,
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(new Date(`${d}T12:00:00Z`));
+}
+
+function periodLabel(from: string, to: string): string {
+  return from === to ? niceDay(from) : shortDay(from) + " - " + shortDay(to);
+}
+
+function buildReportLines(title: string, from: string, to: string, orders: { created_at: string; payload: OrderPayload }[]): Line[] {
+  const L: Line[] = [];
+  const add = (k: string, s: string) => L.push({ k, s });
+  const sep = "-".repeat(W);
 
   add("L", "Piratino");
   add("A", "Badenerstrasse 696");
   add("A", "8048 Zuerich");
   add("A", "Tel: 044 431 32 33");
   add("N", "");
-  add("C", niceDate);
-  add("T", "TAGESBERICHT");
+  add("C", periodLabel(from, to));
+  add("T", title);
   add("N", "");
 
   let grand = 0;
@@ -143,6 +158,49 @@ function buildReportLines(date: string, orders: { created_at: string; payload: O
   return L;
 }
 
+function buildItemReportLines(from: string, to: string, orders: { created_at: string; payload: OrderPayload }[]): Line[] {
+  const L: Line[] = [];
+  const add = (k: string, s: string) => L.push({ k, s });
+  const sep = "-".repeat(W);
+
+  add("L", "Piratino");
+  add("A", "Badenerstrasse 696");
+  add("A", "8048 Zuerich");
+  add("N", "");
+  add("C", periodLabel(from, to));
+  add("T", "ARTIKELBERICHT");
+  add("N", "");
+
+  const itemCount = new Map<string, { qty: number; total: number }>();
+  let grand = 0;
+  for (const o of orders) {
+    for (const it of (o.payload?.items ?? [])) {
+      const name = String(it.name || "Artikel").toUpperCase();
+      const qty = it.quantity ?? 1;
+      const lineTotal = Number(it.price ?? 0) * qty;
+      grand += lineTotal;
+      const entry = itemCount.get(name) || { qty: 0, total: 0 };
+      entry.qty += qty;
+      entry.total += lineTotal;
+      itemCount.set(name, entry);
+    }
+  }
+
+  add("B", rw("Artikel (" + orders.length + " Bestellungen)", ""));
+  add("N", sep);
+  const sorted = [...itemCount.entries()].sort((a, b) => b[1].qty - a[1].qty);
+  for (const [name, c] of sorted) {
+    add("S", rw(" " + c.qty + "X  " + name, money(c.total)));
+  }
+  if (sorted.length === 0) add("S", "  Keine Verkaeufe");
+  add("N", sep);
+  add("B", rw("Artikel gesamt:", String(sorted.reduce((s, [, c]) => s + c.qty, 0))));
+  add("T", "TOTAL  CHF " + money(grand));
+  add("N", sep);
+  add("N", "");
+  return L;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -189,12 +247,15 @@ serve(async (req) => {
     const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
     const url = new URL(req.url);
     const action: string = body.action || url.searchParams.get("action") || "list";
-    const date: string = body.date || url.searchParams.get("date") || zurichDateString(new Date());
+    const today = zurichDateString(new Date());
+    const fromDate: string = body.from || url.searchParams.get("from") || body.date || today;
+    const toDate: string = body.to || url.searchParams.get("to") || body.date || fromDate;
 
-    // Alle Dispatches im Zeitfenster um den gewuenschten Tag (Zuercher Zeit)
-    const dayStartUtc = new Date(`${date}T00:00:00Z`).getTime();
-    const from = new Date(dayStartUtc - 6 * 3600e3).toISOString();
-    const to = new Date(dayStartUtc + 30 * 3600e3).toISOString();
+    // Alle Dispatches im Zeitfenster (Zuercher Zeit, grob gefasst, dann genau gefiltert)
+    const fromUtc = new Date(`${fromDate}T00:00:00Z`).getTime();
+    const toUtc = new Date(`${toDate}T00:00:00Z`).getTime();
+    const from = new Date(fromUtc - 6 * 3600e3).toISOString();
+    const to = new Date(toUtc + 30 * 3600e3).toISOString();
 
     const { data: rows, error } = await admin
       .from("order_dispatches")
@@ -204,13 +265,18 @@ serve(async (req) => {
       .order("created_at", { ascending: true });
     if (error) throw error;
 
-    const orders = (rows ?? []).filter((r) => zurichDateString(r.created_at) === date);
+    const orders = (rows ?? []).filter((r) => {
+      const d = zurichDateString(r.created_at);
+      return d >= fromDate && d <= toDate;
+    });
 
     // ---------- Aktionen ----------
     if (action === "list") {
       return json(200, {
         ok: true,
-        date,
+        date: fromDate,
+        from: fromDate,
+        to: toDate,
         orders: orders.map((r) => ({
           order_ref: r.order_ref,
           created_at: r.created_at,
@@ -225,19 +291,48 @@ serve(async (req) => {
     }
 
     if (action === "print_report") {
-      const lines = buildReportLines(date, orders as { created_at: string; payload: OrderPayload }[]);
+      const reportType: string = body.report_type || "daily_report";
+      const titles: Record<string, string> = {
+        daily_report: "TAGESBERICHT",
+        weekly_report: "WOCHENBERICHT",
+        monthly_report: "MONATSBERICHT",
+        quarterly_report: "QUARTALSBERICHT",
+        range_report: "BERICHT ZEITRAUM",
+      };
+      const title = titles[reportType] || "BERICHT";
+      const lines = buildReportLines(title, fromDate, toDate, orders as { created_at: string; payload: OrderPayload }[]);
       const { error: insErr } = await admin.from("print_jobs").insert({
         payload: {
           job_type: "report",
-          report_type: "daily_report",
+          report_type: reportType,
           silent: true,
           copies: 1,
-          date,
+          date: fromDate,
+          from: fromDate,
+          to: toDate,
           lines,
         },
       });
       if (insErr) throw insErr;
-      return json(200, { ok: true, date, order_count: orders.length, message: "Tagesbericht an Drucker gesendet" });
+      return json(200, { ok: true, from: fromDate, to: toDate, order_count: orders.length, message: title + " an Drucker gesendet" });
+    }
+
+    if (action === "print_items") {
+      const lines = buildItemReportLines(fromDate, toDate, orders as { created_at: string; payload: OrderPayload }[]);
+      const { error: insErr } = await admin.from("print_jobs").insert({
+        payload: {
+          job_type: "report",
+          report_type: "item_report",
+          silent: true,
+          copies: 1,
+          date: fromDate,
+          from: fromDate,
+          to: toDate,
+          lines,
+        },
+      });
+      if (insErr) throw insErr;
+      return json(200, { ok: true, from: fromDate, to: toDate, order_count: orders.length, message: "Artikelbericht an Drucker gesendet" });
     }
 
     if (action === "reprint") {
