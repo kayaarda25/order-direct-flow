@@ -37,7 +37,9 @@ Deno.serve(async (req) => {
     const details: string[] = [];
     const addDetail = (line: unknown) => {
       const clean = clip(line, 200);
-      if (clean && !details.includes(clean) && details.length < 30) details.push(clean);
+      const label = clean.includes(":") ? clean.split(":")[0].trim().toUpperCase() : "";
+      const hasSameLabel = label ? details.some((detail) => detail.split(":")[0].trim().toUpperCase() === label) : false;
+      if (clean && !details.includes(clean) && !hasSameLabel && details.length < 30) details.push(clean);
     };
 
     if (kind === "reservation") {
