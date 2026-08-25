@@ -436,6 +436,28 @@ const AngebotePage = () => {
         </p>
       </motion.div>
 
+      <Dialog open={!!voucher} onOpenChange={(open) => { if (!open) setVoucher(null); }}>
+        <DialogContent className="text-center">
+          <DialogHeader>
+            <DialogTitle className="text-center text-2xl">Gutschein eingelöst!</DialogTitle>
+            <DialogDescription className="text-center">
+              {voucher?.reward_name} — zeige diesen Code bei deiner nächsten Bestellung oder im Restaurant.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="my-4">
+            <div className="inline-block font-mono text-3xl font-bold text-primary bg-primary/10 border-2 border-dashed border-primary/40 rounded-xl px-8 py-4 tracking-widest">
+              {voucher?.code}
+            </div>
+          </div>
+          <button
+            onClick={() => { if (voucher) { navigator.clipboard?.writeText(voucher.code); toast.success("Code kopiert"); } }}
+            className="mx-auto flex items-center gap-2 bg-primary text-primary-foreground px-6 py-2.5 rounded-xl font-semibold hover:opacity-90 transition-opacity"
+          >
+            <Copy className="w-4 h-4" /> Code kopieren
+          </button>
+        </DialogContent>
+      </Dialog>
+
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </div>
     </div>
