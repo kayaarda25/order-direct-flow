@@ -1,14 +1,11 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import OrderTypeModal from "@/components/OrderTypeModal";
 
 const FloatingCartBar = () => {
-  const { totalItems, totalPrice, setOrderType } = useCart();
+  const { totalItems, totalPrice } = useCart();
   const navigate = useNavigate();
-  const [showOrderTypeModal, setShowOrderTypeModal] = useState(false);
 
   if (totalItems === 0) return null;
 
@@ -22,7 +19,7 @@ const FloatingCartBar = () => {
       >
         <div className="container max-w-2xl">
           <button
-            onClick={() => setShowOrderTypeModal(true)}
+            onClick={() => navigate("/checkout")}
             className="flex items-center justify-between w-full bg-primary text-primary-foreground rounded-xl px-5 py-3.5 shadow-2xl hover:opacity-95 transition-opacity"
           >
             <div className="flex items-center gap-3">
@@ -39,16 +36,6 @@ const FloatingCartBar = () => {
             </span>
           </button>
         </div>
-
-        <OrderTypeModal
-          open={showOrderTypeModal}
-          onClose={() => setShowOrderTypeModal(false)}
-          onConfirm={(type) => {
-            setOrderType(type);
-            setShowOrderTypeModal(false);
-            navigate("/checkout");
-          }}
-        />
       </motion.div>
     </AnimatePresence>
   );

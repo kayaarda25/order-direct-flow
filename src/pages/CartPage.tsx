@@ -1,15 +1,12 @@
-import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import OrderTypeModal from "@/components/OrderTypeModal";
 import Seo from "@/components/Seo";
 
 const CartPage = () => {
-  const { items, removeItem, updateQuantity, totalPrice, deliveryFee, orderType, setOrderType } = useCart();
+  const { items, removeItem, updateQuantity, totalPrice, deliveryFee, orderType } = useCart();
   const navigate = useNavigate();
-  const [showOrderTypeModal, setShowOrderTypeModal] = useState(false);
 
   if (items.length === 0) {
     return (
@@ -109,21 +106,11 @@ const CartPage = () => {
       </div>
 
       <button
-        onClick={() => setShowOrderTypeModal(true)}
+        onClick={() => navigate("/checkout")}
         className="block w-full bg-primary text-primary-foreground text-center py-4 rounded-xl font-semibold text-lg mt-6 hover:opacity-90 transition-opacity"
       >
         Bestellen
       </button>
-
-      <OrderTypeModal
-        open={showOrderTypeModal}
-        onClose={() => setShowOrderTypeModal(false)}
-        onConfirm={(type) => {
-          setOrderType(type);
-          setShowOrderTypeModal(false);
-          navigate("/checkout");
-        }}
-      />
     </div>
   );
 };
