@@ -219,6 +219,46 @@ const AdminOrders = () => {
                 <Input type="date" value={rangeTo} onChange={(e) => setRangeTo(e.target.value)} className="w-auto" />
               </div>
             </>
+          ) : reportType === "quarterly_report" ? (
+            <>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Quartal</label>
+                <select
+                  value={quarter}
+                  onChange={(e) => setQuarter(Number(e.target.value))}
+                  className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  {[1, 2, 3, 4].map((q) => (
+                    <option key={q} value={q}>Q{q}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Jahr</label>
+                <select
+                  value={year}
+                  onChange={(e) => setYear(Number(e.target.value))}
+                  className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  {YEARS.map((y) => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
+              </div>
+            </>
+          ) : reportType === "yearly_report" ? (
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-muted-foreground">Jahr</label>
+              <select
+                value={year}
+                onChange={(e) => setYear(Number(e.target.value))}
+                className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                {YEARS.map((y) => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+            </div>
           ) : (
             <p className="text-xs text-muted-foreground pb-2">
               Basis: oben gewähltes Datum ({date})
