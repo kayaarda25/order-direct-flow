@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { CalendarDays, Clock, Users, Phone, Mail, User } from "lucide-react";
 import { useSiteContent } from "@/hooks/useSiteContent";
+import { supabase } from "@/integrations/supabase/client";
 import Seo from "@/components/Seo";
 
 const ReservationPage = () => {
@@ -37,6 +38,19 @@ const ReservationPage = () => {
       `Personen: ${form.persons}`,
       form.message ? `Nachricht: ${form.message}` : "",
     ].filter(Boolean).join("%0A");
+
+    // Bon auf dem Bondrucker ausloesen (im Hintergrund)
+    supabase.functions.invoke("print-request", {
+      body: {
+        kind: "reservation",
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        scheduled_time: `${form.date} ${form.time} Uhr`,
+        message: form.message,
+        details: [`Personen: ${form.persons}`],
+      },
+    }).catch((e) => console.error("Reservations-Druck fehlgeschlagen:", e));
 
     window.location.href = `mailto:piratinoag@hotmail.com?subject=${encodeURIComponent(subject)}&body=${body}`;
 

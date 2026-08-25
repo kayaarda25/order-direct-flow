@@ -131,6 +131,25 @@ const CateringPage = () => {
       return;
     }
 
+    // Bon fuer die Kueche/den Drucker ausloesen (im Hintergrund)
+    supabase.functions.invoke("print-request", {
+      body: {
+        kind: "catering",
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        address: [form.street, [form.plz, form.city].filter(Boolean).join(" ")].filter(Boolean).join(", "),
+        scheduled_time: [form.date, form.time].filter(Boolean).join(" "),
+        message: form.message,
+        details: [
+          selectedPackage ? `Paket: ${selectedPackage.name}` : "",
+          `Personen: ${persons}`,
+          form.company ? `Firma: ${form.company}` : "",
+          `Richtpreis: CHF ${totalPrice.toFixed(2)}`,
+        ].filter(Boolean),
+      },
+    }).catch((e) => console.error("Catering-Druck fehlgeschlagen:", e));
+
     setSubmitted(true);
     setStep(3);
     window.scrollTo({ top: 0, behavior: "smooth" });
