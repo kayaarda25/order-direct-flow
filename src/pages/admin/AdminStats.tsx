@@ -227,7 +227,14 @@ const AdminStats = () => {
         ))}
       </div>
 
+      <p className="text-xs text-muted-foreground -mt-2">
+        {stats.trackingStart
+          ? `Besucher-Erfassung läuft seit ${shortLabel(stats.trackingStart)} – Bestellrate bezieht sich auf ${stats.ordersSinceTracking} Bestellung(en) seit diesem Datum. Umsatz und Bestellungen zeigen den ganzen Zeitraum.`
+          : "Besucher-Erfassung startet mit dem ersten Website-Besuch – Umsatz und Bestellungen sind rückwirkend vollständig."}
+      </p>
+
       <Card>
+
         <CardHeader>
           <CardTitle className="text-base">Verlauf</CardTitle>
         </CardHeader>
