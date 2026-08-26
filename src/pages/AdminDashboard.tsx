@@ -8,6 +8,7 @@ import AdminZones from "@/pages/admin/AdminZones";
 import AdminContent from "@/pages/admin/AdminContent";
 import AdminUsers from "@/pages/admin/AdminUsers";
 import AdminOrders from "@/pages/admin/AdminOrders";
+import AdminStats from "@/pages/admin/AdminStats";
 
 const AdminDashboard = () => {
   return (
@@ -24,6 +25,7 @@ const AdminDashboard = () => {
               <Routes>
                 <Route index element={<AdminOverview />} />
                 <Route path="orders" element={<AdminOrders />} />
+                <Route path="stats" element={<AdminStats />} />
                 <Route path="menu" element={<AdminMenu />} />
                 <Route path="hours" element={<AdminHours />} />
                 <Route path="zones" element={<AdminZones />} />

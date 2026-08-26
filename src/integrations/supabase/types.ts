@@ -296,6 +296,33 @@ export type Database = {
         }
         Relationships: []
       }
+      page_views: {
+        Row: {
+          created_at: string
+          id: string
+          is_mobile: boolean
+          path: string
+          referrer: string | null
+          session_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_mobile?: boolean
+          path: string
+          referrer?: string | null
+          session_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_mobile?: boolean
+          path?: string
+          referrer?: string | null
+          session_id?: string
+        }
+        Relationships: []
+      }
       pizza_pass: {
         Row: {
           free_pizzas_available: number
