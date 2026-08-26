@@ -14,6 +14,7 @@ import Header from "@/components/Header";
 import ClosedBanner from "@/components/ClosedBanner";
 import ConsentBanner from "@/components/ConsentBanner";
 import { isRestaurantOpen } from "@/utils/openingHours";
+import { usePageTracking } from "@/hooks/usePageTracking";
 import Footer from "@/components/Footer";
 import Index from "./pages/Index";
 import MenuPage from "./pages/MenuPage";
@@ -54,6 +55,7 @@ const AdminRoutes = () => {
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
+  usePageTracking();
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });

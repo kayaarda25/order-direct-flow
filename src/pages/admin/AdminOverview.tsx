@@ -1,8 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { UtensilsCrossed, Clock, MapPin, Users } from "lucide-react";
+import { UtensilsCrossed, Clock, MapPin, Users, BarChart3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const cards = [
+  { title: "Statistik", desc: "Besucher, Umsatz & Bestellrate", icon: BarChart3, path: "/admin/stats" },
   { title: "Menü verwalten", desc: "Gerichte, Preise & Bilder", icon: UtensilsCrossed, path: "/admin/menu" },
   { title: "Öffnungszeiten", desc: "Zeiten anpassen", icon: Clock, path: "/admin/hours" },
   { title: "Lieferzonen", desc: "PLZ & Mindestbestellwert", icon: MapPin, path: "/admin/zones" },
