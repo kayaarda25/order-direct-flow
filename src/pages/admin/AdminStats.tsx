@@ -155,7 +155,13 @@ const AdminStats = () => {
     }));
 
     const visitors = seenSessions.size;
-    const conversion = visitors > 0 ? (orders.length / visitors) * 100 : 0;
+    // Besucher-Erfassung startete erst mit dem Statistik-Tool – Bestellrate nur
+    // über den Zeitraum rechnen, für den es auch Besucherdaten gibt.
+    const trackingStart = views.length ? dayKey(views[0].created_at) : null;
+    const ordersSinceTracking = trackingStart
+      ? orders.filter((o) => dayKey(o.created_at) >= trackingStart).length
+      : 0;
+    const conversion = visitors > 0 ? (ordersSinceTracking / visitors) * 100 : 0;
 
     return {
       chart,
@@ -172,6 +178,8 @@ const AdminStats = () => {
       mobileShare: visitors ? (mobileSessions / visitors) * 100 : 0,
       conversion,
       funnel,
+      trackingStart,
+      ordersSinceTracking,
     };
   }, [orders, views, range]);
 
@@ -181,6 +189,7 @@ const AdminStats = () => {
     { label: "Besucher", value: String(stats.visitors), icon: Eye },
     { label: "Bestellrate", value: stats.conversion.toFixed(1) + " %", icon: Percent },
   ];
+
 
   return (
     <div className="space-y-6">
