@@ -18,6 +18,16 @@ const OrderConfirmationPage = () => {
   const { id } = useParams();
   const { getOrder, currentOrder } = useOrder();
   const order = id ? getOrder(id) : currentOrder;
+  const trackedRef = useRef(false);
+
+  useEffect(() => {
+    if (!order || trackedRef.current) return;
+    trackedRef.current = true;
+    trackGoogleAdsPurchase({
+      value: order.totalPrice,
+      transactionId: order.orderNumber || order.id || id || "unknown",
+    });
+  }, [order, id]);
 
   if (!order) {
     return (
