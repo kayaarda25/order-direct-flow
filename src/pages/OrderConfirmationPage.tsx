@@ -1,7 +1,9 @@
 import { useParams, Link } from "react-router-dom";
 import { useOrder } from "@/context/OrderContext";
+import { trackGoogleAdsPurchase } from "@/lib/googleAdsTracking";
 import { motion } from "framer-motion";
 import { CheckCircle, Clock, Package } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 const statusLabels: Record<string, { label: string; color: string }> = {
   received: { label: "Empfangen", color: "bg-accent" },
@@ -16,6 +18,16 @@ const OrderConfirmationPage = () => {
   const { id } = useParams();
   const { getOrder, currentOrder } = useOrder();
   const order = id ? getOrder(id) : currentOrder;
+  const trackedRef = useRef(false);
+
+  useEffect(() => {
+    if (!order || trackedRef.current) return;
+    trackedRef.current = true;
+    trackGoogleAdsPurchase({
+      value: order.totalPrice,
+      transactionId: order.orderNumber || order.id || id || "unknown",
+    });
+  }, [order, id]);
 
   if (!order) {
     return (
