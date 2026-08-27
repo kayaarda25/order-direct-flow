@@ -9,7 +9,7 @@ import { isRestaurantOpen, getScheduledTimeSlots } from "@/utils/openingHours";
 import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, AlertCircle, Clock, Pizza } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { trackGoogleAdsPurchase } from "@/lib/googleAdsTracking";
+import { trackGoogleAdsBeginCheckout } from "@/lib/googleAdsTracking";
 import { toast } from "sonner";
 import Seo from "@/components/Seo";
 
@@ -171,10 +171,9 @@ const CheckoutPage = () => {
         totalPrice: adjustedTotal,
       });
 
-      trackGoogleAdsPurchase({
-        value: adjustedTotal,
-        transactionId: order.orderNumber || order.id,
-      });
+      // Die Kauf-Conversion wird auf der Bestätigungsseite gemeldet.
+
+
 
       clearCart();
 
