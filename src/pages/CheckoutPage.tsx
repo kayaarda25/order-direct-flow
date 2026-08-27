@@ -433,7 +433,7 @@ const CheckoutPage = () => {
 
           {promoDiscount > 0 && (
             <div className="flex justify-between items-center text-sm">
-              <span className="text-primary font-semibold">Aktion {PROMO_PERCENT}% Rabatt</span>
+              <span className="text-primary font-semibold">{promoLabel(promoCode)}</span>
               <span className="text-primary font-semibold">- CHF {promoDiscount.toFixed(2)}</span>
             </div>
           )}
