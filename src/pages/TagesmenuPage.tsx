@@ -19,7 +19,7 @@ const MENUS: Menu[] = [
     title: "Mittagsmenü",
     window: "11:00 – 14:00 Uhr",
     days: "Montag bis Samstag",
-    description: "Pizza oder Pasta nach Wahl aus unserer Karte, frisch aus dem Ofen.",
+    description: "Pizza oder Pasta nach Wahl, frischer Salat und ein Getränk.",
     ranges: [1, 2, 3, 4, 5, 6].map((day) => ({ day, from: 11 * 60, to: 14 * 60 })),
   },
   {
@@ -27,7 +27,7 @@ const MENUS: Menu[] = [
     title: "Abendmenü",
     window: "17:00 – 22:00 Uhr (Fr bis 23:00, Sa und So nach Öffnungszeiten)",
     days: "Täglich",
-    description: "Pizza oder Pasta nach Wahl aus unserer Karte, frisch aus dem Ofen.",
+    description: "Pizza oder Pasta nach Wahl, frischer Salat und ein Getränk.",
     ranges: [
       { day: 0, from: 14 * 60, to: 22 * 60 },
       { day: 1, from: 17 * 60, to: 22 * 60 },
@@ -103,7 +103,7 @@ const TagesmenuPage = () => {
               </div>
 
               <Link
-                to="/menu"
+                to="/menu?category=vorspeisen"
                 className="mt-6 w-full bg-primary text-primary-foreground text-center py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity"
               >
                 Jetzt bestellen
@@ -132,11 +132,11 @@ const TagesmenuPage = () => {
             </a>
           </p>
           <p className="text-sm">
-            Aktionspreis gilt pro Pizza oder Pasta nach Wahl innerhalb der angegebenen Zeiten,
-            solange die Küche geöffnet ist. Nicht mit anderen Rabatten kombinierbar.
+            Aktionspreis gilt für das Menü: Pizza oder Pasta nach Wahl, frischer Salat und ein Getränk.
+            Gültig innerhalb der angegebenen Zeiten, solange die Küche geöffnet ist. Nicht mit anderen Rabatten kombinierbar.
           </p>
           <Link
-            to="/menu"
+            to="/menu?category=vorspeisen"
             className="inline-block bg-secondary text-secondary-foreground px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity"
           >
             Zur Speisekarte
