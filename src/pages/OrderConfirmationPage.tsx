@@ -23,7 +23,7 @@ const OrderConfirmationPage = () => {
   useEffect(() => {
     if (!order || trackedRef.current) return;
     trackedRef.current = true;
-    trackGoogleAdsPurchase({
+    void trackGoogleAdsPurchase({
       value: order.totalPrice,
       transactionId: order.orderNumber || order.id || id || "unknown",
     });
