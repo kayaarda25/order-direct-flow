@@ -39,6 +39,7 @@ export interface MenuCategory {
 }
 
 export const categories: MenuCategory[] = [
+  { id: "tagesmenu", name: "Mittagsmenü" },
   { id: "vorspeisen", name: "Vorspeisen" },
   { id: "salate", name: "Salate" },
   { id: "pizza", name: "Pizza" },
@@ -50,6 +51,15 @@ export const categories: MenuCategory[] = [
   { id: "desserts", name: "Desserts" },
   { id: "getraenke", name: "Getränke" },
 ];
+
+/** Zeitabhängiger Name: 11–14 Uhr Mittagsmenü, ab 15 Uhr Abendmenü */
+export function tagesmenuLabel(now: Date = new Date()): string {
+  return now.getHours() < 15 ? "Mittagsmenü" : "Abendmenü";
+}
+
+export function categoryLabel(cat: MenuCategory, now: Date = new Date()): string {
+  return cat.id === "tagesmenu" ? tagesmenuLabel(now) : cat.name;
+}
 
 export const crossSellMap: Record<string, string[]> = {
   "pizza": ["getraenke", "beilagen", "desserts"],
