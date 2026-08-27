@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { trackGoogleAdsBeginCheckout } from "@/lib/googleAdsTracking";
 import { toast } from "sonner";
 import Seo from "@/components/Seo";
-import { getActivePromo, clearPromo, promoDiscountFor, PROMO_PERCENT } from "@/lib/promo";
+import { getActivePromo, clearPromo, activePromoDiscount, promoLabel } from "@/lib/promo";
 
 const paymentMethods = [
   { id: "cash", name: "Bargeld", icon: Banknote },
