@@ -157,7 +157,7 @@ const CheckoutPage = () => {
         payment_type: form.payment,
         scheduled_time: form.scheduledTime || null,
         delivery_fee: orderType === "delivery" ? deliveryFee : 0,
-        discount: freePizzaDiscount,
+        discount: freePizzaDiscount + promoDiscount,
         total_amount: adjustedTotal,
         special_notes: form.notes + (freePizzasRedeemed > 0 ? ` [${freePizzasRedeemed}x GRATIS-PIZZA EINGELÖST]` : ""),
         items: items.map((item) => ({
