@@ -159,7 +159,10 @@ const CheckoutPage = () => {
         delivery_fee: orderType === "delivery" ? deliveryFee : 0,
         discount: freePizzaDiscount + promoDiscount,
         total_amount: adjustedTotal,
-        special_notes: form.notes + (freePizzasRedeemed > 0 ? ` [${freePizzasRedeemed}x GRATIS-PIZZA EINGELÖST]` : ""),
+        special_notes:
+          form.notes +
+          (freePizzasRedeemed > 0 ? ` [${freePizzasRedeemed}x GRATIS-PIZZA EINGELÖST]` : "") +
+          (promoDiscount > 0 ? ` [AKTION ${PROMO_PERCENT}% -CHF ${promoDiscount.toFixed(2)}]` : ""),
         items: items.map((item) => ({
           name: item.menuItem.name,
           quantity: item.quantity,
