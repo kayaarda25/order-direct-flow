@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { updateGoogleConsent, type GoogleConsentDecision } from "@/lib/googleAdsTracking";
+import { CONSENT_STORAGE_KEY, updateGoogleConsent, type GoogleConsentDecision } from "@/lib/googleAdsTracking";
 
-const STORAGE_KEY = "piratino_cookie_consent";
+const STORAGE_KEY = CONSENT_STORAGE_KEY;
 
 const readStoredConsent = (): GoogleConsentDecision | null => {
   try {

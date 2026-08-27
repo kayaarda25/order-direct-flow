@@ -28,6 +28,7 @@ import ReservationPage from "./pages/ReservationPage";
 import AngebotePage from "./pages/AngebotePage";
 import DeliveryPage from "./pages/DeliveryPage";
 import PickupPage from "./pages/PickupPage";
+import DatenschutzPage from "./pages/DatenschutzPage";
 import NotFound from "./pages/NotFound";
 import AdminLogin from "./components/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -107,6 +108,7 @@ const App = () => {
                             <Route path="/cart" element={<CartPage />} />
                             <Route path="/checkout" element={<CheckoutPage />} />
                             <Route path="/order/:id" element={<OrderConfirmationPage />} />
+                            <Route path="/datenschutz" element={<DatenschutzPage />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
                         </main>

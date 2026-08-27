@@ -9,7 +9,7 @@ import { isRestaurantOpen, getScheduledTimeSlots } from "@/utils/openingHours";
 import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, AlertCircle, Clock, Pizza } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { trackGoogleAdsPurchase } from "@/lib/googleAdsTracking";
+import { trackGoogleAdsBeginCheckout } from "@/lib/googleAdsTracking";
 import { toast } from "sonner";
 import Seo from "@/components/Seo";
 
@@ -75,6 +75,20 @@ const CheckoutPage = () => {
 
   const maxRedeemable = Math.min(freePizzasAvailable, pizzaPricesSorted.length);
   const adjustedTotal = totalPrice - freePizzaDiscount;
+
+  // "Kasse gestartet" einmal pro Sitzung melden (nur zur Beobachtung).
+  useEffect(() => {
+    if (items.length === 0) return;
+    try {
+      if (sessionStorage.getItem("piratino_begin_checkout_tracked")) return;
+      sessionStorage.setItem("piratino_begin_checkout_tracked", "1");
+    } catch {
+      // ohne Storage einmal pro Seitenaufruf melden
+    }
+    trackGoogleAdsBeginCheckout({ value: adjustedTotal });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.length]);
+
 
   const [form, setForm] = useState({
     name: "",
@@ -171,10 +185,9 @@ const CheckoutPage = () => {
         totalPrice: adjustedTotal,
       });
 
-      trackGoogleAdsPurchase({
-        value: adjustedTotal,
-        transactionId: order.orderNumber || order.id,
-      });
+      // Die Kauf-Conversion wird auf der Bestätigungsseite gemeldet.
+
+
 
       clearCart();
 
