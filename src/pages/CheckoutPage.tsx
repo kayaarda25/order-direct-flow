@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { trackGoogleAdsBeginCheckout } from "@/lib/googleAdsTracking";
 import { toast } from "sonner";
 import Seo from "@/components/Seo";
-import { getActivePromo, clearPromo, promoDiscountFor, PROMO_PERCENT } from "@/lib/promo";
+import { getActivePromo, clearPromo, activePromoDiscount, promoLabel } from "@/lib/promo";
 
 const paymentMethods = [
   { id: "cash", name: "Bargeld", icon: Banknote },
@@ -78,7 +78,7 @@ const CheckoutPage = () => {
 
   // Aktionsrabatt: nur aktiv, wenn die Person über den Werbelink gekommen ist.
   const promoCode = getActivePromo();
-  const promoDiscount = promoCode ? promoDiscountFor(totalPrice - freePizzaDiscount) : 0;
+  const promoDiscount = activePromoDiscount(promoCode, totalPrice - freePizzaDiscount, items);
 
   const adjustedTotal = Math.max(0, totalPrice - freePizzaDiscount - promoDiscount);
 
@@ -162,7 +162,9 @@ const CheckoutPage = () => {
         special_notes:
           form.notes +
           (freePizzasRedeemed > 0 ? ` [${freePizzasRedeemed}x GRATIS-PIZZA EINGELÖST]` : "") +
-          (promoDiscount > 0 ? ` [AKTION ${PROMO_PERCENT}% -CHF ${promoDiscount.toFixed(2)}]` : ""),
+          (promoDiscount > 0
+            ? ` [${promoLabel(promoCode).toUpperCase()} -CHF ${promoDiscount.toFixed(2)}]`
+            : ""),
         items: items.map((item) => ({
           name: item.menuItem.name,
           quantity: item.quantity,
@@ -431,7 +433,7 @@ const CheckoutPage = () => {
 
           {promoDiscount > 0 && (
             <div className="flex justify-between items-center text-sm">
-              <span className="text-primary font-semibold">Aktion {PROMO_PERCENT}% Rabatt</span>
+              <span className="text-primary font-semibold">{promoLabel(promoCode)}</span>
               <span className="text-primary font-semibold">- CHF {promoDiscount.toFixed(2)}</span>
             </div>
           )}
