@@ -26,6 +26,7 @@ import AboutPage from "./pages/AboutPage";
 import CateringPage from "./pages/CateringPage";
 import ReservationPage from "./pages/ReservationPage";
 import AngebotePage from "./pages/AngebotePage";
+import AktionPage from "./pages/AktionPage";
 import DeliveryPage from "./pages/DeliveryPage";
 import PickupPage from "./pages/PickupPage";
 import DatenschutzPage from "./pages/DatenschutzPage";
@@ -99,6 +100,7 @@ const App = () => {
                             <Route path="/" element={<Index />} />
                             <Route path="/menu" element={<MenuPage />} />
                             <Route path="/angebote" element={<AngebotePage />} />
+                            <Route path="/aktion" element={<AktionPage />} />
                             <Route path="/pizza-lieferung-zuerich" element={<DeliveryPage />} />
                             <Route path="/pizza-abholung-zuerich" element={<PickupPage />} />
                             <Route path="/galerie" element={<GalleryPage />} />

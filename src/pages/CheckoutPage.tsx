@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { trackGoogleAdsBeginCheckout } from "@/lib/googleAdsTracking";
 import { toast } from "sonner";
 import Seo from "@/components/Seo";
+import { getActivePromo, clearPromo, promoDiscountFor, PROMO_PERCENT } from "@/lib/promo";
 
 const paymentMethods = [
   { id: "cash", name: "Bargeld", icon: Banknote },
@@ -74,7 +75,12 @@ const CheckoutPage = () => {
     .reduce((sum, p) => sum + p, 0);
 
   const maxRedeemable = Math.min(freePizzasAvailable, pizzaPricesSorted.length);
-  const adjustedTotal = totalPrice - freePizzaDiscount;
+
+  // Aktionsrabatt: nur aktiv, wenn die Person über den Werbelink gekommen ist.
+  const promoCode = getActivePromo();
+  const promoDiscount = promoCode ? promoDiscountFor(totalPrice - freePizzaDiscount) : 0;
+
+  const adjustedTotal = Math.max(0, totalPrice - freePizzaDiscount - promoDiscount);
 
   // "Kasse gestartet" einmal pro Sitzung melden (nur zur Beobachtung).
   useEffect(() => {
@@ -151,9 +157,12 @@ const CheckoutPage = () => {
         payment_type: form.payment,
         scheduled_time: form.scheduledTime || null,
         delivery_fee: orderType === "delivery" ? deliveryFee : 0,
-        discount: freePizzaDiscount,
+        discount: freePizzaDiscount + promoDiscount,
         total_amount: adjustedTotal,
-        special_notes: form.notes + (freePizzasRedeemed > 0 ? ` [${freePizzasRedeemed}x GRATIS-PIZZA EINGELÖST]` : ""),
+        special_notes:
+          form.notes +
+          (freePizzasRedeemed > 0 ? ` [${freePizzasRedeemed}x GRATIS-PIZZA EINGELÖST]` : "") +
+          (promoDiscount > 0 ? ` [AKTION ${PROMO_PERCENT}% -CHF ${promoDiscount.toFixed(2)}]` : ""),
         items: items.map((item) => ({
           name: item.menuItem.name,
           quantity: item.quantity,
@@ -190,6 +199,7 @@ const CheckoutPage = () => {
 
 
       clearCart();
+      if (promoDiscount > 0) clearPromo();
 
       // Award loyalty points and redeem free pizza if applicable
       if (user) {
@@ -416,6 +426,13 @@ const CheckoutPage = () => {
                 <span className="text-accent font-semibold">- CHF {freePizzaDiscount.toFixed(2)}</span>
                 <button type="button" onClick={() => setFreePizzasRedeemed(0)} className="text-muted-foreground text-xs underline hover:text-foreground">Entfernen</button>
               </div>
+            </div>
+          )}
+
+          {promoDiscount > 0 && (
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-primary font-semibold">Aktion {PROMO_PERCENT}% Rabatt</span>
+              <span className="text-primary font-semibold">- CHF {promoDiscount.toFixed(2)}</span>
             </div>
           )}
 
