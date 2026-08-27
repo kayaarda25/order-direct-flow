@@ -100,6 +100,7 @@ const App = () => {
                             <Route path="/" element={<Index />} />
                             <Route path="/menu" element={<MenuPage />} />
                             <Route path="/angebote" element={<AngebotePage />} />
+                            <Route path="/aktion" element={<AktionPage />} />
                             <Route path="/pizza-lieferung-zuerich" element={<DeliveryPage />} />
                             <Route path="/pizza-abholung-zuerich" element={<PickupPage />} />
                             <Route path="/galerie" element={<GalleryPage />} />
