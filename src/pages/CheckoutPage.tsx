@@ -75,7 +75,12 @@ const CheckoutPage = () => {
     .reduce((sum, p) => sum + p, 0);
 
   const maxRedeemable = Math.min(freePizzasAvailable, pizzaPricesSorted.length);
-  const adjustedTotal = totalPrice - freePizzaDiscount;
+
+  // Aktionsrabatt: nur aktiv, wenn die Person über den Werbelink gekommen ist.
+  const promoCode = getActivePromo();
+  const promoDiscount = promoCode ? promoDiscountFor(totalPrice - freePizzaDiscount) : 0;
+
+  const adjustedTotal = Math.max(0, totalPrice - freePizzaDiscount - promoDiscount);
 
   // "Kasse gestartet" einmal pro Sitzung melden (nur zur Beobachtung).
   useEffect(() => {
