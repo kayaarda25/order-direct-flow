@@ -199,6 +199,7 @@ const CheckoutPage = () => {
 
 
       clearCart();
+      if (promoDiscount > 0) clearPromo();
 
       // Award loyalty points and redeem free pizza if applicable
       if (user) {
