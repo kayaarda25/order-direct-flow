@@ -1,4 +1,4 @@
-import { categories } from "@/hooks/useMenuItems";
+import { categories, categoryLabel } from "@/hooks/useMenuItems";
 import { cn } from "@/lib/utils";
 
 interface CategoryBarProps {
@@ -22,7 +22,7 @@ const CategoryBar = ({ activeCategory, onCategoryChange }: CategoryBarProps) => 
                   : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
               )}
             >
-              {cat.name}
+              {categoryLabel(cat)}
             </button>
           ))}
         </div>

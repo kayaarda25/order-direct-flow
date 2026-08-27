@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useMenuItems, categories } from "@/hooks/useMenuItems";
+import { useMenuItems, categories, categoryLabel } from "@/hooks/useMenuItems";
 import type { MenuItem } from "@/hooks/useMenuItems";
 import CategoryBar from "@/components/CategoryBar";
 import ProductCard from "@/components/ProductCard";
@@ -108,7 +108,7 @@ const MenuPage = () => {
                     className="mb-10"
                   >
                     <h2 className="font-display text-xl md:text-2xl font-bold text-neutral-900 mb-1">
-                      {cat.name}
+                      {categoryLabel(cat)}
                     </h2>
                     <p className="text-neutral-500 text-sm mb-4">
                       {items.length} {items.length === 1 ? "Produkt" : "Produkte"}
