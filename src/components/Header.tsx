@@ -25,6 +25,9 @@ const Header = () => {
             <Link to="/menu" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
               Jetzt bestellen
             </Link>
+            <Link to="/tagesmenu" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
+              Tagesmenü
+            </Link>
             <Link to="/angebote" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
               Angebote
             </Link>
@@ -117,6 +120,9 @@ const Header = () => {
               <nav className="container flex flex-col gap-4 py-4">
                 <Link to="/" className="text-foreground font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Home</Link>
                 <Link to="/menu" className="text-foreground font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Jetzt bestellen</Link>
+                <Link to="/tagesmenu" className="text-foreground font-medium py-2 flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+                  Tagesmenü
+                </Link>
                 <Link to="/angebote" className="text-foreground font-medium py-2 flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
                   Angebote
                   {user && <span className="text-xs bg-accent/20 text-accent px-2 py-0.5 rounded-full">{profile?.points_balance ?? 0} Pts</span>}
