@@ -18,6 +18,7 @@ const AktionPage = () => {
       <Seo
         title={`${PROMO_PERCENT}% Rabatt auf deine Bestellung | Pizza Piratino Zürich`}
         description={`Dein Aktionsrabatt von ${PROMO_PERCENT}% ist aktiviert. Jetzt Pizza oder Pasta direkt bei Pizza Piratino in Zürich Altstetten bestellen.`}
+        path="/aktion"
       />
       <div className="max-w-lg w-full text-center bg-card border border-border rounded-2xl p-8 space-y-5">
         <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
