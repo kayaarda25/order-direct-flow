@@ -19,7 +19,7 @@ const MENUS: Menu[] = [
     title: "Mittagsmenü",
     window: "11:00 – 14:00 Uhr",
     days: "Montag bis Samstag",
-    description: "Pizza oder Pasta nach Wahl aus unserer Karte, frisch aus dem Ofen.",
+    description: "Pizza oder Pasta nach Wahl, frischer Salat und ein Getränk.",
     ranges: [1, 2, 3, 4, 5, 6].map((day) => ({ day, from: 11 * 60, to: 14 * 60 })),
   },
   {
