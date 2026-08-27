@@ -78,7 +78,7 @@ const CheckoutPage = () => {
 
   // Aktionsrabatt: nur aktiv, wenn die Person über den Werbelink gekommen ist.
   const promoCode = getActivePromo();
-  const promoDiscount = promoCode ? promoDiscountFor(totalPrice - freePizzaDiscount) : 0;
+  const promoDiscount = activePromoDiscount(promoCode, totalPrice - freePizzaDiscount, items);
 
   const adjustedTotal = Math.max(0, totalPrice - freePizzaDiscount - promoDiscount);
 
