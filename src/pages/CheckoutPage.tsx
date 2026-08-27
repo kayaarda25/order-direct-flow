@@ -162,7 +162,9 @@ const CheckoutPage = () => {
         special_notes:
           form.notes +
           (freePizzasRedeemed > 0 ? ` [${freePizzasRedeemed}x GRATIS-PIZZA EINGELÖST]` : "") +
-          (promoDiscount > 0 ? ` [AKTION ${PROMO_PERCENT}% -CHF ${promoDiscount.toFixed(2)}]` : ""),
+          (promoDiscount > 0
+            ? ` [${promoLabel(promoCode).toUpperCase()} -CHF ${promoDiscount.toFixed(2)}]`
+            : ""),
         items: items.map((item) => ({
           name: item.menuItem.name,
           quantity: item.quantity,
