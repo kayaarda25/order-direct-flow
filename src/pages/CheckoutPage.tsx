@@ -429,6 +429,13 @@ const CheckoutPage = () => {
             </div>
           )}
 
+          {promoDiscount > 0 && (
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-primary font-semibold">Aktion {PROMO_PERCENT}% Rabatt</span>
+              <span className="text-primary font-semibold">- CHF {promoDiscount.toFixed(2)}</span>
+            </div>
+          )}
+
           <div className="flex justify-between text-foreground font-bold text-lg">
             <span>Total</span>
             <span>CHF {adjustedTotal.toFixed(2)}</span>
