@@ -130,6 +130,11 @@ const Footer = () => {
             <p className="text-right text-xs text-primary-foreground/80">
               © {new Date().getFullYear()} Piratino AG · Pizza, Pasta and more since 2006.
             </p>
+            <p className="text-right text-xs text-primary-foreground/80">
+              <a href="/datenschutz" className="underline underline-offset-4 hover:opacity-80">
+                Datenschutz
+              </a>
+            </p>
             <p className="flex items-center justify-end gap-2 text-xs text-primary-foreground/80">
               <Clock className="h-3.5 w-3.5" />
               Öffnungszeiten wie links aufgeführt.

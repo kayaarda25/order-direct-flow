@@ -23,6 +23,7 @@ const DatenschutzPage = () => {
       <Seo
         title="Datenschutzerklärung | Pizza Piratino Zürich"
         description="Datenschutzerklärung von Pizza Piratino: welche Daten bei Bestellungen, Reservationen und Werbemessung verarbeitet werden."
+        path="/datenschutz"
       />
 
       <h1 className="font-display text-3xl font-bold text-foreground md:text-4xl">Datenschutzerklärung</h1>
