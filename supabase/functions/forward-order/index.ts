@@ -254,7 +254,9 @@ serve(async (req) => {
 
     // Only contact the systems that have not confirmed this order yet
     const tasks: { key: "pos1_ok" | "pos2_ok"; p: Promise<string> }[] = [];
-    if (!pos1Done) {
+    if (!WEBHOOK_URL) {
+      console.log("WEBHOOK_URL not configured - skipping POS 1");
+    } else if (!pos1Done) {
       tasks.push({ key: "pos1_ok", p: send(WEBHOOK_URL, WEBHOOK_SECRET, "POS 1", webhookBody) });
     } else {
       console.log("POS 1 already confirmed this order - skipping duplicate");
