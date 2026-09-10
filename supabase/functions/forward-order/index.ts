@@ -275,10 +275,12 @@ serve(async (req) => {
     const settled = await Promise.allSettled(tasks.map((t) => t.p));
     const failed: string[] = [];
     const responses: string[] = [];
+    let anySuccess = pos1Done || pos2Done;
     for (let i = 0; i < tasks.length; i++) {
       const r = settled[i];
       if (r.status === "fulfilled") {
         responses.push(r.value);
+        anySuccess = true;
         await supabase
           .from("order_dispatches")
           .update({ [tasks[i].key]: true, updated_at: new Date().toISOString() })
@@ -288,8 +290,23 @@ serve(async (req) => {
       }
     }
 
-    if (failed.length > 0) {
+    // Re-read the print flag: the order is safe as soon as it reached the printer
+    let printOk = printDone;
+    if (!printOk) {
+      const { data: after } = await supabase
+        .from("order_dispatches")
+        .select("print_queued")
+        .eq("order_ref", orderRef)
+        .maybeSingle();
+      printOk = after?.print_queued === true;
+    }
+
+    // Only report a failure when the order reached NOTHING at all.
+    if (failed.length > 0 && !anySuccess && !printOk) {
       throw new Error(failed.join(" | "));
+    }
+    if (failed.length > 0) {
+      console.error("Partial dispatch failure (order accepted):", failed.join(" | "));
     }
 
     const nothingSent = tasks.length === 0 && (pos1Done || pos2Done || printDone);
