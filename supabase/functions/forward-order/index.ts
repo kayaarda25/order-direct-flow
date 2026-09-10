@@ -34,8 +34,8 @@ serve(async (req) => {
       throw new Error("WEBHOOK_SECRET is not configured");
     }
 
-    const WEBHOOK_URL =
-      "https://lxcfuvlhtfnprqwevopw.supabase.co/functions/v1/receive-order";
+    // Legacy POS 1 target. Can be disabled by setting WEBHOOK_URL to an empty value.
+    const WEBHOOK_URL = Deno.env.get("WEBHOOK_URL") ?? "";
 
     // Optional second POS target
     const WEBHOOK_URL_2 = Deno.env.get("WEBHOOK_URL_2");
@@ -254,7 +254,9 @@ serve(async (req) => {
 
     // Only contact the systems that have not confirmed this order yet
     const tasks: { key: "pos1_ok" | "pos2_ok"; p: Promise<string> }[] = [];
-    if (!pos1Done) {
+    if (!WEBHOOK_URL) {
+      console.log("WEBHOOK_URL not configured - skipping POS 1");
+    } else if (!pos1Done) {
       tasks.push({ key: "pos1_ok", p: send(WEBHOOK_URL, WEBHOOK_SECRET, "POS 1", webhookBody) });
     } else {
       console.log("POS 1 already confirmed this order - skipping duplicate");
@@ -275,10 +277,12 @@ serve(async (req) => {
     const settled = await Promise.allSettled(tasks.map((t) => t.p));
     const failed: string[] = [];
     const responses: string[] = [];
+    let anySuccess = pos1Done || pos2Done;
     for (let i = 0; i < tasks.length; i++) {
       const r = settled[i];
       if (r.status === "fulfilled") {
         responses.push(r.value);
+        anySuccess = true;
         await supabase
           .from("order_dispatches")
           .update({ [tasks[i].key]: true, updated_at: new Date().toISOString() })
@@ -288,8 +292,23 @@ serve(async (req) => {
       }
     }
 
-    if (failed.length > 0) {
+    // Re-read the print flag: the order is safe as soon as it reached the printer
+    let printOk = printDone;
+    if (!printOk) {
+      const { data: after } = await supabase
+        .from("order_dispatches")
+        .select("print_queued")
+        .eq("order_ref", orderRef)
+        .maybeSingle();
+      printOk = after?.print_queued === true;
+    }
+
+    // Only report a failure when the order reached NOTHING at all.
+    if (failed.length > 0 && !anySuccess && !printOk) {
       throw new Error(failed.join(" | "));
+    }
+    if (failed.length > 0) {
+      console.error("Partial dispatch failure (order accepted):", failed.join(" | "));
     }
 
     const nothingSent = tasks.length === 0 && (pos1Done || pos2Done || printDone);
