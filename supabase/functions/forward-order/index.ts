@@ -34,8 +34,8 @@ serve(async (req) => {
       throw new Error("WEBHOOK_SECRET is not configured");
     }
 
-    const WEBHOOK_URL =
-      "https://lxcfuvlhtfnprqwevopw.supabase.co/functions/v1/receive-order";
+    // Legacy POS 1 target. Can be disabled by setting WEBHOOK_URL to an empty value.
+    const WEBHOOK_URL = Deno.env.get("WEBHOOK_URL") ?? "";
 
     // Optional second POS target
     const WEBHOOK_URL_2 = Deno.env.get("WEBHOOK_URL_2");
