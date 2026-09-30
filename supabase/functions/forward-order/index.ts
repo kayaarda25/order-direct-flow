@@ -101,6 +101,11 @@ serve(async (req) => {
         city,
       },
       notes: orderData.special_notes ?? "",
+      special_notes: orderData.special_notes ?? "",
+      customer_notes: orderData.special_notes ?? "",
+      payment_type: orderData.payment_type ?? "",
+      payment_method: orderData.payment_type ?? "",
+      payment: orderData.payment_type ?? "",
       ...(orderData.scheduled_time ? { scheduled_time: orderData.scheduled_time } : {}),
       items: items.map((i: { name: string; quantity: number; price: number; station: string; modifiers?: string; notes?: string }) => ({
         product_name: i.name,
@@ -115,7 +120,7 @@ serve(async (req) => {
                 .filter(Boolean),
             }
           : {}),
-        ...(i.notes ? { notes: i.notes } : {}),
+        ...(i.notes ? { notes: i.notes, note: i.notes } : {}),
       })),
     };
 

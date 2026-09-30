@@ -104,6 +104,43 @@ Deno.serve(async (req) => {
     const { error } = await supabase.from("print_jobs").insert({ payload });
     if (error) throw error;
 
+    // Anfrage zusaetzlich an die Kasse (POS 2) senden - Fehler blockieren nicht
+    const posUrl = Deno.env.get("WEBHOOK_URL_2");
+    const posSecret = Deno.env.get("WEBHOOK_SECRET_2") ?? Deno.env.get("WEBHOOK_SECRET") ?? "";
+    if (posUrl) {
+      const text = [details.join("\n"), payload.special_notes ? `NACHRICHT: ${payload.special_notes}` : ""]
+        .filter(Boolean).join("\n");
+      try {
+        const res = await fetch(posUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-webhook-secret": posSecret },
+          body: JSON.stringify({
+            type: kind,
+            request_type: kind,
+            customer: {
+              name,
+              phone: payload.customer_phone,
+              email: payload.customer_email,
+              address: payload.customer_address,
+            },
+            event_date: payload.event_date,
+            event_time: payload.event_time,
+            persons: payload.persons,
+            company: payload.company,
+            package_name: payload.package_name,
+            total_price: payload.total_price,
+            notes: text,
+            special_notes: text,
+            details,
+            items: [],
+          }),
+        });
+        console.log(`POS ${kind} response [${res.status}]:`, (await res.text()).slice(0, 500));
+      } catch (e) {
+        console.error("POS forward failed:", e instanceof Error ? e.message : String(e));
+      }
+    }
+
     return json(200, { ok: true });
   } catch (error: unknown) {
     console.error("print-request error:", error);
