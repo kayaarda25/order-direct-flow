@@ -45,7 +45,7 @@ const CheckoutPage = () => {
           data.map((z) => ({
             plz: z.plz,
             city: z.city,
-            minimumOrder: z.minimum_order,
+            minimumOrder: Number(z.minimum_order),
             active: z.active,
           }))
         );
@@ -120,6 +120,7 @@ const CheckoutPage = () => {
     const e: Record<string, string> = {};
     if (!form.name.trim()) e.name = "Name ist erforderlich";
     if (!form.phone.trim()) e.phone = "Telefonnummer ist erforderlich";
+    else if (form.phone.replace(/\D/g, "").length < 9) e.phone = "Bitte gültige Telefonnummer eingeben";
     if (!restaurantOpen && !form.scheduledTime) e.scheduledTime = "Bitte wähle einen Zeitpunkt";
     if (orderType === "delivery") {
       if (!form.plz.trim()) e.plz = "PLZ ist erforderlich";
