@@ -5,8 +5,11 @@ export interface DeliveryZone {
   active: boolean;
 }
 
+// Fallback only – live values come from the database.
 export const deliveryZones: DeliveryZone[] = [
-  { plz: "8048", city: "Zürich", minimumOrder: 40, active: true },
+  { plz: "8047", city: "Zürich", minimumOrder: 25, active: true },
+  { plz: "8048", city: "Zürich", minimumOrder: 20, active: true },
+  { plz: "8049", city: "Zürich", minimumOrder: 30, active: true },
   { plz: "8952", city: "Schlieren", minimumOrder: 60, active: true },
 ];
 
