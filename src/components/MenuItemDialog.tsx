@@ -365,7 +365,7 @@ const MenuItemDialog = ({
         }
       } else if (data.category === DRINK_CATEGORY) {
         const existingGroesse = modifierGroups.find((g: any) => g.id === "groesse");
-        if (existingGroesse) {
+        if (existingGroesse || (data.price_05 || 0) > 0 || (data.price_15 || 0) > 0) {
           // Upload per-size images
           const sizeImageUrls: Record<string, string | undefined> = {};
           for (const sizeId of ["0.5l", "1.5l"]) {
@@ -502,7 +502,7 @@ const MenuItemDialog = ({
             />
 
             {/* Base price - hidden for pizza and drinks */}
-            {!isPizza && !isDrink && !isSalad && (
+            {!isPizza && !isSalad && (
               <FormField
                 control={form.control}
                 name="price"
