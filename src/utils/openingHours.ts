@@ -1,7 +1,10 @@
 // Opening hours per day of week (0=Sunday, 1=Monday, ..., 6=Saturday)
 // Each day has an array of time ranges [startHour, startMin, endHour, endMin]
+import { supabase } from "@/integrations/supabase/client";
+
 type TimeRange = [number, number, number, number];
 
+// Fallback only; real hours are loaded from the admin "Öffnungszeiten" page.
 const schedule: Record<number, TimeRange[]> = {
   0: [[14, 0, 22, 0]],                        // Sonntag
   1: [[11, 0, 14, 0], [17, 0, 22, 0]],        // Montag
@@ -11,6 +14,15 @@ const schedule: Record<number, TimeRange[]> = {
   5: [[11, 0, 14, 0], [17, 0, 23, 0]],        // Freitag
   6: [[11, 0, 23, 0]],                         // Samstag
 };
+
+/** Load opening hours set in the admin area and replace the fallback schedule. */
+export async function loadOpeningHours(): Promise<void> {
+  const { data, error } = await supabase.from("opening_hours").select("day_of_week, time_ranges");
+  if (error || !data || data.length === 0) return;
+  for (const row of data as { day_of_week: number; time_ranges: unknown }[]) {
+    if (Array.isArray(row.time_ranges)) schedule[row.day_of_week] = row.time_ranges as TimeRange[];
+  }
+}
 
 export function isRestaurantOpen(now = new Date()): boolean {
   const day = now.getDay();

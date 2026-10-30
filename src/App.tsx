@@ -13,7 +13,7 @@ import { SiteContentProvider } from "@/hooks/useSiteContent";
 import Header from "@/components/Header";
 import ClosedBanner from "@/components/ClosedBanner";
 import ConsentBanner from "@/components/ConsentBanner";
-import { isRestaurantOpen } from "@/utils/openingHours";
+import { isRestaurantOpen, loadOpeningHours } from "@/utils/openingHours";
 import { usePageTracking } from "@/hooks/usePageTracking";
 import Footer from "@/components/Footer";
 import Index from "./pages/Index";
@@ -71,8 +71,11 @@ const App = () => {
   const [isOpen, setIsOpen] = useState(() => isRestaurantOpen());
 
   useEffect(() => {
+    const refresh = () => loadOpeningHours().then(() => setIsOpen(isRestaurantOpen()));
+    refresh();
+    const reload = setInterval(refresh, 5 * 60_000);
     const interval = setInterval(() => setIsOpen(isRestaurantOpen()), 60_000);
-    return () => clearInterval(interval);
+    return () => { clearInterval(interval); clearInterval(reload); };
   }, []);
 
   return (
