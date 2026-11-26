@@ -97,7 +97,13 @@ async function release(c: any, date: string, by: string) {
 }
 
 async function firmAdmin(body: any) {
-  const { data: c } = await db.from("corporate_clients").select("*").eq("admin_token", clip(body.token, 80)).eq("active", true).maybeSingle();
+  const tok = clip(body.token, 80).replace(/[^a-zA-Z0-9-]/g, "");
+  let { data: c } = await db.from("corporate_clients").select("*").eq("admin_token", tok).eq("active", true).maybeSingle();
+  if (!c && tok.length >= 8) {
+    // Tolerate shortened links (older admin view showed only the first 8 characters); password is still required.
+    const { data: list } = await db.from("corporate_clients").select("*").like("admin_token", `${tok}%`).eq("active", true).limit(2);
+    if (list && list.length === 1) c = list[0];
+  }
   if (!c || clip(body.password, 60) !== c.admin_password) return null;
   return c;
 }
