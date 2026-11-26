@@ -73,14 +73,23 @@ serve(async (req) => {
       items,
     };
 
-    // Split "Strasse 12, 8048 Zürich" into street / zip / city for POS 2
+    // Split "Strasse 12, 8048 Zürich" or multi-line addresses into street / zip / city for POS 2
     const rawAddress: string = orderData.customer_address ?? "";
-    const addressParts = rawAddress.split(",").map((p: string) => p.trim()).filter(Boolean);
-    const street = addressParts[0] ?? "";
-    const cityPart = addressParts.slice(1).join(" ").trim();
-    const zipMatch = cityPart.match(/\b(\d{4,5})\b/);
-    const zip = zipMatch?.[1] ?? "";
-    const city = cityPart.replace(zip, "").trim();
+    const addressParts = rawAddress.split(/[,\n\r]+/).map((p: string) => p.trim()).filter(Boolean);
+    const zipIdx = addressParts.findIndex((p: string) => /^(CH-)?\d{4,5}\b/.test(p));
+    let street = "", zip = "", city = "";
+    if (zipIdx >= 0) {
+      const m = addressParts[zipIdx].match(/^(?:CH-)?(\d{4,5})\s*(.*)$/)!;
+      zip = m[1]; city = m[2].trim() || (addressParts[zipIdx + 1] ?? "");
+      const before = addressParts.slice(0, zipIdx);
+      street = before.find((p: string) => /\d/.test(p)) ?? before[before.length - 1] ?? "";
+    } else {
+      street = addressParts[0] ?? "";
+      const cityPart = addressParts.slice(1).join(" ").trim();
+      zip = cityPart.match(/\b(\d{4,5})\b/)?.[1] ?? "";
+      city = cityPart.replace(zip, "").trim();
+    }
+    const flatAddress = addressParts.join(", ");
 
     const fullName: string = (orderData.customer_name ?? "").trim();
     const nameParts = fullName.split(/\s+/).filter(Boolean);
@@ -95,7 +104,7 @@ serve(async (req) => {
         first_name: firstName,
         last_name: lastName,
         phone: orderData.customer_phone,
-        address: rawAddress,
+        address: flatAddress,
         street,
         zip,
         city,

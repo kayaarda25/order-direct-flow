@@ -19,11 +19,12 @@ import { Button } from "@/components/ui/button";
 const menuItems = [
   { title: "Übersicht", url: "/admin", icon: LayoutDashboard },
   { title: "Bestellungen", url: "/admin/orders", icon: ReceiptText },
-  { title: "Statistik", url: "/admin/stats", icon: BarChart3, Building2 },
+  { title: "Statistik", url: "/admin/stats", icon: BarChart3 },
   { title: "Menü", url: "/admin/menu", icon: UtensilsCrossed },
   { title: "Öffnungszeiten", url: "/admin/hours", icon: Clock },
   { title: "Lieferzonen", url: "/admin/zones", icon: MapPin },
   { title: "Firmenkunden", url: "/admin/corporate", icon: Building2 },
+  { title: "Monatsrechnungen", url: "/admin/invoices", icon: ReceiptText },
   { title: "Seiteninhalte", url: "/admin/content", icon: FileText },
   { title: "Admins", url: "/admin/users", icon: Users },
 ];

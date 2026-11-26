@@ -10,6 +10,7 @@ import AdminUsers from "@/pages/admin/AdminUsers";
 import AdminOrders from "@/pages/admin/AdminOrders";
 import AdminStats from "@/pages/admin/AdminStats";
 import AdminCorporate from "@/pages/admin/AdminCorporate";
+import AdminInvoices from "@/pages/admin/AdminInvoices";
 
 const AdminDashboard = () => {
   return (
@@ -31,6 +32,7 @@ const AdminDashboard = () => {
                 <Route path="hours" element={<AdminHours />} />
                 <Route path="zones" element={<AdminZones />} />
                 <Route path="corporate" element={<AdminCorporate />} />
+                <Route path="invoices" element={<AdminInvoices />} />
                 <Route path="content" element={<AdminContent />} />
                 <Route path="users" element={<AdminUsers />} />
               </Routes>

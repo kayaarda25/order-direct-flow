@@ -1,10 +1,10 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
+import { categories, categoryLabel } from "@/hooks/useMenuItems";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { chf, type CorpLine, type CorpMenuItem } from "@/lib/corporateApi";
 
-const CAT: Record<string, string> = { tagesmenu: "Tagesmenü", pizza: "Pizza", pasta: "Pasta", salat: "Salate", salate: "Salate", getraenke: "Getränke", dessert: "Dessert" };
 
 export function lineEstimate(menu: CorpMenuItem[], l: CorpLine, discount = 0) {
   const item = menu.find((m) => m.id === l.item_id);
@@ -18,7 +18,7 @@ export function lineEstimate(menu: CorpMenuItem[], l: CorpLine, discount = 0) {
   return Math.round((base + extra) * 20) / 20;
 }
 
-export default function CorpMenuPicker({ menu, lines, onChange, discount = 0 }: { menu: CorpMenuItem[]; lines: CorpLine[]; onChange: (l: CorpLine[]) => void; discount?: number }) {
+export default function CorpMenuPicker({ menu, lines, onChange, discount = 0, footer }: { menu: CorpMenuItem[]; lines: CorpLine[]; onChange: (l: CorpLine[]) => void; discount?: number; footer?: ReactNode }) {
   const [open, setOpen] = useState<string | null>(null);
   const [sel, setSel] = useState<Record<string, string[]>>({});
   const [note, setNote] = useState("");
@@ -26,7 +26,9 @@ export default function CorpMenuPicker({ menu, lines, onChange, discount = 0 }: 
   const groups = useMemo(() => {
     const g: Record<string, CorpMenuItem[]> = {};
     menu.forEach((m) => (g[m.category] ||= []).push(m));
-    return Object.entries(g);
+    const known = categories.filter((c) => g[c.id]).map((c) => [c.id, categoryLabel(c), g[c.id]] as const);
+    const rest = Object.keys(g).filter((k) => !categories.some((c) => c.id === k)).map((k) => [k, k, g[k]] as const);
+    return [...known, ...rest];
   }, [menu]);
 
   const add = (item: CorpMenuItem) => {
@@ -38,12 +40,22 @@ export default function CorpMenuPicker({ menu, lines, onChange, discount = 0 }: 
   };
   const total = lines.reduce((s, l) => s + lineEstimate(menu, l, discount) * l.quantity, 0);
 
+  const jump = (cat: string) => document.getElementById(`corp-cat-${cat}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+
   return (
-    <div className="grid lg:grid-cols-[1fr_340px] gap-6">
+    <div className="grid lg:grid-cols-[1fr_340px] gap-6 items-start">
+      <div className="lg:col-start-1 lg:row-start-1 min-w-0">
+        <nav aria-label="Kategorien" className="sticky top-16 md:top-20 z-30 -mx-4 px-4 py-3 mb-4 bg-background/95 backdrop-blur border-b border-border">
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+            {groups.map(([cat, label]) => (
+              <button key={cat} type="button" onClick={() => jump(cat)} className="px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground transition-colors">{label}</button>
+            ))}
+          </div>
+        </nav>
       <div className="space-y-8">
-        {groups.map(([cat, items]) => (
-          <section key={cat}>
-            <h2 className="font-heading text-2xl uppercase mb-3">{CAT[cat] || cat}</h2>
+        {groups.map(([cat, label, items]) => (
+          <section key={cat} id={`corp-cat-${cat}`} className="scroll-mt-40">
+            <h2 className="font-heading text-2xl uppercase mb-3">{label}</h2>
             <div className="grid sm:grid-cols-2 gap-3">
               {items.map((item) => (
                 <div key={item.id} className="rounded-lg border border-border bg-card p-4">
@@ -94,7 +106,8 @@ export default function CorpMenuPicker({ menu, lines, onChange, discount = 0 }: 
           </section>
         ))}
       </div>
-      <aside className="lg:sticky lg:top-24 h-fit rounded-lg border border-border bg-card p-4">
+      </div>
+      <aside className="lg:col-start-2 lg:row-start-1 lg:sticky lg:top-24 h-fit lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto rounded-lg border border-border bg-card p-4">
         <h3 className="font-heading text-xl uppercase mb-3">Deine Auswahl</h3>
         {lines.length === 0 && <p className="text-sm text-muted-foreground">Noch nichts ausgewählt.</p>}
         <ul className="space-y-3">
@@ -114,6 +127,7 @@ export default function CorpMenuPicker({ menu, lines, onChange, discount = 0 }: 
         </ul>
         <div className="border-t border-border mt-4 pt-3 flex justify-between font-semibold"><span>Total</span><span>{chf(total)}</span></div>
         <p className="text-xs text-muted-foreground mt-1">Bezahlung per Monatsrechnung über deine Firma.</p>
+        {footer && <div className="mt-4 space-y-3">{footer}</div>}
       </aside>
     </div>
   );

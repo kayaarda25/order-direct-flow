@@ -72,14 +72,13 @@ const FirmaOrderPage = () => {
           <Button variant="outline" onClick={() => setLines(saved.last)}>Letzte Bestellung wiederholen</Button>
         )}
       </div>
-      {client.next_delivery && <CorpMenuPicker menu={menu} lines={lines} onChange={setLines} discount={Number(client.discount_percent) || 0} />}
       {client.next_delivery && (
-        <div className="max-w-md mt-8 space-y-3">
+        <CorpMenuPicker menu={menu} lines={lines} onChange={setLines} discount={Number(client.discount_percent) || 0} footer={<>
           <label className="flex items-center gap-2 text-sm"><Checkbox checked={remember} onCheckedChange={(v) => setRemember(!!v)} /> Bestellung für das nächste Mal merken</label>
           {err && <p className="text-destructive text-sm">{err}</p>}
           <Button size="lg" className="w-full" disabled={busy} onClick={submit}>{busy ? "Senden..." : "Bestellung bestätigen"}</Button>
           {saved.orders?.length > 0 && <p className="text-xs text-muted-foreground">Bestehende Bestellung ändern: nutze den persönlichen Link aus deiner Bestätigung.</p>}
-        </div>
+        </>} />
       )}
     </div>
   );
