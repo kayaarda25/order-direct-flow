@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildInvoice, parseAddress, CREDITOR } from "@/lib/corporateInvoice";
+import { buildInvoice, parseAddress, CREDITOR, completedMonths } from "@/lib/corporateInvoice";
 
 const o = (d: string, t: number) => ({ delivery_date: d, employee_name: "Anna", total: t, items: [] });
 
@@ -24,5 +24,16 @@ describe("Rechnungen laufen auf die Piratino AG", () => {
   });
   it("Eine mehrzeilige Firmenadresse wird in Strasse, PLZ und Ort zerlegt", () => {
     expect(parseAddress("RUBI AG\nFlüelastrasse 30\n 8047 Zürich")).toEqual({ street: "Flüelastrasse 30", zip: "8047", city: "Zürich" });
+  });
+});
+
+describe("Rechnungen werden einmal pro Monat nach Monatsende erstellt", () => {
+  it("Am 26. November gibt es noch keine Novemberrechnung, die neueste ist Oktober", () => {
+    const months = completedMonths(new Date("2026-11-26T12:00:00Z"));
+    expect(months[0]).toBe("2026-10");
+    expect(months).not.toContain("2026-11");
+  });
+  it("Am 1. Dezember ist die Novemberrechnung verfügbar", () => {
+    expect(completedMonths(new Date("2026-12-01T12:00:00Z"))[0]).toBe("2026-11");
   });
 });

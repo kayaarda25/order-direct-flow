@@ -40,3 +40,13 @@ export function parseAddress(raw: string) {
 }
 
 const round = (n: number) => Math.round(n * 100) / 100;
+
+export const monthName = (m: string) => new Date(m + "-15T12:00:00").toLocaleDateString("de-CH", { month: "long", year: "numeric" });
+
+/** Abgeschlossene Monate (YYYY-MM), neuester zuerst. Der laufende Monat wird erst nach Monatsende verrechnet. */
+export function completedMonths(now: Date, count = 12) {
+  const out: string[] = [];
+  const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+  for (let i = 0; i < count; i++) { d.setUTCMonth(d.getUTCMonth() - 1); out.push(d.toISOString().slice(0, 7)); }
+  return out;
+}

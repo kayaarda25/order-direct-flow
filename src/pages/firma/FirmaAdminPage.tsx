@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import CorpMenuPicker from "@/components/corporate/CorpMenuPicker";
 import { corp, chf, fmtDate, remaining, type CorpLine } from "@/lib/corporateApi";
+import FirmInvoices from "@/components/corporate/FirmInvoices";
 
 const FirmaAdminPage = () => {
   const { token = "" } = useParams();
@@ -94,6 +95,7 @@ const FirmaAdminPage = () => {
           </div>
         </>
       )}
+      <FirmInvoices token={token} password={pw} />
     </div>
   );
 };

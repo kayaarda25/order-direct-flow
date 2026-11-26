@@ -176,6 +176,18 @@ Deno.serve(async (req) => {
         await db.from("corporate_clients").update({ auto_release: !!body.auto_release }).eq("id", c.id);
         return json(200, { ok: true });
       }
+      if (action === "firm_invoices") {
+        // Rechnungen entstehen automatisch für jeden abgeschlossenen Monat (laufender Monat erst nach Monatsende).
+        const first = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+        const from = new Date(Date.UTC(now.getUTCFullYear() - 1, now.getUTCMonth(), 1)).toISOString().slice(0, 10);
+        const to = first.toISOString().slice(0, 10);
+        const [{ data: batches }, { data: orders }] = await Promise.all([
+          db.from("corporate_batches").select("delivery_date").eq("client_id", c.id).gte("delivery_date", from).lt("delivery_date", to),
+          db.from("corporate_orders").select("delivery_date,employee_name,total,items").eq("client_id", c.id).eq("status", "active").gte("delivery_date", from).lt("delivery_date", to),
+        ]);
+        return json(200, { client: { slug: c.slug, name: c.name, billing_address: c.billing_address, delivery_address: c.delivery_address, payment_terms_days: c.payment_terms_days },
+          batches: batches || [], orders: (orders || []).map((o: any) => ({ ...o, items: (o.items || []).map((i: any) => ({ name: i.name, quantity: i.quantity, unit_price: i.unit_price, modifiers: i.modifiers })) })) });
+      }
       const { data: done } = await db.from("corporate_batches").select("id").eq("client_id", c.id).eq("delivery_date", date).maybeSingle();
       if (done) return json(400, { error: "Bereits freigegeben" });
       if (action === "firm_release") return json(200, await release(c, date, "firma"));
