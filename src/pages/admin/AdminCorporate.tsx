@@ -120,7 +120,7 @@ const AdminCorporate = () => {
                 <div className="flex gap-2"><Button size="sm" variant="outline" onClick={() => setForm({ ...c })}>Bearbeiten</Button><Button size="sm" variant="destructive" onClick={() => del(c.id)}>Löschen</Button></div>
               </div>
               <div>Mitarbeiter-Link: <button className="underline" onClick={() => copy(`${origin}/firma/${c.slug}`)}>{origin}/firma/{c.slug}</button></div>
-              <div>Firmenadmin-Link: <button className="underline" onClick={() => copy(`${origin}/firma-admin/${c.admin_token}`)}>{origin}/firma-admin/{c.admin_token.slice(0, 8)}…</button> · Passwort: <code>{c.admin_password}</code></div>
+              <div>Firmenadmin-Link: <button className="underline" onClick={() => copy(`${origin}/firma-admin/${c.admin_token}`)}>{origin}/firma-admin/{c.admin_token}</button> · Passwort: <code>{c.admin_password}</code></div>
               {open.map(([d, list]: any) => (
                 <div key={d} className="flex items-center gap-3 rounded bg-muted p-2">
                   <span>{d.split("-").reverse().join(".")}: {list.length} Bestellungen, CHF {list.reduce((s: number, o: any) => s + Number(o.total), 0).toFixed(2)}</span>
