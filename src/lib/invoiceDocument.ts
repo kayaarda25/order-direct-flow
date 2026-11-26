@@ -21,9 +21,10 @@ export function invoiceHtml(c: Client, month: string, inv: ReturnType<typeof bui
     message: `Rechnung ${no}`,
   }, { language: "DE" }).toString();
   const lines = inv.orders.map((o) => `<tr><td>${ch(o.delivery_date)}</td><td>${esc(o.employee_name)}</td><td>${o.items.map((i) => `${i.quantity}x ${esc(i.name)}${i.modifiers ? ` (${esc(i.modifiers)})` : ""}`).join("<br>")}</td><td class="r">${chf(Number(o.total))}</td></tr>`).join("");
+  const ownPage = inv.orders.length > 15;
   return `<!doctype html><html><head><meta charset="utf-8"><title>Rechnung ${no}</title><style>
     @page{size:A4;margin:0} body{font-family:Arial,sans-serif;font-size:10pt;margin:0;color:#111}
-    .page{width:210mm;min-height:297mm;position:relative;padding:18mm 18mm 110mm;box-sizing:border-box}
+    .page{width:210mm;min-height:297mm;position:relative;padding:18mm 18mm ${ownPage ? "18mm" : "110mm"};box-sizing:border-box} .qrpage{width:210mm;height:296mm;overflow:hidden;position:relative;break-before:page}
     h1{font-size:18pt;margin:18mm 0 4mm} table{width:100%;border-collapse:collapse;margin-top:6mm} td,th{padding:3px 4px;border-bottom:1px solid #ddd;text-align:left;vertical-align:top} .r{text-align:right}
     tr{break-inside:avoid} .sum td{border:none;font-weight:bold} .qr{position:absolute;left:0;bottom:0;width:210mm;height:105mm} .qr svg{width:210mm;height:105mm}
     @media print{.noprint{display:none}}</style></head><body>
@@ -37,6 +38,6 @@ export function invoiceHtml(c: Client, month: string, inv: ReturnType<typeof bui
       <tr class="sum"><td colspan="3" class="r">Total inkl. MwSt</td><td class="r">${chf(inv.total)}</td></tr>
       <tr class="sum" style="font-weight:normal"><td colspan="3" class="r">davon MwSt ${CREDITOR.vatRate}% (netto ${chf(inv.net)})</td><td class="r">${chf(inv.vat)}</td></tr></table>
       <p>Vielen Dank für Ihre Bestellungen. Bitte überweisen Sie den Betrag mit dem untenstehenden QR-Einzahlungsschein.</p>
-      <div class="qr">${qr}</div>
-    </div>${autoPrint ? "<script>window.onload=()=>setTimeout(()=>print(),300)</script>" : ""}</body></html>`;
+      ${ownPage ? "" : `<div class="qr">${qr}</div>`}
+    </div>${ownPage ? `<div class="qrpage"><div style="padding:18mm">Rechnung ${no} · ${chf(inv.total)}</div><div class="qr">${qr}</div></div>` : ""}${autoPrint ? "<script>window.onload=()=>setTimeout(()=>print(),300)</script>" : ""}</body></html>`;
 }

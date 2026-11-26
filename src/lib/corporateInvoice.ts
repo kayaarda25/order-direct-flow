@@ -1,7 +1,7 @@
 // Monatsrechnung für Firmenkunden: Summe aller im Monat freigegebenen Sammelbestellungen.
 export const CREDITOR = {
   name: "Piratino AG", address: "Badenerstrasse", buildingNumber: "696", zip: "8048", city: "Zürich", country: "CH",
-  account: "CH8100278278105966601T".replace(/^(.{4})(.{4})(.{4})(.{4})(.{4})(.*)$/, "$1 $2 $3 $4 $5 $6"),
+  account: "CH810027827810596601T".replace(/^(.{4})(.{4})(.{4})(.{4})(.{4})(.*)$/, "$1 $2 $3 $4 $5 $6"),
   vatNo: "CHE-412.694.003 MWST", vatRate: 2.6,
 };
 

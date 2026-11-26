@@ -22,6 +22,9 @@ describe("Rechnungen laufen auf die Piratino AG", () => {
   it("Zahlungsempfänger ist die Piratino AG an der Badenerstrasse 696 in 8048 Zürich", () => {
     expect([CREDITOR.name, CREDITOR.address, CREDITOR.buildingNumber, CREDITOR.zip, CREDITOR.city]).toEqual(["Piratino AG", "Badenerstrasse", "696", "8048", "Zürich"]);
   });
+  it("Die IBAN auf dem Einzahlungsschein ist CH81 0027 8278 1059 6601 T", () => {
+    expect(CREDITOR.account).toBe("CH81 0027 8278 1059 6601 T");
+  });
   it("Eine mehrzeilige Firmenadresse wird in Strasse, PLZ und Ort zerlegt", () => {
     expect(parseAddress("RUBI AG\nFlüelastrasse 30\n 8047 Zürich")).toEqual({ street: "Flüelastrasse 30", zip: "8047", city: "Zürich" });
   });
