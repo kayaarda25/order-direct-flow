@@ -86,6 +86,175 @@ export type Database = {
         }
         Relationships: []
       }
+      corporate_batches: {
+        Row: {
+          client_id: string
+          delivery_date: string
+          id: string
+          order_count: number
+          released_at: string
+          released_by: string | null
+          status: string
+          total: number
+        }
+        Insert: {
+          client_id: string
+          delivery_date: string
+          id?: string
+          order_count?: number
+          released_at?: string
+          released_by?: string | null
+          status?: string
+          total?: number
+        }
+        Update: {
+          client_id?: string
+          delivery_date?: string
+          id?: string
+          order_count?: number
+          released_at?: string
+          released_by?: string | null
+          status?: string
+          total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "corporate_batches_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      corporate_clients: {
+        Row: {
+          active: boolean
+          admin_password: string
+          admin_token: string
+          allow_auto_below_min: boolean
+          allowed_item_ids: string[]
+          auto_release: boolean
+          billing_address: string | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          cutoff_time: string
+          delivery_address: string | null
+          delivery_days: number[]
+          delivery_time: string
+          discount_percent: number
+          id: string
+          invoice_email: string | null
+          min_orders: number
+          name: string
+          payment_terms_days: number
+          slug: string
+          special_prices: Json
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          admin_password?: string
+          admin_token?: string
+          allow_auto_below_min?: boolean
+          allowed_item_ids?: string[]
+          auto_release?: boolean
+          billing_address?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          cutoff_time?: string
+          delivery_address?: string | null
+          delivery_days?: number[]
+          delivery_time?: string
+          discount_percent?: number
+          id?: string
+          invoice_email?: string | null
+          min_orders?: number
+          name: string
+          payment_terms_days?: number
+          slug: string
+          special_prices?: Json
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          admin_password?: string
+          admin_token?: string
+          allow_auto_below_min?: boolean
+          allowed_item_ids?: string[]
+          auto_release?: boolean
+          billing_address?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          cutoff_time?: string
+          delivery_address?: string | null
+          delivery_days?: number[]
+          delivery_time?: string
+          discount_percent?: number
+          id?: string
+          invoice_email?: string | null
+          min_orders?: number
+          name?: string
+          payment_terms_days?: number
+          slug?: string
+          special_prices?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      corporate_orders: {
+        Row: {
+          client_id: string
+          created_at: string
+          delivery_date: string
+          edit_token: string
+          employee_name: string
+          id: string
+          items: Json
+          status: string
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          delivery_date: string
+          edit_token?: string
+          employee_name: string
+          id?: string
+          items?: Json
+          status?: string
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          delivery_date?: string
+          edit_token?: string
+          employee_name?: string
+          id?: string
+          items?: Json
+          status?: string
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "corporate_orders_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       delivery_zones: {
         Row: {
           active: boolean

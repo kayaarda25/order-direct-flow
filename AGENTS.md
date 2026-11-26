@@ -1,0 +1,1 @@
+- Corporate ordering rules (cutoff, pricing, auto-release) live in supabase/functions/_shared/corporate.ts and are enforced server-side in the `corporate` edge function; the client only displays estimates. Why: one source of truth, testable from vitest.

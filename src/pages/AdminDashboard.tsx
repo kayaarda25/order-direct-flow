@@ -9,6 +9,7 @@ import AdminContent from "@/pages/admin/AdminContent";
 import AdminUsers from "@/pages/admin/AdminUsers";
 import AdminOrders from "@/pages/admin/AdminOrders";
 import AdminStats from "@/pages/admin/AdminStats";
+import AdminCorporate from "@/pages/admin/AdminCorporate";
 
 const AdminDashboard = () => {
   return (
@@ -29,6 +30,7 @@ const AdminDashboard = () => {
                 <Route path="menu" element={<AdminMenu />} />
                 <Route path="hours" element={<AdminHours />} />
                 <Route path="zones" element={<AdminZones />} />
+                <Route path="corporate" element={<AdminCorporate />} />
                 <Route path="content" element={<AdminContent />} />
                 <Route path="users" element={<AdminUsers />} />
               </Routes>

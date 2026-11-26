@@ -32,6 +32,10 @@ import DeliveryPage from "./pages/DeliveryPage";
 import PickupPage from "./pages/PickupPage";
 import DatenschutzPage from "./pages/DatenschutzPage";
 import NotFound from "./pages/NotFound";
+import FirmenbestellungenPage from "./pages/FirmenbestellungenPage";
+import FirmaOrderPage from "./pages/firma/FirmaOrderPage";
+import FirmaEditPage from "./pages/firma/FirmaEditPage";
+import FirmaAdminPage from "./pages/firma/FirmaAdminPage";
 import AdminLogin from "./components/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 
@@ -116,6 +120,10 @@ const App = () => {
                             <Route path="/checkout" element={<CheckoutPage />} />
                             <Route path="/order/:id" element={<OrderConfirmationPage />} />
                             <Route path="/datenschutz" element={<DatenschutzPage />} />
+                            <Route path="/firmenbestellungen" element={<FirmenbestellungenPage />} />
+                            <Route path="/firma/bestellung/:token" element={<FirmaEditPage />} />
+                            <Route path="/firma/:slug" element={<FirmaOrderPage />} />
+                            <Route path="/firma-admin/:token" element={<FirmaAdminPage />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
                         </main>

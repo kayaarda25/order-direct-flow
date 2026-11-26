@@ -31,6 +31,9 @@ const Header = () => {
             <Link to="/catering" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
               Catering
             </Link>
+            <Link to="/firmenbestellungen" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
+              Firmen
+            </Link>
             <Link to="/reservieren" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
               Tisch reservieren
             </Link>
@@ -122,6 +125,7 @@ const Header = () => {
                   {user && <span className="text-xs bg-accent/20 text-accent px-2 py-0.5 rounded-full">{profile?.points_balance ?? 0} Pts</span>}
                 </Link>
                 <Link to="/catering" className="text-foreground font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Catering</Link>
+                <Link to="/firmenbestellungen" className="text-foreground font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Firmen</Link>
                 <Link to="/reservieren" className="text-foreground font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Tisch reservieren</Link>
                 <Link to="/galerie" className="text-foreground font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Galerie</Link>
                 <Link to="/ueber-uns" className="text-foreground font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Über uns</Link>
