@@ -1,4 +1,5 @@
 # Roadmap Firmenbestellungen
+- [x] Admin-Kundenübersicht mit Punkten, Bestellverlauf und Ausgaben erstellen und prüfen
 - [x] Datenbank + Regeln + Tests
 - [x] Admin «Firmenkunden»
 - [x] Mitarbeiter-Bestellseite /firma/:slug

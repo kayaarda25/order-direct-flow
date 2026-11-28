@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 const menuItems = [
   { title: "Übersicht", url: "/admin", icon: LayoutDashboard },
   { title: "Bestellungen", url: "/admin/orders", icon: ReceiptText },
+  { title: "Kunden", url: "/admin/customers", icon: Users },
   { title: "Statistik", url: "/admin/stats", icon: BarChart3 },
   { title: "Menü", url: "/admin/menu", icon: UtensilsCrossed },
   { title: "Öffnungszeiten", url: "/admin/hours", icon: Clock },
@@ -40,7 +41,7 @@ export function AdminSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>
-            {!collapsed && "🏴‍☠️ Piratino Admin"}
+            {!collapsed && "Piratino Admin"}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>

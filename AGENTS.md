@@ -1,1 +1,2 @@
 - Corporate ordering rules (cutoff, pricing, auto-release) live in supabase/functions/_shared/corporate.ts and are enforced server-side in the `corporate` edge function; the client only displays estimates. Why: one source of truth, testable from vitest.
+- Customer summaries are read-only and assembled server-side by the admin-authenticated `admin-orders` function; match accounts by explicit contact identity or a unique timestamp/amount loyalty purchase, and flag missing receipt totals. Why: keep customer data private and avoid presenting reconstructed totals as exact.

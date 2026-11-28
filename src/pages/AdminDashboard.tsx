@@ -11,6 +11,7 @@ import AdminOrders from "@/pages/admin/AdminOrders";
 import AdminStats from "@/pages/admin/AdminStats";
 import AdminCorporate from "@/pages/admin/AdminCorporate";
 import AdminInvoices from "@/pages/admin/AdminInvoices";
+import AdminCustomers from "@/pages/admin/AdminCustomers";
 
 const AdminDashboard = () => {
   return (
@@ -18,7 +19,7 @@ const AdminDashboard = () => {
       <SidebarProvider>
         <div className="min-h-screen flex w-full bg-background">
           <AdminSidebar />
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 min-w-0 flex flex-col">
             <header className="h-14 flex items-center border-b border-border px-4 bg-card">
               <SidebarTrigger className="mr-4" />
               <span className="font-bold text-lg text-foreground">Piratino Admin</span>
@@ -27,6 +28,7 @@ const AdminDashboard = () => {
               <Routes>
                 <Route index element={<AdminOverview />} />
                 <Route path="orders" element={<AdminOrders />} />
+                <Route path="customers" element={<AdminCustomers />} />
                 <Route path="stats" element={<AdminStats />} />
                 <Route path="menu" element={<AdminMenu />} />
                 <Route path="hours" element={<AdminHours />} />

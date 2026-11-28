@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { buildCustomers } from "../_shared/customers.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -268,6 +269,26 @@ serve(async (req) => {
     const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
     const url = new URL(req.url);
     const action: string = body.action || url.searchParams.get("action") || "list";
+    if (action === "customers") {
+      const allRows = async (table: string, columns: string) => {
+        const result = [];
+        for (let offset = 0; ; offset += 1000) {
+          const { data, error } = await admin.from(table).select(columns).order("id").range(offset, offset + 999);
+          if (error) throw error;
+          result.push(...(data ?? []));
+          if (!data || data.length < 1000) return result;
+        }
+      };
+      const [profiles, dispatches, prints, transactions, passes] = await Promise.all([
+        allRows("profiles", "id,display_name,email,phone,points_balance,created_at"),
+        allRows("order_dispatches", "id,order_ref,created_at,payload,pos1_ok,pos2_ok"),
+        allRows("print_jobs", "id,created_at,payload"),
+        allRows("loyalty_transactions", "id,user_id,order_total,created_at"),
+        allRows("pizza_pass", "id,user_id,pizza_count,free_pizzas_available"),
+      ]);
+      return json(200, { ok: true, customers: buildCustomers(profiles as any, dispatches as any, prints as any,
+        transactions.filter(t => t.order_total != null) as any, passes as any) });
+    }
     const today = zurichDateString(new Date());
     const fromDate: string = body.from || url.searchParams.get("from") || body.date || today;
     const toDate: string = body.to || url.searchParams.get("to") || body.date || fromDate;
